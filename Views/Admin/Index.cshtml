@@ -1,0 +1,52 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+@{
+    ViewData["Title"] = localizer["Admin"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h4>@localizer["ManageSMaRTDataElements"]</h4>
+
+<hr />
+<br />
+<a asp-controller="Admin" asp-action="ManageAfsTrainingPercentages">@localizer["ManageAfsTrainingPercentages"]</a>
+<br />
+<br />
+<a asp-controller="Admin" asp-action="ManageConplans">@localizer["ManageConplans"]</a>
+<br />
+<br />
+<a asp-controller="Admin" asp-action="ManageOperations">@localizer["ManageOperations"]</a>
+<br />
+<br />
+<a asp-controller="Admin" asp-action="ManageCapabilities">@localizer["ManageCapabilities"]</a>
+<br />
+<br />
+<a asp-controller="Admin" asp-action="ManageCategories">@localizer["ManageCategories"]</a>
+<br />
+<br />
+<a asp-controller="Admin" asp-action="ManageDesignations">@localizer["ManageDesignationsNATOCommitment"]</a>
+<br />
+<br />
+<a asp-controller="Admin" asp-action="ManageOrganizations">@localizer["ManageOrganizationsForceGenerator"]</a>
+<br />
+<br />
+<a asp-controller="Admin" asp-action="ManageServices">@localizer["ManageServices"]</a>
+<br />
+<br />
+<a asp-controller="Admin" asp-action="ManageForceElements">@localizer["ManageForceElements"]</a>
+<br />
+<br />
+<a asp-controller="Admin" asp-action="ManageEchelons">@localizer["ManageEchelons"]</a>
+<br />
+<br />
+<a asp-controller="Admin" asp-action="ManageNTM">@localizer["ManageNTM"]</a>
+<br />
+<br />
+<a asp-controller="Admin" asp-action="EditReportPOC">@localizer["EditReportPointOfContact"]</a>
+<br />
+<br />
+<a asp-controller="Admin" asp-action="ManageHistory">@localizer["ManageDataCardHistory"]</a>
+<br />
+<br />
+<a asp-controller="Admin" asp-action="ManageMetls">@localizer["ManageMetls"]</a>

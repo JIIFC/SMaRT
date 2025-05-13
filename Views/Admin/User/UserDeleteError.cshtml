@@ -1,0 +1,10 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+<h3 style="text-align: center;">@localizer["UnanbleToDelete"]</h3>
+<br />
+
+<p style="text-align: center;">@localizer["CannotDelete"]</p>
+<br />
+
+<input type="button" value="@localizer["Return"]" onclick="window.location.href='/Admin/ManageUsers';" class="form-control" style="width: 12rem; margin: auto; display: block;" />

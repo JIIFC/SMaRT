@@ -1,0 +1,883 @@
+﻿@using static Constants
+@using SMARTV3.Helpers;
+@using Microsoft.AspNetCore.Mvc.Localization
+@using System.Globalization;
+@using Newtonsoft.Json;
+@using SMARTV3.Models;
+@inject IViewLocalizer localizer
+
+@model List<FPSharedViewModel>
+
+@{
+    ViewData["Title"] = localizer["ForcePackageComparison"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    bool compare = (bool)ViewData["compare"]!;
+    int numberOfPackages = (int)ViewData["numberOfPackages"]!;
+    int? compareModelId = null;
+    if (ViewData["compareModelId"] != null)
+    {
+        compareModelId = (int)ViewData["compareModelId"]!;
+    }
+    List<DeployedStatus>? deployedStatusListNonSelect = ViewData["deployedStatusListNonSelect"] as List<DeployedStatus>;
+    List<PetsoverallStatus>? overallStatusList = ViewBag.overallStatusList as List<PetsoverallStatus>;
+    List<FPcompareViewModel>? fPcompareViewModels = ViewData["fPcompareViewModels"] as List<FPcompareViewModel>;
+
+    DeployedStatus? deployed = deployedStatusListNonSelect?.Find(s => s.StatusDisplayValue == "Deployed");
+    DeployedStatus? partiallyDeployed = deployedStatusListNonSelect?.Find(s => s.StatusDisplayValue == "Partially Deployed");
+    DeployedStatus? forwardToNato = deployedStatusListNonSelect?.Find(s => s.StatusDisplayValue == "Forward to NATO");
+    DeployedStatus? highAlert = deployedStatusListNonSelect?.Find(s => s.StatusDisplayValue == "High Alert/Immediate Reachback");
+    DeployedStatus? forceGenerating = deployedStatusListNonSelect?.Find(s => s.StatusDisplayValue == "Force Generating");
+    DeployedStatus? inDevelopment = deployedStatusListNonSelect?.Find(s => s.StatusDisplayValue == "In Development");
+    DeployedStatus? notEmployed = deployedStatusListNonSelect?.Find(s => s.StatusDisplayValue == "Not Employed");
+
+    PetsoverallStatus? readyStatus = overallStatusList?.Find(s => s.Id == 1);
+    PetsoverallStatus? readyWLimsStatus = overallStatusList?.Find(s => s.Id == 2);
+    PetsoverallStatus? combatIneffStatus = overallStatusList?.Find(s => s.Id == 3);
+    PetsoverallStatus? notReadyStatus = overallStatusList?.Find(s => s.Id == 4);
+
+    FPSharedViewModel? mainFP = null;
+    if (Model != null && Model.Any())
+    {
+        mainFP = Model.FirstOrDefault();
+        Model.RemoveAt(0);
+    }
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/TextAutocomplete.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/CompareIndex.css" asp-append-version="true" />
+</head>
+
+<form asp-action="CompareIndex">
+    <div class="secretbannerdiv">@localizer["SecretFiveEyesOnly"]</div>
+    <br /> <br />
+    <div class="row">
+        <div class="col">
+            <h3 style="display: inline;">
+                @localizer["ForcePackageComparison"]
+            </h3>
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col">
+            <a asp-action="Index"
+               asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+               asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+               asp-route-indexPageSize="@ViewData["indexPageSize"]"
+               asp-route-packageOwnersOrganization="@ViewData["packageOwnersOrganization"]"
+               asp-route-selectedPurpose="@ViewData["selectedPurpose"]"
+               asp-route-identifiedOperation="@ViewData["identifiedOperation"]"
+               asp-route-identifiedConplan="@ViewData["identifiedConplan"]"
+               asp-route-onlyShowMyForcePackages="@ViewData["onlyShowMyForcePackages"]">
+                @localizer["BackToList"]
+            </a>
+        </div>
+        @if (compare && Model != null && Model.Any())
+        {
+            <div class="col">
+                <a href="javascript:void(0)" onclick="highDemand()">@localizer["HighDemandLowDensity"]</a>
+            </div>
+            @if (User.IsInRole(Admin))
+            {
+                <div class="col">
+                    <a href="javascript:void(0)" onclick="weightReport()">Force Package Weight Report</a>
+                </div>
+            }
+            <div class="col">
+                <button id="save-model-button" type="button" onclick="addModel()" class="btn btn-sm btn-secondary" style="float: right;">
+                    @localizer["SaveCurrentModel"]
+                </button>
+            </div>
+        }
+    </div><br />
+    @if (fPcompareViewModels != null && fPcompareViewModels.Any())
+    {
+        <div class="row">
+            <div class="col">
+                <h4>@localizer["SavedModels"]</h4>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col" style="max-height: 13rem; overflow-y: auto;">
+                <table class="table table-bordered table-hover">
+                    <thead>
+                        <tr>
+                            <th>@localizer["MainForcePackage"]</th>
+                            <th>@localizer["OtherForcePackages"]</th>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (FPcompareViewModel fpCompareViewModel in fPcompareViewModels)
+                        {
+                            @if (fpCompareViewModel != null)
+                            {
+                                <tr id="@("compareModel"+fpCompareViewModel.Id)">
+                                    <td>@fpCompareViewModel.MainForcePackage</td>
+                                    <td>
+                                        @{
+                                            int i = 0;
+                                        }
+                                        @foreach (string fpName in fpCompareViewModel.OtherForcePackageNames)
+                                        {
+                                            <label>@fpName</label>
+                                            if (fpCompareViewModel!.OtherForcePackageNames.Count > 1 && i != fpCompareViewModel!.OtherForcePackageNames.Count - 1)
+                                            {
+                                                <label>, </label>
+                                                i++;
+                                            }
+                                        }
+                                    </td>
+                                    <td style="text-align: center; cursor: pointer;" onclick="window.location.href = '/ForcePackage/CompareIndex?compare=true&numberOfPackages=@(fpCompareViewModel.OtherForcePackageNames.Count + 1)&serializedForcePackageIds=@fpCompareViewModel.SerializedForcePackageIds&compareModelId=@fpCompareViewModel.Id';">
+                                        <img src="~/images/Details.png" height="16" width="16" title="@localizer["View"]" />
+                                    </td>
+                                    <td style="text-align: center; cursor: pointer;" onclick="deleteModel(@fpCompareViewModel.Id)">
+                                        <img src="~/images/Delete.png" height="16" width="16" title="@localizer["Delete"]" />
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <br />
+    }
+    <div class="row">
+        <div class="col package-name">
+            <div class="ui-widget">
+                <label>@localizer["MainForcePackage"]</label><br>
+                <input id="forcePackageName1" name="forcePackageName1" type="text" />
+                <input id="forcePackageId1" name="forcePackageId1" type="hidden" /><br />
+                <small style="color: grey;">@localizer["HelpText"]</small>
+            </div>
+        </div>
+        @for (int i = 2; i <= numberOfPackages; i++)
+        {
+            <div class="col package-name">
+                <div class="ui-widget">
+                    <label style="padding-right: 3.5rem;">@localizer["ForcePackage"] @i</label>
+                    @if (i != 2 || numberOfPackages > 2)
+                    {
+                        <img src="~/images/red-x-line-icon.svg" class="delete" onclick="removeForcePackage(@i)" title="@localizer["RemoveForcePackage"]" />
+                    }
+                    <br>
+                    <input id="@("forcePackageName" + i)" name="@("forcePackageName" + i)" type="text" />
+                    <input id="@("forcePackageId" + i)" name="@("forcePackageId" + i)" type="hidden" />
+                    <br>
+                    <div id="@("makeMainPackage" + i)" class="btn btn-sm btn-secondary" style="margin-top: 0.5rem; display: none;" onclick="makeMainPackage(@i)">@localizer["MakeMain"]</div>
+                </div>
+            </div>
+        }
+        <div class="col" style="padding-top: 1.5rem;">
+            <button id="add-button" type="button" class="btn btn-sm btn-secondary" onclick="addForcePackage()">@localizer["AddForcePackage"]</button>
+        </div>
+    </div><br />
+    <div class="row">
+        <div class="col">
+            <button id="compare-button" type="button" class="btn btn-secondary" onclick="compare()">@localizer["Compare"]</button>
+        </div>
+    </div><br />
+    @if (compare && Model != null && mainFP != null)
+    {
+        <div style="display: inline-block; vertical-align: top;">
+            <h5 style="margin-left: 1rem; margin-bottom: 0;">
+                @localizer["MainForcePackage"]
+            </h5>
+            <div class="force-package">
+                <div class="row">
+                    <div class="col">
+                        <b>@localizer["ForcePackageName"]: </b>
+                    </div>
+                    <div class="col">
+                        <label>@mainFP.ForcePackageName</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <b>@localizer["ForcePackageDescription"]: </b>
+                    </div>
+                    <div class="col">
+                        <label>@mainFP.ForcePackageDescription</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <b>@localizer["ForcePackagePurpose"]: </b>
+                    </div>
+                    <div class="col">
+                        <label>@mainFP.ForcePackagePurposeNavigation.NameEn</label>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <b>@localizer["IdentifiedOperations"]: </b>
+                    </div>
+                    <div class="col">
+                        @for (int i = 0; i < mainFP.Operations.Count; i++)
+                        {
+                            <label>@mainFP.Operations.ElementAt(i).OperationName</label>
+                            if (i < mainFP.Operations.Count - 1)
+                            {
+                                <label>, </label>
+                            }
+                        }
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col">
+                        <b>@localizer["IdentifiedConplans"]: </b>
+                    </div>
+                    <div class="col">
+                        @for (int i = 0; i < mainFP.Conplans.Count; i++)
+                        {
+                            <label>@mainFP.Conplans.ElementAt(i).ConplanName</label>
+                            if (i < mainFP.Conplans.Count - 1)
+                            {
+                                <label>, </label>
+                            }
+                        }
+                    </div>
+                </div>
+                <br />
+                <table class="table table-striped">
+                    <thead>
+                        <tr>
+                            <th scope="col">@localizer["FElmName"]</th>
+                            <th scope="col">@localizer["Overall"]</th>
+                            <th scope="col" class="table-header">P</th>
+                            <th scope="col" class="table-header">E</th>
+                            <th scope="col" class="table-header">T</th>
+                            <th scope="col" class="table-header">S</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (DummyForceElement dummyForceElement in mainFP.OtherDummyForceElements.Where(fpD => fpD.IsActiveInForcePackage).ToList())
+                        {
+                            DummyDataCard dummyDataCard = dummyForceElement.DummyDataCards.First();
+                            <tr>
+                                <td class="element-name">
+                                    @dummyForceElement.ElementName
+                                </td>
+                                <td>
+                                    <div class="rounddiv" style="background-color:@dummyDataCard.SrStatus!.StatusDisplayColour"> </div>
+                                </td>
+                                <td>
+                                    <div class="rounddiv" style="background-color:@dummyDataCard.PersonnelStatus!.StatusDisplayColour"> </div>
+                                </td>
+                                <td>
+                                    <div class="rounddiv" style="background-color:@dummyDataCard.EquipmentStatus!.StatusDisplayColour"> </div>
+                                </td>
+                                <td>
+                                    <div class="rounddiv" style="background-color:@dummyDataCard.TrainingStatus!.StatusDisplayColour"> </div>
+                                </td>
+                                <td>
+                                    <div class="rounddiv" style="background-color:@dummyDataCard.SustainmentStatus!.StatusDisplayColour"> </div>
+                                </td>
+                            </tr>
+                        }
+
+                    </tbody>
+                </table>
+                @if (mainFP.DRTModel != null)
+                {
+                    <table class="table">
+                        <tr>
+                            <th>@localizer["Readiness"]</th>
+                            <th>@localizer["Totals"]</th>
+                            <th>@localizer["WeightValue"]</th>
+                            <th>@localizer["Percentage"]</th>
+                            <th>@localizer["Weighting"]</th>
+                        </tr>
+                        <tr>
+                            <td><div class="rounddiv" title="@readyStatus?.StatusDisplayValue" style="background-color:@readyStatus?.StatusDisplayColour"> </div></td>
+                            <td>@mainFP.DRTModel.ReadyCount</td>
+                            <td>@mainFP.DRTModel.ReadyWeightSum</td>
+                            <td>@mainFP.DRTModel.ReadyPercentage %</td>
+                            <td>@mainFP.DRTModel.ReadyWeightPercentage %</td>
+                        </tr>
+                        <tr>
+                            <td><div class="rounddiv" title="@readyWLimsStatus?.StatusDisplayValue" style="background-color:@readyWLimsStatus?.StatusDisplayColour"> </div></td>
+                            <td>@mainFP.DRTModel.ReadyLimsCount</td>
+                            <td>@mainFP.DRTModel.ReadyLimsWeightSum</td>
+                            <td>@mainFP.DRTModel.ReadyLimsPercentatge %</td>
+                            <td>@mainFP.DRTModel.ReadyLimsWeightPercentage %</td>
+                        </tr>
+                        <tr>
+                            <td><div class="rounddiv" title="@combatIneffStatus?.StatusDisplayValue" style="background-color:@combatIneffStatus?.StatusDisplayColour"> </div></td>
+                            <td>@mainFP.DRTModel.CombatIneffectiveCount</td>
+                            <td>@mainFP.DRTModel.CombatIneffectiveWeightSum</td>
+                            <td>@mainFP.DRTModel.CombatIneffectivePercentage %</td>
+                            <td>@mainFP.DRTModel.CombatIneffectiveWeightPercentage %</td>
+                        </tr>
+                        <tr>
+                            <td><div class="rounddiv" title="@notReadyStatus?.StatusDisplayValue" style="background-color:@notReadyStatus?.StatusDisplayColour"> </div></td>
+                            <td>@mainFP.DRTModel.NotReadyCount</td>
+                            <td>@mainFP.DRTModel.NotReadyWeightSum</td>
+                            <td>@mainFP.DRTModel.NotReadyPercentage %</td>
+                            <td>@mainFP.DRTModel.NotReadyWeightPercentage %</td>
+                        </tr>
+                        <tr>
+                            <th>@localizer["Totals"]</th>
+                            <th>@mainFP.DRTModel.TotalCount</th>
+                            <th>@mainFP.DRTModel.TotalWeight</th>
+                            <th>100 %</th>
+                            <th>100 %</th>
+                        </tr>
+                    </table>
+                    <table class="table">
+                        <tr>
+                            <th style="white-space: normal;">@localizer["ForceEmploymentStatus"]</th>
+                            <th>@localizer["Totals"]</th>
+                            <th>@localizer["WeightValue"]</th>
+                            <th>@localizer["Percentage"]</th>
+                            <th>@localizer["Weighting"]</th>
+                        </tr>
+                        <tr>
+                            <td><div class="rounddiv" title="@deployed?.StatusDisplayValue" style="background-color:@deployed?.StausDisplayColour"> </div></td>
+                            <td>@mainFP.DRTModel?.DeployedCount</td>
+                            <td>@mainFP.DRTModel?.DeployedWeightSum</td>
+                            <td>@mainFP.DRTModel?.DeployedPercentage %</td>
+                            <td>@mainFP.DRTModel?.DeployedWeightPercentage %</td>
+                        </tr>
+                        <tr>
+                            <td><div class="rounddiv" title="@partiallyDeployed?.StatusDisplayValue" style="background-color:@partiallyDeployed?.StausDisplayColour"> </div></td>
+                            <td>@mainFP.DRTModel?.PartiallyDeployedCount</td>
+                            <td>@mainFP.DRTModel?.PartiallyDeployedWeightSum</td>
+                            <td>@mainFP.DRTModel?.PartiallyDeployedPercentage %</td>
+                            <td>@mainFP.DRTModel?.PartiallyDeployedWeightPercentage %</td>
+                        </tr>
+                        <tr>
+                            <td><div class="rounddiv" title="@forwardToNato?.StatusDisplayValue" style="background-color:@forwardToNato?.StausDisplayColour"> </div></td>
+                            <td>@mainFP.DRTModel?.ForwardToNatoCount</td>
+                            <td>@mainFP.DRTModel?.ForwardToNatoWeightSum</td>
+                            <td>@mainFP.DRTModel?.ForwardToNatoPercentage %</td>
+                            <td>@mainFP.DRTModel?.ForwardToNatoWeightPercentage %</td>
+                        </tr>
+                        <tr>
+                            <td><div class="rounddiv" title="@highAlert?.StatusDisplayValue" style="background-color:@highAlert?.StausDisplayColour"> </div></td>
+                            <td>@mainFP.DRTModel?.HighAlertCount</td>
+                            <td>@mainFP.DRTModel?.HighAlertWeightSum</td>
+                            <td>@mainFP.DRTModel?.HighAlertPercentage %</td>
+                            <td>@mainFP.DRTModel?.HighAlertWeightPercentage %</td>
+                        </tr>
+                        <tr>
+                            <td><div class="rounddiv" title="@forceGenerating?.StatusDisplayValue" style="background-color:@forceGenerating?.StausDisplayColour"> </div></td>
+                            <td>@mainFP.DRTModel?.ForceGeneratingCount</td>
+                            <td>@mainFP.DRTModel?.ForceGeneratingWeightSum</td>
+                            <td>@mainFP.DRTModel?.ForceGeneratingPercentage %</td>
+                            <td>@mainFP.DRTModel?.ForceGeneratingWeightPercentage %</td>
+                        </tr>
+                        <tr>
+                            <td><div class="rounddiv" title="@inDevelopment?.StatusDisplayValue" style="background-color:@inDevelopment?.StausDisplayColour"> </div></td>
+                            <td>@mainFP.DRTModel?.InDevelopmentCount</td>
+                            <td>@mainFP.DRTModel?.InDevelopmentWeightSum</td>
+                            <td>@mainFP.DRTModel?.InDevelopmentPercentage %</td>
+                            <td>@mainFP.DRTModel?.InDevelopmentWeightPercentage %</td>
+                        </tr>
+                        <tr>
+                            <td><div class="rounddiv" title="@notEmployed?.StatusDisplayValue" style="background-color:@notEmployed?.StausDisplayColour"> </div></td>
+                            <td>@mainFP.DRTModel?.NotDeployedCount</td>
+                            <td>@mainFP.DRTModel?.NotDeployedWeightSum</td>
+                            <td>@mainFP.DRTModel?.NotDeployedPercentage %</td>
+                            <td>@mainFP.DRTModel?.NotDeployedWeightPercentage %</td>
+                        </tr>
+                        <tr>
+                            <th>@localizer["Totals"]</th>
+                            <th>@mainFP.DRTModel?.TotalCount</th>
+                            <th>@mainFP.DRTModel?.TotalWeight</th>
+                            <th>100 %</th>
+                            <th>100 %</th>
+                        </tr>
+                    </table>
+                }
+            </div>
+        </div>
+    }
+    @if (compare && Model != null && Model.Any())
+    {
+        <div class="secondary-FPs">
+            @{
+                int j = 2;
+            }
+            @foreach (FPSharedViewModel forcePackage in Model)
+            {
+                <div style="display: inline-block; vertical-align: top;">
+                    <h5 style="margin-left: 1rem; margin-bottom: 0;">
+                        @localizer["ForcePackage"] @j
+                        @{
+                            j++;
+                        }
+                    </h5>
+                    <div class="force-package">
+                        <div class="row">
+                            <div class="col">
+                                <b>@localizer["ForcePackageName"]: </b>
+                            </div>
+                            <div class="col">
+                                <label>@forcePackage.ForcePackageName</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <b>@localizer["ForcePackageDescription"]: </b>
+                            </div>
+                            <div class="col">
+                                <label style="white-space: break-spaces;">@forcePackage.ForcePackageDescription</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <b>@localizer["ForcePackagePurpose"]: </b>
+                            </div>
+                            <div class="col">
+                                <label>@forcePackage.ForcePackagePurposeNavigation.NameEn</label>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <b>@localizer["IdentifiedOperations"]: </b>
+                            </div>
+                            <div class="col">
+                                @for (int i = 0; i < forcePackage.Operations.Count; i++)
+                                {
+                                    <label>@forcePackage.Operations.ElementAt(i).OperationName</label>
+                                    if (i < forcePackage.Operations.Count - 1)
+                                    {
+                                        <label>, </label>
+                                    }
+                                }
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col">
+                                <b>@localizer["IdentifiedConplans"]: </b>
+                            </div>
+                            <div class="col">
+                                @for (int i = 0; i < forcePackage.Conplans.Count; i++)
+                                {
+                                    <label>@forcePackage.Conplans.ElementAt(i).ConplanName</label>
+                                    if (i < forcePackage.Conplans.Count - 1)
+                                    {
+                                        <label>, </label>
+                                    }
+                                }
+                            </div>
+                        </div>
+                        <br />
+                        <b>@localizer["Shared"]</b>
+                        <table class="table table-striped">
+                            <thead>
+                                <tr>
+                                    <th scope="col">@localizer["FElmName"]</th>
+                                    <th scope="col" style="white-space: normal;">Deployed By</th>
+                                    <th scope="col">@localizer["Overall"]</th>
+                                    <th scope="col" class="table-header">P</th>
+                                    <th scope="col" class="table-header">E</th>
+                                    <th scope="col" class="table-header">T</th>
+                                    <th scope="col" class="table-header">S</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (KeyValuePair<string, DummyForceElement> sharedDummyForceElement in forcePackage.SharedDummyForceElements)
+                                {
+                                    DummyForceElement dummyForceElement = sharedDummyForceElement.Value;
+                                    DummyDataCard dummyDataCard = dummyForceElement.DummyDataCards.First();
+                                    <tr>
+                                        <td class="element-name">
+                                            @dummyForceElement.ElementName
+                                        </td>
+                                        <td>
+                                            @sharedDummyForceElement.Key
+                                        </td>
+                                        <td>
+                                            <div class="rounddiv" style="background-color:@dummyDataCard.SrStatus!.StatusDisplayColour"> </div>
+                                        </td>
+                                        <td>
+                                            <div class="rounddiv" style="background-color:@dummyDataCard.PersonnelStatus!.StatusDisplayColour"> </div>
+                                        </td>
+                                        <td>
+                                            <div class="rounddiv" style="background-color:@dummyDataCard.EquipmentStatus!.StatusDisplayColour"> </div>
+                                        </td>
+                                        <td>
+                                            <div class="rounddiv" style="background-color:@dummyDataCard.TrainingStatus!.StatusDisplayColour"> </div>
+                                        </td>
+                                        <td>
+                                            <div class="rounddiv" style="background-color:@dummyDataCard.SustainmentStatus!.StatusDisplayColour"> </div>
+                                        </td>
+                                    </tr>
+                                }
+
+                            </tbody>
+                        </table>
+                        @if (forcePackage.OtherDummyForceElements.Any())
+                        {
+                            <b>@localizer["Other"]</b>
+                            <br>
+                            <table class="table table-striped">
+                                <thead>
+                                    <tr>
+                                        <th scope="col">@localizer["FElmName"]</th>
+                                        <th scope="col">@localizer["Overall"]</th>
+                                        <th scope="col" class="table-header">P</th>
+                                        <th scope="col" class="table-header">E</th>
+                                        <th scope="col" class="table-header">T</th>
+                                        <th scope="col" class="table-header">S</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach (DummyForceElement dummyForceElement in forcePackage.OtherDummyForceElements)
+                                    {
+                                        DummyDataCard dummyDataCard = dummyForceElement.DummyDataCards.First();
+                                        <tr>
+                                            <td class="element-name">
+                                                @dummyForceElement.ElementName
+                                            </td>
+                                            <td>
+                                                <div class="rounddiv" style="background-color:@dummyDataCard.SrStatus!.StatusDisplayColour"> </div>
+                                            </td>
+                                            <td>
+                                                <div class="rounddiv" style="background-color:@dummyDataCard.PersonnelStatus!.StatusDisplayColour"> </div>
+                                            </td>
+                                            <td>
+                                                <div class="rounddiv" style="background-color:@dummyDataCard.EquipmentStatus!.StatusDisplayColour"> </div>
+                                            </td>
+                                            <td>
+                                                <div class="rounddiv" style="background-color:@dummyDataCard.TrainingStatus!.StatusDisplayColour"> </div>
+                                            </td>
+                                            <td>
+                                                <div class="rounddiv" style="background-color:@dummyDataCard.SustainmentStatus!.StatusDisplayColour"> </div>
+                                            </td>
+                                        </tr>
+                                    }
+
+                                </tbody>
+                            </table>
+                        }
+                        @if (forcePackage.DRTModel != null)
+                        {
+                            <table class="table">
+                                <tr>
+                                    <th>@localizer["Readiness"]</th>
+                                    <th>@localizer["Totals"]</th>
+                                    <th>@localizer["WeightValue"]</th>
+                                    <th>@localizer["Percentage"]</th>
+                                    <th>@localizer["Weighting"]</th>
+                                </tr>
+                                <tr>
+                                    <td><div class="rounddiv" title="@readyStatus?.StatusDisplayValue" style="background-color:@readyStatus?.StatusDisplayColour"> </div></td>
+                                    <td>@forcePackage.DRTModel.ReadyCount</td>
+                                    <td>@forcePackage.DRTModel.ReadyWeightSum</td>
+                                    <td>@forcePackage.DRTModel.ReadyPercentage %</td>
+                                    <td>@forcePackage.DRTModel.ReadyWeightPercentage %</td>
+                                </tr>
+                                <tr>
+                                    <td><div class="rounddiv" title="@readyWLimsStatus?.StatusDisplayValue" style="background-color:@readyWLimsStatus?.StatusDisplayColour"> </div></td>
+                                    <td>@forcePackage.DRTModel.ReadyLimsCount</td>
+                                    <td>@forcePackage.DRTModel.ReadyLimsWeightSum</td>
+                                    <td>@forcePackage.DRTModel.ReadyLimsPercentatge %</td>
+                                    <td>@forcePackage.DRTModel.ReadyLimsWeightPercentage %</td>
+                                </tr>
+                                <tr>
+                                    <td><div class="rounddiv" title="@combatIneffStatus?.StatusDisplayValue" style="background-color:@combatIneffStatus?.StatusDisplayColour"> </div></td>
+                                    <td>@forcePackage.DRTModel.CombatIneffectiveCount</td>
+                                    <td>@forcePackage.DRTModel.CombatIneffectiveWeightSum</td>
+                                    <td>@forcePackage.DRTModel.CombatIneffectivePercentage %</td>
+                                    <td>@forcePackage.DRTModel.CombatIneffectiveWeightPercentage %</td>
+                                </tr>
+                                <tr>
+                                    <td><div class="rounddiv" title="@notReadyStatus?.StatusDisplayValue" style="background-color:@notReadyStatus?.StatusDisplayColour"> </div></td>
+                                    <td>@forcePackage.DRTModel.NotReadyCount</td>
+                                    <td>@forcePackage.DRTModel.NotReadyWeightSum</td>
+                                    <td>@forcePackage.DRTModel.NotReadyPercentage %</td>
+                                    <td>@forcePackage.DRTModel.NotReadyWeightPercentage %</td>
+                                </tr>
+                                <tr>
+                                    <th>@localizer["Totals"]</th>
+                                    <th>@forcePackage.DRTModel.TotalCount</th>
+                                    <th>@forcePackage.DRTModel.TotalWeight</th>
+                                    <th>100 %</th>
+                                    <th>100 %</th>
+                                </tr>
+                            </table>
+                            <table class="table">
+                                <tr>
+                                    <th style="white-space: normal;">@localizer["ForceEmploymentStatus"]</th>
+                                    <th>@localizer["Totals"]</th>
+                                    <th>@localizer["WeightValue"]</th>
+                                    <th>@localizer["Percentage"]</th>
+                                    <th>@localizer["Weighting"]</th>
+                                </tr>
+                                <tr>
+                                    <td><div class="rounddiv" title="@deployed?.StatusDisplayValue" style="background-color:@deployed?.StausDisplayColour"> </div></td>
+                                    <td>@forcePackage.DRTModel?.DeployedCount</td>
+                                    <td>@forcePackage.DRTModel?.DeployedWeightSum</td>
+                                    <td>@forcePackage.DRTModel?.DeployedPercentage %</td>
+                                    <td>@forcePackage.DRTModel?.DeployedWeightPercentage %</td>
+                                </tr>
+                                <tr>
+                                    <td><div class="rounddiv" title="@partiallyDeployed?.StatusDisplayValue" style="background-color:@partiallyDeployed?.StausDisplayColour"> </div></td>
+                                    <td>@forcePackage.DRTModel?.PartiallyDeployedCount</td>
+                                    <td>@forcePackage.DRTModel?.PartiallyDeployedWeightSum</td>
+                                    <td>@forcePackage.DRTModel?.PartiallyDeployedPercentage %</td>
+                                    <td>@forcePackage.DRTModel?.PartiallyDeployedWeightPercentage %</td>
+                                </tr>
+                                <tr>
+                                    <td><div class="rounddiv" title="@forwardToNato?.StatusDisplayValue" style="background-color:@forwardToNato?.StausDisplayColour"> </div></td>
+                                    <td>@forcePackage.DRTModel?.ForwardToNatoCount</td>
+                                    <td>@forcePackage.DRTModel?.ForwardToNatoWeightSum</td>
+                                    <td>@forcePackage.DRTModel?.ForwardToNatoPercentage %</td>
+                                    <td>@forcePackage.DRTModel?.ForwardToNatoWeightPercentage %</td>
+                                </tr>
+                                <tr>
+                                    <td><div class="rounddiv" title="@highAlert?.StatusDisplayValue" style="background-color:@highAlert?.StausDisplayColour"> </div></td>
+                                    <td>@forcePackage.DRTModel?.HighAlertCount</td>
+                                    <td>@forcePackage.DRTModel?.HighAlertWeightSum</td>
+                                    <td>@forcePackage.DRTModel?.HighAlertPercentage %</td>
+                                    <td>@forcePackage.DRTModel?.HighAlertWeightPercentage %</td>
+                                </tr>
+                                <tr>
+                                    <td><div class="rounddiv" title="@forceGenerating?.StatusDisplayValue" style="background-color:@forceGenerating?.StausDisplayColour"> </div></td>
+                                    <td>@forcePackage.DRTModel?.ForceGeneratingCount</td>
+                                    <td>@forcePackage.DRTModel?.ForceGeneratingWeightSum</td>
+                                    <td>@forcePackage.DRTModel?.ForceGeneratingPercentage %</td>
+                                    <td>@forcePackage.DRTModel?.ForceGeneratingWeightPercentage %</td>
+                                </tr>
+                                <tr>
+                                    <td><div class="rounddiv" title="@inDevelopment?.StatusDisplayValue" style="background-color:@inDevelopment?.StausDisplayColour"> </div></td>
+                                    <td>@forcePackage.DRTModel?.InDevelopmentCount</td>
+                                    <td>@forcePackage.DRTModel?.InDevelopmentWeightSum</td>
+                                    <td>@forcePackage.DRTModel?.InDevelopmentPercentage %</td>
+                                    <td>@forcePackage.DRTModel?.InDevelopmentWeightPercentage %</td>
+                                </tr>
+                                <tr>
+                                    <td><div class="rounddiv" title="@notEmployed?.StatusDisplayValue" style="background-color:@notEmployed?.StausDisplayColour"> </div></td>
+                                    <td>@forcePackage.DRTModel?.NotDeployedCount</td>
+                                    <td>@forcePackage.DRTModel?.NotDeployedWeightSum</td>
+                                    <td>@forcePackage.DRTModel?.NotDeployedPercentage %</td>
+                                    <td>@forcePackage.DRTModel?.NotDeployedWeightPercentage %</td>
+                                </tr>
+                                <tr>
+                                    <th>@localizer["Totals"]</th>
+                                    <th>@forcePackage.DRTModel?.TotalCount</th>
+                                    <th>@forcePackage.DRTModel?.TotalWeight</th>
+                                    <th>100 %</th>
+                                    <th>100 %</th>
+                                </tr>
+                            </table>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    }
+</form>
+
+@section Scripts{
+    <script type="text/javascript">
+        $(document).ready(async function () {
+            let compareModelId = "@compareModelId";
+            if (compareModelId != null && compareModelId != "") {
+                document.getElementById("compareModel" + compareModelId).classList.add("table-active");
+            }
+            // fill inputs with preselected force packages
+            let serializedForcePackageIdsString = "@ViewData["serializedForcePackageIds"]".replaceAll("&quot;", "\"");
+            if (serializedForcePackageIdsString != "") {
+                let forcePackageIds = JSON.parse(serializedForcePackageIdsString);
+                let i = 1;
+                for (const forcePackageId of forcePackageIds) {
+                    await $.ajax({
+                        type: 'GET',
+                        url: '@Url.Action("FindSingleForcePackageById", "ForcePackage")',
+                        data: {
+                            id: forcePackageId
+                        },
+                        success: function (data) {
+                            $("#forcePackageName" + i).val(data.ForcePackageName);
+                            $("#forcePackageId" + i).val(data.Id);
+                            $("#makeMainPackage" + i).css('display', 'inline-block');
+                            i++;
+                        },
+                        dataType: "json"
+                    });
+                }
+                if (forcePackageIds.length < 2) {
+                    document.getElementById("compare-button").disabled = true;
+                    $("#save-model-button").css('display', 'none');
+                }
+                if (forcePackageIds.length < @numberOfPackages) {
+                    document.getElementById("add-button").disabled = true;
+                }
+            } else {
+                document.getElementById("compare-button").disabled = true;
+                document.getElementById("add-button").disabled = true;
+                $("#save-model-button").css('display', 'none');
+            }
+            // Initialize autocomplete fields
+            for (let i = 1; i <= @numberOfPackages; i++) {
+                $("#forcePackageName" + i).autocomplete({
+                    source: async function (request, response) {
+                        $.ajax({
+                            type: 'POST',
+                            url: '@Url.Action("FindForcePackagesByName", "ForcePackage")',
+                            data: {
+                                name: $("#forcePackageName" + i).val(),
+                                packageIdsToExclude: await getSelectedPackageIds(i)
+                            },
+                            headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                            success: function (data) {
+                                var arr = [];
+                                for (let j = 0; j < data.length; j++) {
+                                    arr.push(JSON.parse(data[j]));
+                                }
+                                response(arr);
+                            }
+                        });
+                    },
+                    select: function (event, ui) {
+                        $.ajax({
+                            type: 'GET',
+                            url: '@Url.Action("FindSingleForcePackageById", "ForcePackage")',
+                            data: {
+                                id: ui.item.value
+                            },
+                            success: function (data) {
+                                $("#forcePackageName" + i).val(data.ForcePackageName);
+                                $("#forcePackageId" + i).val(data.Id);
+                                $("#makeMainPackage" + i).css('display', 'inline-block');
+                                const numberOfSelectedPackages = getSelectedPackageIds().length;
+                                if (numberOfSelectedPackages >= 2) {
+                                    document.getElementById("compare-button").disabled = false;
+                                    $("#save-model-button").css('display', 'inline');
+                                }
+                                if (numberOfSelectedPackages < @numberOfPackages) {
+                                    document.getElementById("add-button").disabled = true;
+                                } else {
+                                    document.getElementById("add-button").disabled = false;
+                                }
+                            },
+                            dataType: "json"
+                        });
+                    },
+                    focus: function (event, ui) {
+                        // Stop the autocomplete from showing the id in the field when options are navigated with arrow keys
+                        event.preventDefault();
+                    },
+                    minLength: 2
+                });
+                $("#forcePackageName" + i).keyup(function (event) {
+                    var keycode = (event.keyCode ? event.keyCode : event.which);
+                    if (keycode != '13') { // if key pressed was not ENTER
+                        $("#forcePackageId" + i).val("");
+                        $("#makeMainPackage" + i).css('display', 'none');
+                        const numberOfSelectedPackages = getSelectedPackageIds().length;
+                        if (numberOfSelectedPackages < 2) {
+                            document.getElementById("compare-button").disabled = true;
+                            $("#save-model-button").css('display', 'none');
+                        }
+                        if (numberOfSelectedPackages < @numberOfPackages) {
+                            document.getElementById("add-button").disabled = true;
+                        } else {
+                            document.getElementById("add-button").disabled = false;
+                        }
+                    }
+                });
+            }
+        });
+
+        function makeMainPackage(packageNumber) {
+            var selectedPackageIds = getSelectedPackageIds();
+            arraymove(selectedPackageIds, packageNumber - 1, 0);
+            window.location.href = "/ForcePackage/CompareIndex" + "?compare=true" + "&numberOfPackages=" + @numberOfPackages
+                + "&serializedForcePackageIds=" + JSON.stringify(selectedPackageIds);
+        }
+
+        function arraymove(arr, fromIndex, toIndex) {
+            var element = arr[fromIndex];
+            arr.splice(fromIndex, 1);
+            arr.splice(toIndex, 0, element);
+        }
+
+        function removeForcePackage(packageNumber) {
+            $("#forcePackageName" + packageNumber).val("");
+            $("#forcePackageId" + packageNumber).val("");
+            redirectToCompare("false", @(numberOfPackages - 1));
+        }
+
+        function addForcePackage() {
+            redirectToCompare("false", @(numberOfPackages + 1));
+        }
+
+        function compare() {
+            redirectToCompare("true", @numberOfPackages);
+        }
+
+        function redirectToCompare(compareBool, numberOfPackages) {
+            window.location.href = "/ForcePackage/CompareIndex" + "?compare=" + compareBool + "&numberOfPackages="
+                + numberOfPackages + "&serializedForcePackageIds=" + JSON.stringify(getSelectedPackageIds());
+        }
+
+        function highDemand() {
+            window.location.href = "/ReportGenerator/CreateHighDemandReport" + "?serializedForcePackageIds=" + JSON.stringify(getSelectedPackageIds());
+        }
+
+        function weightReport() {
+            window.location.href = "/ReportGenerator/CreateForcePackageWeightReport" + "?serializedForcePackageIds=" + JSON.stringify(getSelectedPackageIds());
+        }
+
+        function addModel() {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("SaveCompareModel", "ForcePackage")',
+                data: {
+                    serializedForcePackageIds: JSON.stringify(getSelectedPackageIds())
+                },
+                headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                success: function (newModelId) {
+                    let url = "/ForcePackage/CompareIndex" + "?compare=@compare&numberOfPackages="
+                        + @numberOfPackages + "&serializedForcePackageIds=" + JSON.stringify(getSelectedPackageIds());
+                    if (newModelId != null && newModelId != "" && newModelId != 0) {
+                        url += "&compareModelId=" + newModelId;
+                    }
+                    window.location.href = url;
+                }
+            });
+        }
+
+        function deleteModel(id) {
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("DeleteCompareModel", "ForcePackage")',
+                data: {
+                    id: id
+                },
+                headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                success: function (data) {
+                    let compareModelId = "@compareModelId";
+                    let url = "/ForcePackage/CompareIndex" + "?compare=@compare&numberOfPackages="
+                        + @numberOfPackages + "&serializedForcePackageIds=" + JSON.stringify(getSelectedPackageIds());
+                    if (compareModelId != null && compareModelId != "" && id != compareModelId) {
+                        url += "&compareModelId=@compareModelId";
+                    }
+                    window.location.href = url;
+                }
+            });
+        }
+
+        function getSelectedPackageIds(excludedId) {
+            var selectedPackageIds = [];
+            for (let i = 1; i <= @numberOfPackages; i++) {
+                if (i != excludedId) {
+                    var tempVal = $('#forcePackageId' + i).val();
+                    if (tempVal != null && tempVal != "") {
+                        selectedPackageIds.push(tempVal);
+                    }
+                }
+            }
+            return selectedPackageIds;
+        }
+    </script>
+}

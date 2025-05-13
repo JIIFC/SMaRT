@@ -1,0 +1,1019 @@
+﻿@model SMARTV3.Models.ForcePackage
+
+@using static Constants;
+@using static SMARTV3.Helpers.PaginationHelper;
+@using System.Text.Json;
+@using System.DirectoryServices.AccountManagement;
+@using Microsoft.AspNetCore.Mvc.Localization
+@using SMARTV3.Helpers;
+@inject IViewLocalizer localizer
+
+@{
+    ViewData["Title"] = localizer["ForcePackageDetails"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    User? givenUser = ViewData["givenUser"] as User;
+    List<PetsoverallStatus>? overallStatusList = ViewBag.overallStatusList as List<PetsoverallStatus>;
+    List<DeployedStatus>? deployedStatusListNonSelect = ViewData["deployedStatusListNonSelect"] as List<DeployedStatus>;
+    PaginatedList<DummyForceElement>? forceElementList = ViewData["forceElementList"] as PaginatedList<DummyForceElement>;
+    DatacardReadinessTableModel? DRTModel = ViewData["dataCardDisplayModel"] as DatacardReadinessTableModel;
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/ForcePackage.css" asp-append-version="true" />
+</head>
+
+<form asp-action="Details">
+    <input type="hidden" asp-for="Id" />
+    <div class="secretbannerdiv">@localizer["SecretFiveEyesOnly"]</div>
+    <br /> <br />
+    <div class="row">
+        <div class="col">
+            <h3 style="display: inline;">@localizer["ForcePackageDetails"]</h3>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col">
+            @if (givenUser != null && (Model.PackageOwnerId == givenUser.Id || Model.Users.Contains(givenUser) || User.IsInRole(Admin)))
+            {
+                <a asp-action="Edit"
+                   asp-route-id="@Model.Id"
+                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                   asp-route-packageOwnersOrganization="@ViewData["packageOwnersOrganization"]"
+                   asp-route-selectedPurpose="@ViewData["selectedPurpose"]"
+                   asp-route-identifiedOperation="@ViewData["identifiedOperation"]"
+                   asp-route-identifiedConplan="@ViewData["identifiedConplan"]"
+                   asp-route-onlyShowMyForcePackages="@ViewData["onlyShowMyForcePackages"]">
+                    @localizer["Edit"]
+                </a> <label>|</label>
+            }
+            <a asp-action="Index"
+               asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+               asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+               asp-route-indexPageSize="@ViewData["indexPageSize"]"
+               asp-route-packageOwnersOrganization="@ViewData["packageOwnersOrganization"]"
+               asp-route-selectedPurpose="@ViewData["selectedPurpose"]"
+               asp-route-identifiedOperation="@ViewData["identifiedOperation"]"
+               asp-route-identifiedConplan="@ViewData["identifiedConplan"]"
+               asp-route-onlyShowMyForcePackages="@ViewData["onlyShowMyForcePackages"]">
+                @localizer["BackToList"]
+            </a>
+        </div>
+        @*<div class="col">
+            <button type="button" onclick="showModal(@Model.Id)" class="btn btn-sm btn-secondary">
+                Manage Force Package KPI
+            </button>
+        </div>*@
+        <div class="col" style="text-align-last: end;">
+            @if (givenUser != null && Model.DummyForceElements.Any()
+                && (Model.PackageOwnerId == givenUser.Id || Model.Users.Contains(givenUser) || User.IsInRole(Admin)))
+            {
+                <a asp-action="UpdateFelmData"
+                   asp-route-id="@Model.Id"
+                   asp-route-detailsPageNumber="1"
+                   asp-route-detailsPageSize="@ViewData["detailsPageSize"]"
+                   asp-route-detailsSortOrder="@ViewData["detailsSortOrder"]"
+                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                   asp-route-packageOwnersOrganization="@ViewData["packageOwnersOrganization"]"
+                   asp-route-selectedPurpose="@ViewData["selectedPurpose"]"
+                   asp-route-identifiedOperation="@ViewData["identifiedOperation"]"
+                   asp-route-identifiedConplan="@ViewData["identifiedConplan"]"
+                   asp-route-onlyShowMyForcePackages="@ViewData["onlyShowMyForcePackages"]"
+                   class="btn btn-sm btn-secondary">
+                    @localizer["UpdateData"]
+                </a>
+                <br />
+            }
+            @if (Model.DateLastFetchedLiveData != DateTime.MinValue)
+            {
+                <label>@localizer["DateDataLastUpdated"] @(Model.DateLastFetchedLiveData.ToString("yyyy-MM-dd"))</label>
+            }
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col">
+            <div class="form-group">
+                <b for="ForcePackageName">@localizer["ForcePackageName"]: </b>
+                @Html.DisplayFor(m => m.ForcePackageName)
+                <span id="ForcePackageNameValidation" class="text-danger" style="display: none;">@localizer["ValueRequired"].Value</span>
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <b for="ForcePackagePurpose">@localizer["Purpose"]: </b>
+                <label>@Model.ForcePackagePurposeNavigation.NameEn</label>
+                <span id="ForcePackagePurposeValidation" class="text-danger" style="display: none;">@localizer["ValueRequired"].Value</span>
+            </div>
+        </div>
+    </div><br />
+    <div class="row">
+        <div class="col">
+            <div class="form-group">
+                <b for="ForcePackageDescription">@localizer["ForcePackageDescription"]: </b>
+                @Html.DisplayFor(m => m.ForcePackageDescription)
+            </div>
+        </div>
+    </div><br />
+    <div class="row">
+        <div class="col">
+            <b>@localizer["IdentifiedOperations"]: </b>
+            @{
+                int operationIndex = 0;
+            }
+            @foreach (Operation identifiedOperation in Model.Operations)
+            {
+                <label>@identifiedOperation.OperationName</label>
+                if (operationIndex != Model.Operations.Count - 1)
+                {
+                    <label>, </label>
+                }
+                operationIndex++;
+            }
+        </div>
+        <div class="col">
+            <b>@localizer["IdentifiedConplans"]: </b>
+            @{
+                int conplanIndex = 0;
+            }
+            @foreach (Conplan identifiedConplan in Model.Conplans)
+            {
+                <label>@identifiedConplan.ConplanName</label>
+                if (conplanIndex != Model.Conplans.Count - 1)
+                {
+                    <label>, </label>
+                }
+                conplanIndex++;
+            }
+        </div>
+    </div><br />
+    @if (DRTModel != null)
+    {
+        <div class="row">
+            <div class="col">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+                                @localizer["ForceElementID"]
+                                <div class="sort-div">
+                                    <a asp-action="Details"
+                                   asp-route-id="@Model.Id"
+                                   asp-route-detailsPageNumber="@forceElementList?.PageIndex"
+                                   asp-route-detailsPageSize="@ViewData["detailsPageSize"]"
+                                   asp-route-detailsSortOrder="felmId_asc"
+                                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-up.svg" alt="@localizer["SortAscending"]" />
+                                    </a>
+                                    <a asp-action="Details"
+                                   asp-route-id="@Model.Id"
+                                   asp-route-detailsPageNumber="@forceElementList?.PageIndex"
+                                   asp-route-detailsPageSize="@ViewData["detailsPageSize"]"
+                                   asp-route-detailsSortOrder="felmId_desc"
+                                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-down.svg" alt="@localizer["SortDescending"]" />
+                                    </a>
+                                </div>
+                            </th>
+                            <th>
+                                @localizer["ForceElement"]
+                                <div class="sort-div">
+                                    <a asp-action="Details"
+                                   asp-route-id="@Model.Id"
+                                   asp-route-detailsPageNumber="@forceElementList?.PageIndex"
+                                   asp-route-detailsPageSize="@ViewData["detailsPageSize"]"
+                                   asp-route-detailsSortOrder="felmName_asc"
+                                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-up.svg" alt="@localizer["SortAscending"]" />
+                                    </a>
+                                    <a asp-action="Details"
+                                   asp-route-id="@Model.Id"
+                                   asp-route-detailsPageNumber="@forceElementList?.PageIndex"
+                                   asp-route-detailsPageSize="@ViewData["detailsPageSize"]"
+                                   asp-route-detailsSortOrder="felmName_desc"
+                                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-down.svg" alt="@localizer["SortDescending"]" />
+                                    </a>
+                                </div>
+                            </th>
+                            <th>
+                                @localizer["TiedToRealFelm"]
+                                <div class="sort-div">
+                                    <a asp-action="Details"
+                                   asp-route-id="@Model.Id"
+                                   asp-route-detailsPageNumber="@forceElementList?.PageIndex"
+                                   asp-route-detailsPageSize="@ViewData["detailsPageSize"]"
+                                   asp-route-detailsSortOrder="realFelm_asc"
+                                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-up.svg" alt="@localizer["SortAscending"]" />
+                                    </a>
+                                    <a asp-action="Details"
+                                   asp-route-id="@Model.Id"
+                                   asp-route-detailsPageNumber="@forceElementList?.PageIndex"
+                                   asp-route-detailsPageSize="@ViewData["detailsPageSize"]"
+                                   asp-route-detailsSortOrder="realFelm_desc"
+                                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-down.svg" alt="@localizer["SortDescending"]" />
+                                    </a>
+                                </div>
+                            </th>
+                            <th>
+                                @localizer["SMaRTReadinessStatus"]
+                                <div class="sort-div">
+                                    <a asp-action="Details"
+                                   asp-route-id="@Model.Id"
+                                   asp-route-detailsPageNumber="@forceElementList?.PageIndex"
+                                   asp-route-detailsPageSize="@ViewData["detailsPageSize"]"
+                                   asp-route-detailsSortOrder="overallStatus_asc"
+                                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-up.svg" alt="@localizer["SortAscending"]" />
+                                    </a>
+                                    <a asp-action="Details"
+                                   asp-route-id="@Model.Id"
+                                   asp-route-detailsPageNumber="@forceElementList?.PageIndex"
+                                   asp-route-detailsPageSize="@ViewData["detailsPageSize"]"
+                                   asp-route-detailsSortOrder="overallStatus_desc"
+                                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-down.svg" alt="@localizer["SortDescending"]" />
+                                    </a>
+                                </div>
+                            </th>
+                            <th>
+                                @localizer["CommandOverrideReadinessStatus"]
+                                <div class="sort-div">
+                                    <a asp-action="Details"
+                                   asp-route-id="@Model.Id"
+                                   asp-route-detailsPageNumber="@forceElementList?.PageIndex"
+                                   asp-route-detailsPageSize="@ViewData["detailsPageSize"]"
+                                   asp-route-detailsSortOrder="commandOverride_asc"
+                                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-up.svg" alt="@localizer["SortAscending"]" />
+                                    </a>
+                                    <a asp-action="Details"
+                                   asp-route-id="@Model.Id"
+                                   asp-route-detailsPageNumber="@forceElementList?.PageIndex"
+                                   asp-route-detailsPageSize="@ViewData["detailsPageSize"]"
+                                   asp-route-detailsSortOrder="commandOverride_desc"
+                                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-down.svg" alt="@localizer["SortDescending"]" />
+                                    </a>
+                                </div>
+                            </th>
+                            <th>
+                                @localizer["Personnel"]
+                                <div class="sort-div">
+                                    <a asp-action="Details"
+                                   asp-route-id="@Model.Id"
+                                   asp-route-detailsPageNumber="@forceElementList?.PageIndex"
+                                   asp-route-detailsPageSize="@ViewData["detailsPageSize"]"
+                                   asp-route-detailsSortOrder="personnel_asc"
+                                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-up.svg" alt="@localizer["SortAscending"]" />
+                                    </a>
+                                    <a asp-action="Details"
+                                   asp-route-id="@Model.Id"
+                                   asp-route-detailsPageNumber="@forceElementList?.PageIndex"
+                                   asp-route-detailsPageSize="@ViewData["detailsPageSize"]"
+                                   asp-route-detailsSortOrder="personnel_desc"
+                                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-down.svg" alt="@localizer["SortDescending"]" />
+                                    </a>
+                                </div>
+                            </th>
+                            <th>
+                                @localizer["Equipment"]
+                                <div class="sort-div">
+                                    <a asp-action="Details"
+                                   asp-route-id="@Model.Id"
+                                   asp-route-detailsPageNumber="@forceElementList?.PageIndex"
+                                   asp-route-detailsPageSize="@ViewData["detailsPageSize"]"
+                                   asp-route-detailsSortOrder="equipment_asc"
+                                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-up.svg" alt="@localizer["SortAscending"]" />
+                                    </a>
+                                    <a asp-action="Details"
+                                   asp-route-id="@Model.Id"
+                                   asp-route-detailsPageNumber="@forceElementList?.PageIndex"
+                                   asp-route-detailsPageSize="@ViewData["detailsPageSize"]"
+                                   asp-route-detailsSortOrder="equipment_desc"
+                                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-down.svg" alt="@localizer["SortDescending"]" />
+                                    </a>
+                                </div>
+                            </th>
+                            <th>
+                                @localizer["Training"]
+                                <div class="sort-div">
+                                    <a asp-action="Details"
+                                   asp-route-id="@Model.Id"
+                                   asp-route-detailsPageNumber="@forceElementList?.PageIndex"
+                                   asp-route-detailsPageSize="@ViewData["detailsPageSize"]"
+                                   asp-route-detailsSortOrder="training_asc"
+                                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-up.svg" alt="@localizer["SortAscending"]" />
+                                    </a>
+                                    <a asp-action="Details"
+                                   asp-route-id="@Model.Id"
+                                   asp-route-detailsPageNumber="@forceElementList?.PageIndex"
+                                   asp-route-detailsPageSize="@ViewData["detailsPageSize"]"
+                                   asp-route-detailsSortOrder="training_desc"
+                                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-down.svg" alt="@localizer["SortDescending"]" />
+                                    </a>
+                                </div>
+                            </th>
+                            <th>
+                                @localizer["Sustainment"]
+                                <div class="sort-div">
+                                    <a asp-action="Details"
+                                   asp-route-id="@Model.Id"
+                                   asp-route-detailsPageNumber="@forceElementList?.PageIndex"
+                                   asp-route-detailsPageSize="@ViewData["detailsPageSize"]"
+                                   asp-route-detailsSortOrder="sustainment_asc"
+                                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-up.svg" alt="@localizer["SortAscending"]" />
+                                    </a>
+                                    <a asp-action="Details"
+                                   asp-route-id="@Model.Id"
+                                   asp-route-detailsPageNumber="@forceElementList?.PageIndex"
+                                   asp-route-detailsPageSize="@ViewData["detailsPageSize"]"
+                                   asp-route-detailsSortOrder="sustainment_desc"
+                                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-down.svg" alt="@localizer["SortDescending"]" />
+                                    </a>
+                                </div>
+                            </th>
+                            <th>
+                                @localizer["ForceEmploymentStatus"]
+                                <div class="sort-div">
+                                    <a asp-action="Details"
+                                   asp-route-id="@Model.Id"
+                                   asp-route-detailsPageNumber="@forceElementList?.PageIndex"
+                                   asp-route-detailsPageSize="@ViewData["detailsPageSize"]"
+                                   asp-route-detailsSortOrder="forceEmployment_asc"
+                                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-up.svg" alt="@localizer["SortAscending"]" />
+                                    </a>
+                                    <a asp-action="Details"
+                                   asp-route-id="@Model.Id"
+                                   asp-route-detailsPageNumber="@forceElementList?.PageIndex"
+                                   asp-route-detailsPageSize="@ViewData["detailsPageSize"]"
+                                   asp-route-detailsSortOrder="forceEmployment_desc"
+                                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-down.svg" alt="@localizer["SortDescending"]" />
+                                    </a>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (forceElementList != null)
+                        {
+                            @foreach (DummyForceElement dummyForceElement in forceElementList)
+                            {
+                                DummyDataCard dummyDataCard = dummyForceElement.DummyDataCards.First();
+                                <tr>
+                                    <td>
+                                        <label>@dummyForceElement.ElementId</label>
+                                    </td>
+                                    <td>
+                                        <label>@dummyForceElement.ElementName</label>
+                                    </td>
+                                    <td>
+                                        @if (dummyForceElement.IsTiedToRealFelm)
+                                        {
+                                            <img src="~/images/check.png" height="16" width="16" />
+                                        }
+                                        else
+                                        {
+                                            <img src="~/images/x-mark.png" height="12" width="12" />
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="rounddiv" style="background-color:@dummyDataCard.SrStatus?.StatusDisplayColour"> </div>
+                                    </td>
+                                    <td>
+                                        @if (dummyDataCard.CommandOverideStatus != null)
+                                        {
+                                            <div class="rounddiv" style="background-color:@dummyDataCard.CommandOverideStatus.StausDisplayColour"> </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="rounddiv"> </div>
+                                        }
+                                    </td>
+                                    <td>
+                                        <div class="rounddiv" style="background-color:@dummyDataCard.PersonnelStatus?.StatusDisplayColour"> </div>
+                                    </td>
+                                    <td>
+                                        <div class="rounddiv" style="background-color:@dummyDataCard.EquipmentStatus?.StatusDisplayColour"> </div>
+                                    </td>
+                                    <td>
+                                        <div class="rounddiv" style="background-color:@dummyDataCard.TrainingStatus?.StatusDisplayColour"> </div>
+                                    </td>
+                                    <td>
+                                        <div class="rounddiv" style="background-color:@dummyDataCard.SustainmentStatus?.StatusDisplayColour"> </div>
+                                    </td>
+                                    <td>
+                                        @if (dummyDataCard.DeployedStatus != null)
+                                        {
+                                            <div class="rounddiv" style="background-color:@dummyDataCard.DeployedStatus.StausDisplayColour"> </div>
+                                        }
+                                        else
+                                        {
+                                            <div class="rounddiv"> </div>
+                                        }
+                                    </td>
+                                </tr>
+                            }
+                        }
+                    </tbody>
+                </table>
+                @{
+                    string prevDisabled = !forceElementList!.HasPreviousPage ? "disabled" : "";
+                    string nextDisabled = !forceElementList.HasNextPage ? "disabled" : "";
+                }
+
+                <a asp-action="Details"
+                   asp-route-id="@Model.Id"
+                   asp-route-detailsPageNumber="@(forceElementList.PageIndex - 1)"
+                   asp-route-detailsPageSize="@ViewData["detailsPageSize"]"
+                   asp-route-detailsSortOrder="@ViewData["detailsSortOrder"]"
+                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                   class="btn btn-default @prevDisabled">
+                    @localizer["Previous"]
+                </a>
+                @{
+                    int currentPage = forceElementList.PageIndex;
+                    int i = currentPage;
+                    int lastVisiblePage = currentPage + 3;
+                    int totalPages = forceElementList.TotalPages;
+                    bool moreThanMaxPages = false;
+
+                    if (lastVisiblePage > totalPages)
+                    {
+                        lastVisiblePage = totalPages;
+                    }
+                    else if (totalPages > lastVisiblePage)
+                    {
+                        moreThanMaxPages = true;
+                    }
+                    if (i > 1)
+                    {
+                        <a asp-action="Details"
+                           asp-route-id="@Model.Id"
+                           asp-route-detailsPageNumber="1"
+                           asp-route-detailsPageSize="@ViewData["detailsPageSize"]"
+                           asp-route-detailsSortOrder="@ViewData["detailsSortOrder"]"
+                           asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                           asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                           asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                           asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                           asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                           asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                           asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                           asp-route-selectedNato="@ViewData["selectedNato"]"
+                           asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                           asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                           asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                           class="btn btn-default">
+                            1
+                        </a>
+                    }
+                    if (currentPage > 2)
+                    {
+                        <label>...</label>
+                    }
+                    while (i <= lastVisiblePage)
+                    {
+                        <a asp-action="Details"
+                           asp-route-id="@Model.Id"
+                           asp-route-detailsPageNumber="@i"
+                           asp-route-detailsPageSize="@ViewData["detailsPageSize"]"
+                           asp-route-detailsSortOrder="@ViewData["detailsSortOrder"]"
+                           asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                           asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                           asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                           asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                           asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                           asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                           asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                           asp-route-selectedNato="@ViewData["selectedNato"]"
+                           asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                           asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                           asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                           class="btn btn-default">
+                            @if (i == currentPage)
+                            {
+                                <b>@i</b>
+                            }
+                            else
+                            {
+                                @i
+                            }
+                        </a>
+                        i++;
+                    }
+                    if (moreThanMaxPages)
+                    {
+                        <label>...</label>
+                    }
+                }
+                <a asp-action="Details"
+                   asp-route-id="@Model.Id"
+                   asp-route-detailsPageNumber="@(forceElementList.PageIndex + 1)"
+                   asp-route-detailsPageSize="@ViewData["detailsPageSize"]"
+                   asp-route-detailsSortOrder="@ViewData["detailsSortOrder"]"
+                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                   class="btn btn-default @nextDisabled">
+                    @localizer["Next"]
+                </a>
+                <div style="display: inline-block; padding-right: 2rem;">
+                    @Html.DropDownList("detailsPageSize", ViewBag.ItemsPerPage, null, new { onchange="submitForm()" })
+                </div>
+                <br />
+                <table width="1200px" cellpadding="5" class="table">
+                    <tr>
+                        <th>@localizer["Readiness"]</th>
+                        <th>&nbsp;</th>
+                        <th>@localizer["Totals"]</th>
+                        <th>@localizer["WeightValue"]</th>
+                        <th>@localizer["Percentage"]</th>
+                        <th>@localizer["Weighting"]</th>
+                        <th>@localizer["CriticalFactorsAffectingReadiness"]</th>
+                    </tr>
+                    <tr>
+                        <td>@localizer["Ready"]</td>
+                        <td><div class="rounddiv" style="background-color:@overallStatusList?.Find(s => s.Id == 1)?.StatusDisplayColour"> </div></td>
+                        <td>@DRTModel.ReadyCount</td>
+                        <td>@DRTModel.ReadyWeightSum</td>
+                        <td>@DRTModel.ReadyPercentage %</td>
+                        <td>@DRTModel.ReadyWeightPercentage %</td>
+                        <td></td>
+                    </tr>
+                    <tr>
+                        <td>@localizer["ReadyWithLimits"]</td>
+                        <td><div class="rounddiv" style="background-color:@overallStatusList?.Find(s => s.Id == 2)?.StatusDisplayColour"> </div></td>
+                        <td>@DRTModel.ReadyLimsCount</td>
+                        <td>@DRTModel.ReadyLimsWeightSum</td>
+                        <td>@DRTModel.ReadyLimsPercentatge %</td>
+                        <td>@DRTModel.ReadyLimsWeightPercentage %</td>
+                        <td>
+                            <table width="100%">
+                                <tr>
+                                    <td width="25%">@localizer["Personnel"]: <label>@DRTModel.YellowStatusPersonnelPercentage %</label></td>
+                                    <td width="25%">@localizer["Equipment"]: <label>@DRTModel.YellowStatusEquipmentPercentage %</label></td>
+                                    <td width="25%">@localizer["Training"]: <label>@DRTModel.YellowStatusTrainingPercentage %</label></td>
+                                    <td width="25%">@localizer["Sustainment"]: <label>@DRTModel.YellowStatusSustainmentPercentage %</label></td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>@localizer["CombatIneffective"]</td>
+                        <td><div class="rounddiv" style="background-color:@overallStatusList?.Find(s => s.Id == 3)?.StatusDisplayColour"> </div></td>
+                        <td>@DRTModel.CombatIneffectiveCount</td>
+                        <td>@DRTModel.CombatIneffectiveWeightSum</td>
+                        <td>@DRTModel.CombatIneffectivePercentage %</td>
+                        <td>@DRTModel.CombatIneffectiveWeightPercentage %</td>
+                        <td>
+                            <table width="100%">
+                                <tr>
+                                    <td width="25%">@localizer["Personnel"]:  <label>@DRTModel.OrangeStatusPersonnelPercentage %</label></td>
+                                    <td width="25%">@localizer["Equipment"]:  <label>@DRTModel.OrangeStatusEquipmentPercentage %</label></td>
+                                    <td width="25%">@localizer["Training"]:  <label>@DRTModel.OrangeStatusTrainingPercentage %</label></td>
+                                    <td width="25%">@localizer["Sustainment"]:  <label>@DRTModel.OrangeStatusSustainmentPercentage %</label></td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td>@localizer["NotReady"]</td>
+                        <td><div class="rounddiv" style="background-color:@overallStatusList?.Find(s => s.Id == 4)?.StatusDisplayColour"> </div></td>
+                        <td>@DRTModel.NotReadyCount</td>
+                        <td>@DRTModel.NotReadyWeightSum</td>
+                        <td>@DRTModel.NotReadyPercentage %</td>
+                        <td>@DRTModel.NotReadyWeightPercentage %</td>
+                        <td>
+                            <table width="100%">
+                                <tr>
+                                    <td width="25%">@localizer["Personnel"]:  <label>@DRTModel.RedStatusPersonnelPercentage %</label></td>
+                                    <td width="25%">@localizer["Equipment"]: <label>@DRTModel.RedStatusEquipmentPercentage %</label> </td>
+                                    <td width="25%">@localizer["Training"]:  <label>@DRTModel.RedStatusTrainingPercentage %</label></td>
+                                    <td width="25%">@localizer["Sustainment"]:  <label>@DRTModel.RedStatusSustainmentPercentage %</label></td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr>
+                        <th>@localizer["Totals"]</th>
+                        <th>&nbsp;</th>
+                        <th>@DRTModel.TotalCount</th>
+                        <th>@DRTModel.TotalWeight</th>
+                        <th>100 %</th>
+                        <th>100 %</th>
+                        <th>&nbsp;</th>
+                    </tr>
+                </table>
+                <br />
+                <table cellpadding="5" class="table" style="width: 45rem;">
+                    <tr>
+                        <th>@localizer["ForceEmploymentStatus"]</th>
+                        <th>&nbsp;</th>
+                        <th>@localizer["Totals"]</th>
+                        <th>@localizer["WeightValue"]</th>
+                        <th>@localizer["Percentage"]</th>
+                        <th>@localizer["Weighting"]</th>
+                    </tr>
+                    <tr>
+                        <td>@localizer["Deployed"]</td>
+                        <td><div class="rounddiv" style="background-color:@deployedStatusListNonSelect?.Find(s => s.StatusDisplayValue == "Deployed")?.StausDisplayColour "> </div></td>
+                        <td>@DRTModel.DeployedCount</td>
+                        <td>@DRTModel.DeployedWeightSum</td>
+                        <td>@DRTModel.DeployedPercentage %</td>
+                        <td>@DRTModel.DeployedWeightPercentage %</td>
+                    </tr>
+                    <tr>
+                        <td>@localizer["PartiallyDeployed"]</td>
+                        <td><div class="rounddiv" style="background-color:@deployedStatusListNonSelect?.Find(s => s.StatusDisplayValue == "Partially Deployed")?.StausDisplayColour"> </div></td>
+                        <td>@DRTModel.PartiallyDeployedCount</td>
+                        <td>@DRTModel.PartiallyDeployedWeightSum</td>
+                        <td>@DRTModel.PartiallyDeployedPercentage %</td>
+                        <td>@DRTModel.PartiallyDeployedWeightPercentage %</td>
+                    </tr>
+                    <tr>
+                        <td>@localizer["ForwardToNato"]</td>
+                        <td><div class="rounddiv" style="background-color:@deployedStatusListNonSelect?.Find(s => s.StatusDisplayValue == "Forward to NATO")?.StausDisplayColour"> </div></td>
+                        <td>@DRTModel.ForwardToNatoCount</td>
+                        <td>@DRTModel.ForwardToNatoWeightSum</td>
+                        <td>@DRTModel.ForwardToNatoPercentage %</td>
+                        <td>@DRTModel.ForwardToNatoWeightPercentage %</td>
+                    </tr>
+                    <tr>
+                        <td>@localizer["HighAlertImmediateReadiness"]</td>
+                        <td><div class="rounddiv" style="background-color:@deployedStatusListNonSelect?.Find(s => s.StatusDisplayValue == "High Alert/Immediate Reachback")?.StausDisplayColour"> </div></td>
+                        <td>@DRTModel.HighAlertCount</td>
+                        <td>@DRTModel.HighAlertWeightSum</td>
+                        <td>@DRTModel.HighAlertPercentage %</td>
+                        <td>@DRTModel.HighAlertWeightPercentage %</td>
+                    </tr>
+                    <tr>
+                        <td>@localizer["ForceGenerating"]</td>
+                        <td><div class="rounddiv" style="background-color:@deployedStatusListNonSelect?.Find(s => s.StatusDisplayValue == "Force Generating")?.StausDisplayColour"> </div></td>
+                        <td>@DRTModel.ForceGeneratingCount</td>
+                        <td>@DRTModel.ForceGeneratingWeightSum</td>
+                        <td>@DRTModel.ForceGeneratingPercentage %</td>
+                        <td>@DRTModel.ForceGeneratingWeightPercentage %</td>
+                    </tr>
+                    <tr>
+                        <td>@localizer["InDevelopment"]</td>
+                        <td><div class="rounddiv" style="background-color:@deployedStatusListNonSelect?.Find(s => s.StatusDisplayValue == "In Development")?.StausDisplayColour"> </div></td>
+                        <td>@DRTModel.InDevelopmentCount</td>
+                        <td>@DRTModel.InDevelopmentWeightSum</td>
+                        <td>@DRTModel.InDevelopmentPercentage %</td>
+                        <td>@DRTModel.InDevelopmentWeightPercentage %</td>
+                    </tr>
+                    <tr>
+                        <td>@localizer["NotDeployed"]</td>
+                        <td><div class="rounddiv" style="background-color:@deployedStatusListNonSelect?.Find(s => s.StatusDisplayValue == "Not Employed")?.StausDisplayColour"> </div></td>
+                        <td>@DRTModel.NotDeployedCount</td>
+                        <td>@DRTModel.NotDeployedWeightSum</td>
+                        <td>@DRTModel.NotDeployedPercentage %</td>
+                        <td>@DRTModel.NotDeployedWeightPercentage %</td>
+                    </tr>
+                    <tr>
+                        <th>@localizer["Totals"]</th>
+                        <th>&nbsp;</th>
+                        <th>@DRTModel.TotalCount</th>
+                        <th>@DRTModel.TotalWeight</th>
+                        <th>100 %</th>
+                        <th>100 %</th>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <br />
+    }
+    <div class="row">
+        <div class="col">
+            <label>@localizer["LastEditedBy"]</label>
+            @if (Model.LastEditUserNavigation != null)
+            {
+                @Html.DisplayFor(m => m.LastEditUserNavigation!.UserName)  
+            }
+        </div>
+        <div class="col">
+            <label>@localizer["DateLastEdited"]</label>
+            <label>@(Model.LastEditDate?.ToString("yyyy-MM-dd"))</label>
+        </div>
+    </div><br />
+    <div class="row">
+        <div class="col">
+            @if (givenUser != null && (Model.PackageOwnerId == givenUser.Id || Model.Users.Contains(givenUser) || User.IsInRole(Admin)))
+            {
+                <a asp-action="Edit"
+                   asp-route-id="@Model.Id"
+                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                   asp-route-packageOwnersOrganization="@ViewData["packageOwnersOrganization"]"
+                   asp-route-selectedPurpose="@ViewData["selectedPurpose"]"
+                   asp-route-identifiedOperation="@ViewData["identifiedOperation"]"
+                   asp-route-identifiedConplan="@ViewData["identifiedConplan"]"
+                   asp-route-onlyShowMyForcePackages="@ViewData["onlyShowMyForcePackages"]">
+                    @localizer["Edit"]
+                </a> <label>|</label>
+            }
+            <a asp-action="Index"
+               asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+               asp-route-indexPageSize="@ViewData["indexPageSize"]"
+               asp-route-packageOwnersOrganization="@ViewData["packageOwnersOrganization"]"
+               asp-route-selectedPurpose="@ViewData["selectedPurpose"]"
+               asp-route-identifiedOperation="@ViewData["identifiedOperation"]"
+               asp-route-identifiedConplan="@ViewData["identifiedConplan"]"
+               asp-route-onlyShowMyForcePackages="@ViewData["onlyShowMyForcePackages"]">
+                @localizer["BackToList"]
+            </a>
+        </div>
+        <div class="col">
+        </div>
+        <div class="col">
+        </div>
+    </div>
+</form>
+
+<div id='kpiModal' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='kpiModalContent'></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script src="~/js/forcepackagekpimodal.js"></script>
+    <script type="text/javascript">
+        function submitForm() {
+            let id = "@Model.Id";
+            let detailsPageNumber = "1";
+            let detailsPageSize = document.getElementById("detailsPageSize").value;
+            let detailsSortOrder = "@ViewData["detailsSortOrder"]";
+            let indexPageNumber = "@ViewData["indexPageNumber"]";
+            let indexSortOrder = "@ViewData["indexSortOrder"]";
+            let indexPageSize = "@ViewData["indexPageSize"]";
+            let packageOwnersOrganization = "@ViewData["packageOwnersOrganization"]";
+            let selectedPurpose = "@ViewData["selectedPurpose"]";
+            let identifiedOperation = "@ViewData["identifiedOperation"]";
+            let identifiedConplan = "@ViewData["identifiedConplan"]";
+            let onlyShowMyForcePackages = "@ViewData["onlyShowMyForcePackages"]";
+
+            let url = "/ForcePackage/Details/" + id + "?indexPageNumber=" + indexPageNumber + "&indexSortOrder=" + indexSortOrder + "&indexPageSize=" + indexPageSize+ "&packageOwnersOrganization="
+            + packageOwnersOrganization + "&selectedPurpose=" + selectedPurpose + "&identifiedOperation=" + identifiedOperation + "&identifiedConplan=" + identifiedConplan
+                + "&onlyShowMyForcePackages=" + onlyShowMyForcePackages + "&detailsPageNumber=" + detailsPageNumber + "&detailsPageSize=" + detailsPageSize + "&detailsSortOrder=" + detailsSortOrder;
+            window.location.href = url;
+        }
+    </script>
+}

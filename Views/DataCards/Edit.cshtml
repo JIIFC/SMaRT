@@ -1,0 +1,2371 @@
+﻿@model SMARTV3.Models.DataCard
+
+@using Microsoft.AspNetCore.Mvc.Localization
+@using SMARTV3.Helpers
+@inject IViewLocalizer localizer
+
+@{
+    ViewData["Title"] = localizer["Edit"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    SelectList? conPlanList = ViewData["conPlanList"] as SelectList;
+    SelectList? operationtList = ViewData["operationList"] as SelectList;
+    IEnumerable<PetsoverallStatus>? petsStatus = ViewData["petsStatus"] as IEnumerable<PetsoverallStatus>;
+    IEnumerable<PetspercentStatus>? percentStatus = ViewData["percentStatus"] as IEnumerable<PetspercentStatus>;
+    IEnumerable<DeployedStatus>? deployStatus = ViewData["deployStatus"] as IEnumerable<DeployedStatus>;
+    IEnumerable<CommandOverideStatus>? commandOverideStatus = ViewData["commandOverideStatus"] as IEnumerable<CommandOverideStatus>;
+
+    CultureHelper cultureHelper = new CultureHelper();
+    string lang = cultureHelper.GetCurrentCulture();
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/Datacard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/InputValidation.css" asp-append-version="true" />
+</head>
+
+<form asp-action="Edit" name="EditDataCard" id="EditDataCard">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="ForceElementId" />
+    <input type="hidden" asp-for="DataCardComplete" />
+    <input type="hidden" asp-for="NoticeToMoveId" />
+    <input type="hidden" name="sortOrder" value="@ViewData["sortOrder"]" />
+    <input type="hidden" name="pageNumber" value="@ViewData["pageNumber"]" />
+    <input type="hidden" name="selectedPageSize" value="@ViewData["selectedPageSize"]" />
+    <input type="hidden" name="selectedOrganization" value="@ViewData["selectedOrganization"]" />
+    <input type="hidden" name="selectedConPlan" value="@ViewData["selectedConPlan"]" />
+    <input type="hidden" name="selectedOperation" value="@ViewData["selectedOperation"]" />
+    <input type="hidden" name="selectedNato" value="@ViewData["selectedNato"]" />
+    <input type="hidden" name="selectedStatus" value="@ViewData["selectedStatus"]" />
+    <input type="hidden" name="selectedOverallStatus" value="@ViewData["selectedOverallStatus"]" />
+
+    <div id="classificationBanner" class="secretbannerdiv">
+        @localizer["SecretFiveEyesOnly"]
+    </div>
+
+    <br /> <br />
+    <h5>@localizer["EditForceElementFElmDataCard"]</h5>
+    <hr />
+    <div class="row">
+        <div class="col">
+            <input type="image" title="@localizer["SaveasDraft"]" src='@Url.Content("~/images/draft.png")' height="32" width="32" onclick="submitDraftForm();return false" /> &nbsp;&nbsp;
+            <a asp-action="Index"
+               asp-route-sortOrder="@ViewData["sortOrder"]"
+               asp-route-pageNumber="@ViewData["pageNumber"]"
+               asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+               asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+               asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+               asp-route-selectedOperation="@ViewData["selectedOperation"]"
+               asp-route-selectedNato="@ViewData["selectedNato"]"
+               asp-route-selectedStatus="@ViewData["selectedStatus"]"
+               asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+               title="@localizer["Cancel"]">
+                <img alt="@localizer["Cancel"]" src='@Url.Content("~/images/Cancel.png")' height="32" width="32" style="vertical-align: inherit;" />
+            </a>
+        </div>
+        <div class="col"></div>
+        <div class="col">
+            <button type="button" onclick="showModal(@Model.Id, 'Readiness')" class="btn btn-sm btn-secondary" style="float: right;">
+                @localizer["AlertsBasedOnReadiness"]    
+            </button>
+        </div>
+        <div class="col">
+            <button type="button" onclick="showModal(@Model.Id, 'Change')" class="btn btn-sm btn-secondary" style="float: right;">
+                @localizer["AlertsForChanges"]
+            </button>
+        </div>
+    </div>
+
+    <br />
+    @if (Model.DataCardComplete == false)
+    {
+        <div class="error">@localizer["Incomplete"]</div>
+    }
+    else
+    {
+        <div style="color: green;font-weight: bold;">@localizer["Complete"]</div>
+    }
+
+    <br />
+    <div id="DataCardError" class="error"></div>
+    <div class="row tombstone">
+        <div class="col">
+            <span style="font-weight:bold">@localizer["FElmID"]</span>
+            <input asp-for="ForceElement!.ElementId" class="form-control" readonly/>
+        </div>
+        <div class="col">
+            <span style="font-weight:bold">@localizer["FElmName"]</span>
+            <input asp-for="ForceElement!.ElementName" class="form-control" readonly/>
+        </div>
+        <div class="col">
+            <span style="font-weight:bold">@localizer["Shortname"]</span>
+            <input asp-for="ForceElement!.Shortname" class="form-control" readonly />
+        </div>
+    </div>
+   
+    <div class="row tombstone">
+        <div class="col">
+            <span style="font-weight:bold">@localizer["OrganizationName"]</span>
+            <input asp-for="ForceElement!.Organization.OrganizationName" class="form-control" readonly/>
+        </div>
+        <div class="col">
+            <span style="font-weight:bold">@localizer["Weighting"]</span>
+            <input value="@Model.ForceElement?.Weighting?.WeightValue?.ToString("##0.##", System.Globalization.CultureInfo.InvariantCulture)"
+                class="form-control" readonly/>
+        </div>
+    </div>
+    <div class="row tombstone">
+        <div class="col">
+            <span class="error">* &nbsp;</span><span style="font-weight:bold">@localizer["DivFrm"]</span>
+            <input asp-for="Division" class="form-control" maxlength="256" />
+        </div>
+        <div class="col">
+            <span class="error">* &nbsp;</span><span style="font-weight:bold"> @localizer["BdeFltWg"]</span>
+            <input asp-for="Brigade" class="form-control" maxlength="256" />
+        </div>
+    </div>
+    <div class="row tombstone">
+        <div class="col">
+            <span class="error">* &nbsp;</span><span style="font-weight:bold">@localizer["ParentUnit"]</span>
+            <input asp-for="Unit" class="form-control" maxlength="256" />
+        </div>
+        <div class="col">
+            <span class="error">* &nbsp;</span><span style="font-weight:bold">@localizer["SubUnitName"]</span>
+            <input asp-for="Subunit" class="form-control" maxlength="256" />
+        </div>
+    </div>
+    <div class="row tombstone">
+        <div class="col">
+            <span style="font-weight:bold">@localizer["ForceElementDescription"]</span>
+            <input asp-for="ForceElementDesc" class="form-control" maxlength="500" />
+        </div>
+    </div>
+    <div class="row tombstone">
+        <div class="col">
+            <span id="NatoLocationAstrix" class="error">* &nbsp;</span><span style="font-weight:bold">@localizer["PeacetimeLocationName"]</span>
+            <input asp-for="NatoLocation" id="NatoLocation" class="form-control" />
+        </div>
+        <div class="col">
+            <span id="NatoCoordinatesAstrix" class="error">* &nbsp;</span><span style="font-weight:bold">@localizer["PeacetimeLocationCoordinates"]</span>
+            <input asp-for="NatoCoordinates" class="form-control" />
+        </div>
+    </div>
+    <div class="row tombstone">
+        <div class="col">
+            <span style="font-weight:bold">@localizer["HighReadinessFrom"]</span>
+            <input asp-for="ReadinessFromDate" class="form-control" type="date" />
+        </div>
+        <div class="col">
+            <span style="font-weight:bold">@localizer["HighReadinessTo"]</span>
+            <input asp-for="ReadinessToDate" class="form-control" type="date" />
+        </div>
+    </div>
+    <div class="row tombstone">
+        <div class="col">
+            <span style="font-weight:bold">@localizer["NoticeToMove"]</span>
+            @if (lang == "en")
+            {
+                <input asp-for="NoticeToMove!.NoticeToMoveName" class="form-control" type="text" disabled />                
+            } else 
+            {
+                <input asp-for="NoticeToMove!.NoticeToMoveNameFre" class="form-control" type="text" disabled/>       
+            }
+        </div>
+        <div class="col" id="NtmdetailsCol">
+
+                <span style="font-weight:bold">@localizer["NTMDetails"]</span>
+                <input asp-for="Ntmdetails" class="form-control" readonly/>
+
+        </div>
+    </div>
+    <div class="row tombstone">
+        <div class="col">
+            <span style="font-weight:bold">@localizer["CONPLANs"]</span>
+            <div style="overflow-y:scroll; height:100px;">
+                @if (conPlanList != null)
+                {
+                    @if (Model.Conplans != null)
+                    {
+                        @foreach (SelectListItem? conPlan in conPlanList)
+                        {
+                            bool found = Model.Conplans.Any(d => d.Id == int.Parse(conPlan.Value));
+                    
+                            if (found)
+                            {
+                                <input type="checkbox" name="Conplan" id="Conplan" value="@conPlan.Value" checked="checked" onclick="showHideConcurrency()" />
+                            }
+                            else
+                            {
+                                <input type="checkbox" name="Conplan" id="Conplan" value="@conPlan.Value" onclick="showHideConcurrency()" />
+                            }
+                            <label for="@conPlan.Value">@conPlan.Text</label>
+                            <br />
+                        }
+                    }
+                    else
+                    {
+                        @foreach (SelectListItem? conPlan in conPlanList)
+                        {
+                            <input type="checkbox" name="Conplan" id="Conplan" value="@conPlan.Value" onclick="showHideConcurrency()" />
+                            <label for="@conPlan.Value">@conPlan.Text</label>
+                            <br />
+                        }
+                    } 
+                }
+                
+            </div>
+        </div>
+        <div class="col">
+            <span style="font-weight:bold">@localizer["Operations"]</span>
+            <div style="overflow-y:scroll; height:100px;">
+                @if (operationtList != null)
+                {
+                    @if (Model.Operations != null)
+                    {
+                        @foreach (SelectListItem? operation in operationtList)
+                        {
+                            bool found = Model.Operations.Any(d => d.Id == int.Parse(operation.Value));
+
+                            if (found)
+                            {
+                                <input type="checkbox" name="Operation" id="Operation" value="@operation.Value" checked="checked" onclick="showHideConcurrency()" />
+                            }
+                            else
+                            {
+                                <input type="checkbox" name="Operation" id="Operation" value="@operation.Value" onclick="showHideConcurrency()" />
+                            }
+                            <label for="@operation.Value">@operation.Text</label>
+                            <br />
+                        }
+                    }
+                    else
+                    {
+                        @foreach (SelectListItem? operation in operationtList)
+                        {
+                            <input type="checkbox" name="Operation" id="Operation" value="@operation.Value" onclick="showHideConcurrency()" />
+                            <label for="@operation.Value">@operation.Text</label>
+                            <br />
+                        }
+                    } 
+                }
+            </div>
+        </div>
+    </div>
+    <div class="row tombstone">
+        <div class="col">
+            <span style="font-weight:bold">@localizer["ForceEmploymentStatus"]</span>
+            <div id="ToolTip" data-toggle="tooltip" data-placement="top" style="display: inline;" data-html="true" 
+                title="<b>Deployed</b>-FElm is green but currently deployed and therefore not available.<br><b>Partially deployed</b>-FElm exists and is ready, but, part of it (sub-element) is deployed and therefore the FElm is only partially available.<br><b>High Alert/Immediate Reachback</b>-FElm is operational in its location, but is providing and ongoing or immediate ability to complete its task.<br><b>Force Generating</b>-FElm which, during the current reporting period, is in the process of being organized, trained, and equipped for employment.<br><b>In Development</b>-FElm is new is not currently at IOC but will become ready within Horizon One. It might be considered as aspirational due to lack of definition, or it might have become an official FElm now owned by a L1 through a sponsored project but is not ready for fielding and implementation">
+                <img src="~/images/circle-question-regular.svg" alt="More Information" style="width: 1rem; height: 1rem;" />
+            </div>
+        </div>
+        <div class="col">
+            <table cellpadding="5">
+                <tr>
+                    <td>
+                        <select style="width: auto;" id="DeployedStatusDrpDwn" asp-for="DeployedStatusId" onchange="setChicletColor(this,'DeployedStatusDisplay')" class="form-select">
+                            @if (deployStatus != null)
+                            {
+                                @foreach (var obj in deployStatus)
+                                {
+                                    @if (Model.DeployedStatus != null && obj.Id == Model.DeployedStatus.Id)
+                                    {
+                                        <option value="@obj.Id" selected style="background-color:@obj.StausDisplayColour">
+                                        @if (lang == "en")
+                                        {
+                                            @obj.StatusDisplayValue
+                                        }
+                                        else
+                                        {
+                                            @obj.StatusDisplayValueFre
+                                        }
+                                        </option>
+                                    }
+                                    else
+                                    {
+                                        <option value="@obj.Id" style="background-color:@obj.StausDisplayColour">
+                                        @if(lang =="en")
+                                        {
+                                            @obj.StatusDisplayValue
+                                        }
+                                        else
+                                        {
+                                            @obj.StatusDisplayValueFre
+                                        }
+                                        </option>
+                                    }
+                                }
+                            }
+                        </select>
+                    </td>
+                    <td>
+                        @if (Model.DeployedStatus != null)
+                        {
+                            <div id="DeployedStatusDisplay" class="rounddiv" style="background-color:@Model.DeployedStatus.StausDisplayColour"></div>
+                        }
+                        else
+                        {
+                            <div id="DeployedStatusDisplay" class="rounddiv"></div>
+                        }
+                    </td>
+                </tr>
+            </table>
+        </div>
+        <div class="col">
+            <span hidden style="font-weight:bold">@localizer["eNRFNRI"]</span>  <input type="hidden" id="NatoActive" class="form-check-input" asp-for="NatoActive" />
+        </div>
+        <div class="col">
+            <span style="font-weight:bold">@localizer["NFM"]</span>  <input id="NFMActive" class="form-check-input" asp-for="NFMActive" />
+        </div>
+        <div hidden class="col">
+            <span  style="font-weight:bold">@localizer["FwdToNato"]</span>  <input id="FwdNato" class="form-check-input" asp-for="FwdNato" />
+        </div>
+        <div class="col">
+            <span style="font-weight:bold">@localizer["RDS"]</span>  <input id="Rds" class="form-check-input" asp-for="Rds" />
+        </div>
+    </div>
+    <div class="row tombstone">
+        <div class="col">
+            <div id="concurrencySection">
+                <span class="error">* &nbsp;</span> <span style="font-weight:bold">@localizer["Concurrency"]</span>
+                <input asp-for="ConcurrencyCommnets" id="ConcurrencyCommnets" class="form-control" maxlength="500" title="@localizer["ConcurrencyCommnets"]" />
+            </div>
+        </div>
+    </div>
+
+    <br /><br />
+
+    <h5>@localizer["ReadinessStatus"]</h5>
+    <hr />
+    <div class="row" style="padding-bottom: 0.5rem;">
+        <div class="col">
+            <span style="font-weight:bold">@localizer["SMaRTReadinessStatus"]</span>
+            &nbsp;
+            <div id="SrStatusDisplay" class="rounddiv" style="background-color:@Model.SrStatus?.StatusDisplayColour"> </div>
+            <input asp-for="SrStatusId" hidden />
+        </div>
+        <div class="col">
+            <span style="font-weight:bold">@localizer["CommandOverrideReadinessStatus"]</span>
+            <select id="CommandOverideStatusDrpDwn" asp-for="CommandOverideStatusId" onchange="changeCommandOverrideStatus(this,'CommandOverideStatusDisplay')"
+                class="form-select" style="width: auto; display: inline-flex;">
+                <option></option>
+                @if (commandOverideStatus != null)
+                {
+                    @foreach (var obj in commandOverideStatus)
+                    {
+                        @if (Model.CommandOverideStatus != null)
+                        {
+                            @if (obj.Id == Model.CommandOverideStatus.Id)
+                            {
+                                <option value="@obj.Id" selected style="background-color:@obj.StausDisplayColour">
+                                @if(lang =="en")
+                                {
+                                    @obj.StatusDisplayvalue
+                                }
+                                else
+                                {
+                                    @obj.StatusDisplayvalueFre
+                                }
+                                </option>
+                            }
+                            else
+                            {
+                                <option value="@obj.Id" style="background-color:@obj.StausDisplayColour">
+                                @if (lang == "en")
+                                {
+                                    @obj.StatusDisplayvalue
+                                }
+                                else
+                                {
+                                    @obj.StatusDisplayvalueFre
+                                }
+                                </option>
+                            }
+                        }
+                        else
+                        {
+                            <option value="@obj.Id" style="background-color:@obj.StausDisplayColour">
+                            @if (lang == "en")
+                            {
+                                @obj.StatusDisplayvalue
+                            }
+                            else
+                            {
+                                @obj.StatusDisplayvalueFre
+                            }
+                            </option>
+                        }
+                    }
+                }
+            </select>
+            @if (Model.CommandOverideStatus != null)
+            {
+                <div id="CommandOverideStatusDisplay" class="rounddiv" style="background-color:@Model.CommandOverideStatus.StausDisplayColour"> </div>
+            }
+            else
+            {
+                <div id="CommandOverideStatusDisplay" class="rounddiv"> </div>
+            }
+        </div>
+        <div class="col">
+            <span style="font-weight:bold">@localizer["ValidityDTG"]</span>
+            @if (DateTime.Compare(Model.Validitydate.AddDays(30), DateTime.Now) > 0)
+            {
+                <td><span>@(Model.Validitydate.ToString("yyyy-MM-dd"))</span></td>
+            }
+            else
+            {
+                <td>
+                    <span style="font-weight:bold">
+                        <font color="red">
+                            @(Model.Validitydate.ToString("yyyy-MM-dd"))
+                        </font>
+                    </span>
+                </td>
+            }
+        </div>
+    </div>
+    <div id="OverrideComments">
+        <div class="row">
+            <div class="col">
+                <span class="error">* &nbsp;</span> <span style="font-weight:bold">@localizer["CommandOverrideReadinessStatusRemarks"]</span>
+                <input asp-for="CommandOverrideComments" class="form-control" maxlength="500" />
+            </div>
+            <div class="col">
+                <span class="error">* &nbsp;</span> <span style="font-weight:bold">@localizer["CommandOverrideReadinessAuthority"]</span>
+                <input asp-for="CommandOverrideAuthority" class="form-control" maxlength="100" />
+            </div>
+        </div>
+    </div>
+    <div id="NatoSection">
+        <br /><br />
+        <div id="NatoError" class="error"></div>
+
+        <h5><span id="NatoTitle" property="visibility:hidden">@localizer["eNRFNRINATOReadinessReportingInformation"]</span><span id="NFMTitle" property="visibility:hidden">@localizer["NFMReadinessReportingInformation"]</span></h5>
+        <hr />
+
+        <h5>@localizer["Unit"]</h5>
+        <div class="nato-grouping">
+            <div class="row nato-row">
+                <div class="col">
+                    <span class="error">* &nbsp;</span><span style="font-weight:bold">@localizer["FunctionalCategory"]</span>
+                    <select asp-for="CategoryId" id="CategoryId" class="form-select" asp-items="ViewBag.CategoryId"> <option></option> </select>
+                </div>
+                <div class="col">
+                    <span class="error">* &nbsp;</span><span style="font-weight:bold">@localizer["NATODesignation"]</span>
+                    <select asp-for="DesignationId" id="DesignationId" class="form-select" asp-items="ViewBag.DesignationId"><option></option> </select>
+                </div>
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["AssetsDeclared"]</span>
+                    <input asp-for="NatoAssetsDeclared" id="NatoAssetsDeclared" min="0" class="form-control" />
+                </div>
+                <div class="col">
+                    <span class="error">* &nbsp;</span><span style="font-weight:bold">@localizer["Service"]</span>
+                    <select asp-for="ServiceId" id="ServiceId" class="form-select" asp-items="ViewBag.ServiceId"><option></option> </select>
+                </div>
+            </div>
+            <div class="row nato-row">
+                <div class="col">
+                    <span class="error">* &nbsp;</span><span style="font-weight:bold">@localizer["Echelon"]</span>
+                    <select asp-for="EchelonId" id="EchelonId" class="form-select" asp-items="ViewBag.EchelonId"><option></option> </select>
+                </div>
+                <div class="col">
+                     <span class="error">* &nbsp;</span><span style="font-weight:bold">@localizer["CapabilityCode"]</span>
+                     <select asp-for="CapabilityId" id="CapabilityId" class="form-select" asp-items="ViewBag.CapabilityId"><option></option> </select>
+                </div>
+                <div class="col">
+                </div>
+            </div>
+            <div class="row nato-row">
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["RequirementName"]</span>
+                    <input asp-for="NatoRequirementName" id="NatoRequirementName" class="form-control" />
+                </div>
+                <div class="col">
+                    <span class="error">* &nbsp;</span><span style="font-weight:bold">@localizer["NationalName"]</span>
+                    <input asp-for="NatoNationalName" id="NatoNationalName" class="form-control" />
+                </div>
+            </div>
+            <div class="row nato-row">
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["MajorEquipmentRemarks"]</span>
+                    <input asp-for="NatoMajorEquipmentComments" class="form-control" maxlength="200" />
+                </div>
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["Caveats"]</span>
+                    <input asp-for="NatoCavets" class="form-control" maxlength="200" />
+                </div>
+            </div>
+        </div>
+        
+        <br />
+        <h5>@localizer["Readiness"]</h5>
+        <div class="nato-grouping">
+            <div class="row nato-row">
+                <div class="col">
+                     <span style="font-weight:bold">@localizer["NoticeToEffect"]</span>
+                     <input asp-for="NatoNoticeToEffect" id="NatoNoticeToEffect" min="0" max="999" class="form-control" />
+                </div>
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["FPH"]</span>
+                    <select asp-for="NatoFphyesNoBlank" id="NatoFphyesNoBlank" class="form-select" asp-items="ViewBag.NatoFPHYesNoBlankId"><option></option> </select>
+                </div> 
+            </div>
+            <div class="row nato-row">
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["GeneralRemarks"]</span>
+                    <input asp-for="NatoGeneralComments" class="form-control" maxlength="500" />
+                </div>
+            </div>
+        </div>
+        <br />
+        <h5>@localizer["Training"]</h5>
+        <div class="nato-grouping">
+            <div class="row nato-row">
+                <div class="col">
+                    <span class="error">* &nbsp;</span><span style="font-weight:bold">@localizer["AFSTraining"]</span>
+                    <select asp-for="NatoAfstrainingPercentage" id="NatoAfstrainingPercentage" class="form-select" asp-items="ViewBag.AfsPercentageId"><option></option> </select>
+                </div>
+                <div class="col">
+                    <span class="error">* &nbsp;</span><span style="font-weight:bold">@localizer["EvalCompleted"]</span>
+                    <select asp-for="NatoEvalCompleted" id="NatoEvalCompleted" class="form-select" asp-items="ViewBag.NatoEvalCompletedId"><option></option> </select>
+                </div>
+                <div class="col">
+                    <span class="error" id="NatoPlannedEvalDateAstrix">* &nbsp;</span><span style="font-weight:bold">@localizer["PlannedEvalDate"]</span>
+                    <input asp-for="NatoPlannedEvalDate" id="NatoPlannedEvalDate" class="form-control" type="date" />
+                </div>
+            </div>
+            <div class="row nato-row">
+                <div class="col">
+                    <span class="error">* &nbsp;</span><span style="font-weight:bold">@localizer["CertProgramCoord"]</span>
+                    <select asp-for="NatoCertProgramCoord" id="NatoCertProgramCoord" class="form-select" asp-items="ViewBag.NatoCertProgramCoordId"><option></option> </select>
+                </div>
+                <div class="col">
+                    <span class="error">* &nbsp;</span><span style="font-weight:bold">@localizer["CertCompleted"]</span>
+                    <select asp-for="NatoCertCompleted" id="NatoCertCompleted" class="form-select" asp-items="ViewBag.NatoCertCompletedId"><option></option> </select>
+                </div>
+                <div class="col"></div>
+            </div>
+            <div class="row nato-row">
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["NationalTrainingRemarks"]</span>
+                    <input asp-for="NatoNationalTrainingRemarks" class="form-control" maxlength="500" />
+                </div>
+            </div>
+        </div>
+        <br />
+        <h5>@localizer["Projection"]</h5>
+        <div class="nato-grouping">
+            <div class="row nato-row">
+                <div class="col-3">
+                    <span class="error">* &nbsp;</span><span style="font-weight:bold">@localizer["StratLiftCapacity"]</span>
+                    <select asp-for="NatoStratLiftCapacityId" id="NatoStratLiftCapacityId" class="form-select" asp-items="ViewBag.NatoStratLiftCapacityId"><option></option> </select>
+                </div>   
+                <div class="col-9">
+                    <span style="font-weight:bold">@localizer["StratLiftCapacityRemarks"]</span>
+                    <input asp-for="NatoStratLiftCapacityComments" class="form-control" maxlength="500" />
+                </div> 
+            </div>
+            <div class="row nato-row">
+                <div class="col-3">
+                    <span class="error">* &nbsp;</span><span style="font-weight:bold">@localizer["NationalDeploy"]</span>
+                    <select asp-for="NatoNationalDeployId" id="NatoNationalDeployId" class="form-select" asp-items="ViewBag.NatoNationalDeployId"><option></option> </select>
+                </div>
+                <div class="col-9">
+                    <span style="font-weight:bold">@localizer["NationalDeployRemarks"]</span>
+                    <input asp-for="NatoNationalDeployComments" class="form-control" maxlength="500" />
+                </div>
+            </div>
+        </div>
+        <br />
+        <h5>@localizer["Sustainability"]</h5>
+        <div class="nato-grouping">
+            <div class="row nato-row">
+                <div class="col">
+                    <span class="error">* &nbsp;</span><span style="font-weight:bold">@localizer["12Sdos"]</span>
+                     <select asp-for="Nato12Sdos" id="Nato12Sdos" class="form-select" asp-items="ViewBag.Nato12SdosId"><option></option> </select>
+                </div>
+                <div class="col">
+                    <span class="error">* &nbsp;</span><span style="font-weight:bold">@localizer["18Sdos"]</span>
+                     <select asp-for="Nato18Sdos" id="Nato18Sdos" class="form-select" asp-items="ViewBag.Nato18SdosId"><option></option> </select>
+                </div>
+                <div class="col">
+                    <span class="error">* &nbsp;</span><span style="font-weight:bold">@localizer["CurrentSdos"]</span>
+                     <input asp-for="NatoCurrentSdos" id="NatoCurrentSdos" min="0" max="30" class="form-control" />
+                </div>
+                <div class="col">
+                    <span class="error">* &nbsp;</span><span style="font-weight:bold">@localizer["NationalSupplyPlan"]</span>
+                     <select asp-for="NatoNatSupplyPlan" id="NatoNatSupplyPlan" class="form-select" asp-items="ViewBag.NatoNatSupplyPlanId"><option></option> </select>
+                </div>
+                <div class="col">
+                    <span class="error">* &nbsp;</span><span style="font-weight:bold">@localizer["NationalSupportElements"]</span>
+                     <select asp-for="NatoNatSupportElem" id="NatoNatSupportElem" class="form-select" asp-items="ViewBag.NatoNatSupportElemId"><option></option> </select>
+                </div>
+            </div>
+        </div>
+        <br />
+        <h5>@localizer["CombatEffectivenessAssessment"]</h5>
+        <div class="nato-grouping">
+            <div class="row nato-row">
+                <div class="col">
+                    <span class="error">* &nbsp;</span><span style="font-weight:bold">@localizer["NationalAssessmentRemarks"]</span>
+                    <input asp-for="NatoNationalAssesmentComments" id="NatoNationalAssesmentComments" class="form-control" maxlength="500" />
+                </div>
+            </div>
+        </div>
+    </div>
+    <br /><br />
+    <div id="PETSError" class="error"></div>
+    <table style="width: 100%;">
+        <tr>
+            @* Personnel Data ****************************************************************************@
+            <td valign="top" class="pets-quarter">
+                <table cellpadding="5">
+                    <tr style="vertical-align:top">
+                        <td colspan="3">
+                            <h5>@localizer["Personnel"]</h5>
+                        </td>
+                    </tr>
+                    <tr style="vertical-align:top">
+                        <td align="center" colspan="3">
+                            <div id="PersonnelError" class="error"></div>
+                            <table cellpadding="3">
+                                <tr>
+                                    <td> <span style="font-weight:bold">@localizer["PersonnelStatus"]</span></td>
+                                    <td>
+                                        <select id="PersonnelStatusDrpDwn" asp-for="PersonnelStatusId" onchange="changePersonalStatus(this,'PersonnelStatusDisplay')" class="form-select status-dropdown">
+                                            @if (percentStatus != null)
+                                            {
+                                                @foreach (var obj in percentStatus)
+                                                {
+                                                    @if (obj.Id == Model.PersonnelStatusId)
+                                                    {
+                                                        <option value="@obj.Id" selected style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@obj.Id" style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                } 
+                                            }
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <div id="PersonnelStatusDisplay" class="rounddiv" style="background-color:@Model.PersonnelStatus?.StatusDisplayColour"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td>
+                            <span class="error">* &nbsp;</span> <span style="font-weight:bold">@localizer["DesignatedStrengthDeclared"]</span>
+                        </td>
+                        <td>
+                            <input asp-for="PersonnelDesignatedStrength" id="PersonnelDesignatedStrength" class="form-control" type="number" />
+                        </td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td>
+                            <span class="error">* &nbsp;</span> <span style="font-weight:bold">@localizer["ActualStrengthCurrent"]</span>
+                        </td>
+                        <td>
+                            <input asp-for="PersonnelActualStrength" id="PersonnelActualStrength" class="form-control" type="number" />
+                        </td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            <h6>@localizer["FactorsNegativelyAffectingPersonnelReadiness"]</h6>
+                        </td>
+                    </tr>
+                    <tr style="height:30px; vertical-align:top">
+                        <td colspan="3">
+                            <table width="100%">
+                                <tr class="align-top">
+                                    <td width="33%">
+                                        <input class="form-check-input" asp-for="PersonnelLob" /> <span style="font-weight:bold">@localizer["LOB"] </span>
+                                    </td>
+                                    <td width="33%">
+                                        <input class="form-check-input" asp-for="PersonnelAps" /> <span style="font-weight:bold">@localizer["APS"] </span>
+                                    </td>
+                                    <td width="34%">
+                                        <input class="form-check-input" asp-for="PersonnelIt" id="PersonnelIt" /> <span style="font-weight:bold">@localizer["IT"] </span>
+                                    </td>
+                                </tr>
+                                <tr class="align-top">
+                                    <td>
+                                        <input class="form-check-input" asp-for="PersonnelMedical" id="PersonnelMedical" />  <span style="font-weight:bold">@localizer["Medical"] </span> &nbsp;
+                                    </td>
+                                    <td>
+                                        <input class="form-check-input" asp-for="PersonnelLightDuties" /> <span style="font-weight:bold">@localizer["LtDuties"]</span> &nbsp;
+                                    </td>
+                                    <td>
+                                        <input class="form-check-input" asp-for="PersonnelTradeInsufficienciesReadinessFactor" /> <span style="font-weight:bold">@localizer["TradeInsufficiencies"]</span> &nbsp;
+                                    </td>
+                                </tr>
+                                <tr class="align-top">
+                                    <td>
+                                        <input class="form-check-input" asp-for="PersonnelDental" id="PersonnelDental" /> <span style="font-weight:bold">@localizer["Dental"] </span>&nbsp;
+                                    </td>
+                                    <td>
+                                        <input class="form-check-input" asp-for="PersonnelFitness" id="PersonnelFitness" /> <span style="font-weight:bold">@localizer["Fitness"] </span>&nbsp;
+                                    </td>
+                                    <td>&nbsp;</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            <span style="font-weight:bold"> @localizer["PersonnelReadinessStatusRemarks"] </span>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            <input asp-for="PersonnelComments" id="PersonnelComments" class="form-control" />
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            @* Training Data ****************************************************************************@
+            <td valign="top" class="pets-quarter">
+                <table cellpadding="5">
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            <h5>@localizer["Training"]</h5>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <div id="TrainingError" class="error"></div>
+                        <td colspan="3" align="center">
+                            <span style="font-weight:bold">@localizer["TrainingStatus"]</span> &nbsp;
+                            <input asp-for="TrainingStatusId" hidden />
+                            <div id="TrainingStatusDisplay" class="rounddiv" style="background-color:@Model.TrainingStatus?.StatusDisplayColour; text-align:left"></div>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td>
+                            <span style="font-weight:bold">@localizer["CollectiveTraining"] </span> &nbsp;
+                        </td>
+                        <td colspan="2">
+                            <table cellpadding="3">
+                                <tr>
+                                    <td>
+                                        <select id="TrainingCollectiveTrainingStatusDrpDwn" asp-for="TrainingCollectiveTrainingStatusId" onchange="changeTrainingStatus(this,'TrainingCollectiveTrainingStatusDisplay')" class="form-select status-dropdown">
+                                            @if (percentStatus != null)
+                                            {
+                                                @foreach (var obj in percentStatus)
+                                                {
+                                                    @if (obj.Id == Model.TrainingCollectiveTrainingStatusId)
+                                                    {
+                                                        <option value="@obj.Id" selected style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@obj.Id" style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <div id="TrainingCollectiveTrainingStatusDisplay" class="rounddiv" style="background-color:@Model.TrainingCollectiveTrainingStatus?.StatusDisplayColour; text-align:left"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td>
+                            <span style="font-weight:bold">@localizer["IndividualTraining"] </span> &nbsp;
+                        </td>
+                        <td colspan="2">
+                            <table cellpadding="3">
+                                <tr>
+                                    <td>
+                                        <select id="TrainingIndividualTrainingStatusDrpDwn" asp-for="TrainingIndividualTrainingStatusId" onchange="changeTrainingStatus(this,'TrainingIndividualTrainingStatusDisplay')" class="form-select status-dropdown">
+                                            @if (percentStatus != null)
+                                            {
+                                                @foreach (var obj in percentStatus)
+                                                {
+                                                    @if (obj.Id == Model.TrainingIndividualTrainingStatusId)
+                                                    {
+                                                        <option value="@obj.Id" selected style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@obj.Id" style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <div id="TrainingIndividualTrainingStatusDisplay" class="rounddiv" style="background-color:@Model.TrainingIndividualTrainingStatus?.StatusDisplayColour; text-align:left"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="2">
+                            <span class="error">* &nbsp;</span>
+                            <span style="font-weight:bold">@localizer["CREVALOPREDDeclaration"]</span>  &nbsp;
+                        </td>
+                        <td width="33%">
+                            <select asp-for="TrainingCreval" id="TrainingCreval" class="form-select" asp-items="ViewBag.CREVALId"> <option></option> </select>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="2">
+                            <span style="font-weight:bold">@localizer["ProjectedCREVALOPREDDeclarationDate"]</span>  &nbsp;
+                        </td>
+                        <td>
+                            <input asp-for="TrainingProjectedCrevaldate" class="form-control" type="date" />
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="2">
+                            <span style="font-weight:bold">@localizer["CREVALDate"]</span> &nbsp;
+                        </td>
+                        <td>
+                            <input asp-for="TrainingCrevaldate" class="form-control" type="date" />
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="2">
+                            <span style="font-weight:bold">@localizer["SpecialtySkills"]</span> &nbsp;
+                        </td>
+                        <td>
+                            <select asp-for="TrainingSpecialtySkillsId" id="TrainingSpecialtySkills" class="form-select" asp-items="ViewBag.TrainingSpecialtySkillsId"> <option></option> </select>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            <h6> @localizer["FactorsNegativelyAffectingTrainingReadiness"]</h6>
+                        </td>
+                    </tr>
+                    <tr style="height:30px; vertical-align:top">
+                        <td colspan="3">
+                            <table width="100%">
+                                <tr class="align-top">
+                                    <td width="33%">
+                                        <input class="form-check-input" asp-for="TrainingAmmoReadinessFactor" id="TrainingAmmoReadinessFactor" />
+                                        <span style="font-weight:bold"> @localizer["Ammo"]</span> &nbsp;
+                                    </td>
+                                    <td width="33%">
+                                        <input class="form-check-input" asp-for="TrainingWeaponsReadinessFactor" id="TrainingWeaponsReadinessFactor" />
+                                        <span style="font-weight:bold">@localizer["Weapons"]</span> &nbsp;
+                                    </td>
+                                    <td width="34%">
+                                        <input class="form-check-input" asp-for="TrainingSparePartssReadinessFactor" />
+                                        <span style="font-weight:bold">@localizer["SpParts"]</span> &nbsp;
+                                    </td>
+                                </tr>
+                                <tr class="align-top">
+                                    <td>
+                                        <input class="form-check-input" asp-for="TrainingFuelReadinessFactor" id="TrainingFuelReadinessFactor" />
+                                        <span style="font-weight:bold">@localizer["Fuel"]</span> &nbsp;
+                                    </td>
+                                    <td>
+                                        <input class="form-check-input" asp-for="TrainingRadiosReadinessFactor" id="TrainingRadiosReadinessFactor" />
+                                        <span style="font-weight:bold">@localizer["Radios"]</span> &nbsp;
+                                    </td>
+                                    <td>
+                                        <input class="form-check-input" asp-for="TrainingItreadinessFactor" id="TrainingItreadinessFactor" />
+                                        <span style="font-weight:bold">@localizer["IT1"] </span> &nbsp;
+                                    </td>
+                                </tr>
+                                <tr class="align-top">
+                                    <td>
+                                        <input class="form-check-input" asp-for="TrainingRationsReadinessFactor" id="TrainingRationsReadinessFactor" />
+                                        <span style="font-weight:bold">@localizer["Rations"]</span> &nbsp;
+                                    </td>
+                                    <td>
+                                        <input class="form-check-input" asp-for="TrainingEquipmentReadinessFactor" id="TrainingEquipmentReadinessFactor" />
+                                        <span style="font-weight:bold">@localizer["Equipment"]</span> &nbsp;
+                                    </td>
+                                    <td>
+                                        <input class="form-check-input" asp-for="TrainingRangeAvailabilityReadinessFactor" id="TrainingRangeAvailabilityReadinessFactor" />
+                                        <span style="font-weight:bold">@localizer["RangeAvailability"]</span> &nbsp;
+                                    </td>
+                                </tr>
+                                <tr class="align-top">
+                                    <td>
+                                        <input class="form-check-input" asp-for="TrainingCtreadinessFactor" id="TrainingCtreadinessFactor" />
+                                        <span style="font-weight:bold">@localizer["CT"]</span> &nbsp;
+                                    </td>
+                                     <td>
+                                        <input class="form-check-input" asp-for="TrainingSpecialQuals" id="TrainingSpecialQuals" />
+                                        <span style="font-weight:bold">@localizer["SpecialQuals"]</span> &nbsp;
+                                    </td>
+                                    <td>
+                                        <input class="form-check-input" asp-for="TrainingTrgFleets" id="TrainingTrgFleets" />
+                                        <span style="font-weight:bold">@localizer["TrgFleetsEqptSets"]</span> &nbsp;
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            <span style="font-weight:bold">@localizer["TrainingReadinessStatusRemarks"]</span> &nbsp;
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            <input asp-for="TrainingComments" id="TrainingComments" class="form-control" />
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            @* Equipment Data ****************************************************************************@
+            <td valign="top" class="pets-quarter">
+                <table cellpadding="5">
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="2">
+                            <h5>@localizer["Equipment"]</h5>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3" align="center">
+                            <span style="font-weight:bold">@localizer["EquipmentStatus"]</span> &nbsp;
+                            <input asp-for="EquipmentStatusId" hidden />
+                            <div id="EquipmentStatusDisplay" class="rounddiv" style="background-color:@Model.EquipmentStatus?.StatusDisplayColour; text-align:left"></div>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td>
+                            <span style="font-weight:bold">@localizer["CombatVehicleVesselAircraftServiceabilityRate"]</span> &nbsp;
+                        </td>
+                        <td colspan="2">
+                            <table cellpadding="3">
+                                <tr>
+                                    <td>
+                                        <select id="EquipmentCombatVehicleStatusDrpDwn" asp-for="EquipmentCombatVehicleStatusId" onchange="changeEquipmentStatus(this,'EquipmentCombatVehicleStatusDisplay')" class="form-select status-dropdown">
+                                            @if (percentStatus != null)
+                                            {
+                                                @foreach (var obj in percentStatus)
+                                                {
+                                                    @if (obj.Id == Model.EquipmentCombatVehicleStatusId)
+                                                    {
+                                                        <option value="@obj.Id" selected style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@obj.Id" style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <div id="EquipmentCombatVehicleStatusDisplay" class="rounddiv" style="background-color:@Model.EquipmentCombatVehicleStatus?.StatusDisplayColour; text-align:left"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td>
+                            <span style="font-weight:bold">@localizer["SupportVehicleVesselAircraftServiceabilityRate"]</span> &nbsp;
+                        </td>
+                        <td colspan="2">
+                            <table cellpadding="3">
+                                <tr>
+                                    <td>
+                                        <select id="EquipmentSupportVehicleStatusDrpDwn" asp-for="EquipmentSupportVehicleStatusId" onchange="changeEquipmentStatus(this,'EquipmentSupportVehicleStatusDisplay')" class="form-select status-dropdown">
+                                            @if (percentStatus != null)
+                                            {
+                                                @foreach (var obj in percentStatus)
+                                                {
+                                                    @if (obj.Id == Model.EquipmentSupportVehicleStatusId)
+                                                    {
+                                                        <option value="@obj.Id" selected style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@obj.Id" style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <div id="EquipmentSupportVehicleStatusDisplay" class="rounddiv" style="background-color:@Model.EquipmentSupportVehicleStatus?.StatusDisplayColour; text-align:left"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td>
+                            <span style="font-weight:bold">@localizer["WeaponsServiceabilityRate"]</span> &nbsp;
+                        </td>
+                        <td colspan="2">
+                            <table cellpadding="3">
+                                <tr>
+                                    <td>
+                                        <select id="EquipmentWeaponsServiceRateStatusDrpDwn" asp-for="EquipmentWeaponsServiceRateStatusId" onchange="changeEquipmentStatus(this,'EquipmentWeaponsServiceRateStatusDisplay')" class="form-select status-dropdown">
+                                            @if (percentStatus != null)
+                                            {
+                                                @foreach (var obj in percentStatus)
+                                                {
+                                                    @if (obj.Id == Model.EquipmentWeaponsServiceRateStatusId)
+                                                    {
+                                                        <option value="@obj.Id" selected style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@obj.Id" style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <div id="EquipmentWeaponsServiceRateStatusDisplay" class="rounddiv" style="background-color:@Model.EquipmentWeaponsServiceRateStatus?.StatusDisplayColour; text-align:left"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td>
+                            <span style="font-weight:bold">@localizer["CommunicationsEquipmentServiceabilityRate"]</span> &nbsp;
+                        </td>
+                        <td colspan="2">
+                            <table cellpadding="3">
+                                <tr>
+                                    <td>
+                                        <select id="EquipmentCommunicationsEquipmentStatusDrpDwn" asp-for="EquipmentCommunicationsEquipmentStatusId" onchange="changeEquipmentStatus(this,'EquipmentCommunicationsEquipmentStatusDisplay')" class="form-select status-dropdown">
+                                            @if (percentStatus != null)
+                                            {
+                                                @foreach (var obj in percentStatus)
+                                                {
+                                                    @if (obj.Id == Model.EquipmentCommunicationsEquipmentStatusId)
+                                                    {
+                                                        <option value="@obj.Id" selected style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@obj.Id" style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <div id="EquipmentCommunicationsEquipmentStatusDisplay" class="rounddiv" style="background-color:@Model.EquipmentCommunicationsEquipmentStatus?.StatusDisplayColour; text-align:left"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td>
+                            <span style="font-weight:bold">@localizer["SpecializedEquipmentServiceabilityRate"]</span> &nbsp;
+                        </td>
+                        <td colspan="2">
+                            <table cellpadding="3">
+                                <tr>
+                                    <td>
+                                        <select id="EquipmentSpecialEquipmentStatusDrpDwn" asp-for="EquipmentSpecialEquipmentStatusId" onchange="changeEquipmentStatus(this,'EquipmentSpecialEquipmentStatusDisplay')" class="form-select status-dropdown">
+                                            @if (percentStatus != null)
+                                            {
+                                                @foreach (var obj in percentStatus)
+                                                {
+                                                    @if (obj.Id == Model.EquipmentSpecialEquipmentStatusId)
+                                                    {
+                                                        <option value="@obj.Id" selected style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@obj.Id" style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <div id="EquipmentSpecialEquipmentStatusDisplay" class="rounddiv" style="background-color:@Model.EquipmentSpecialEquipmentStatus?.StatusDisplayColour; text-align:left"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            <h6>@localizer["FactorsNegativelyAffectingEquipmentReadiness"]</h6>
+                        </td>
+                    </tr>
+                    <tr style="height:30px; vertical-align:top">
+                        <td colspan="3">
+                            <table width="100%">
+                                <tr class="align-top">
+                                    <td width="33%">
+                                        <input class="form-check-input" asp-for="EquipmentVehicalsReadinessFactor" />
+                                        <span style="font-weight:bold"> @localizer["Vehicles"]</span>
+                                    </td>
+                                    <td width="33%">
+                                        <input class="form-check-input" asp-for="EquipmentSpecialEquimentReadinessFactor" />
+                                        <span style="font-weight:bold">@localizer["SpEquipment"]</span>
+                                    </td>
+                                    <td width="34%">
+                                        <input class="form-check-input" asp-for="EquipmentWeaponsReadinessFactor" id="EquipmentWeaponsReadinessFactor" />
+                                        <span style="font-weight:bold">@localizer["Weapons1"]</span>
+                                    </td>
+                                </tr>
+                                <tr class="align-top">
+                                    <td>
+                                        <input class="form-check-input" asp-for="EquipmentTechniciansReadinessFactor" id="EquipmentTechniciansReadinessFactor" />
+                                        <span style="font-weight:bold"> @localizer["Technicians"]</span>
+                                    </td>
+                                    <td>
+                                        <input class="form-check-input" asp-for="EquipmentCommunicationsReadinessFactor" id="EquipmentCommunicationsReadinessFactor" />
+                                        <span style="font-weight:bold">@localizer["Communications"]</span>
+                                    </td>
+                                    <td>
+                                        <input class="form-check-input" asp-for="EquipmentSensorsReadinessFactor" id="EquipmentSensorsReadinessFactor" />
+                                        <span style="font-weight:bold">@localizer["Sensors"]</span>
+                                    </td>
+                                </tr>
+                                <tr class="align-top">
+                                    <td>
+                                        <input class="form-check-input" asp-for="EquipmentLifeEntensionDelays" id="EquipmentLifeEntensionDelays" />
+                                        <span style="font-weight:bold"> @localizer["LifeExtensionDelays"]</span>
+                                    </td>
+                                    <td>
+                                        <input class="form-check-input" asp-for="EquipmentProtectionSuites" id="EquipmentProtectionSuites" />
+                                        <span style="font-weight:bold">@localizer["ProtectionSuites"]</span>
+                                    </td>
+                                    <td>
+                                        <input class="form-check-input" asp-for="EquipmentOther" id="EquipmentOther" />
+                                        <span style="font-weight:bold">@localizer["Other"]</span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            <span style="font-weight:bold">@localizer["EquipmentReadinessStatusRemarks"]</span> &nbsp;
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            <input asp-for="EquipmentComments" class="form-control" />
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            @* Sustainment Data ****************************************************************************@
+            <td valign="top" class="pets-quarter">
+                <table cellpadding="5">
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            <h5>@localizer["Sustainment"]</h5>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3" align="center">
+                            <span style="font-weight:bold">@localizer["SustainmentStatus"]</span> &nbsp;
+                            <input asp-for="SustainmentStatusId" id="SustainmentStatusId" hidden />
+                            <div id="SustainmentStatusDisplay" class="rounddiv" style="background-color:@Model.SustainmentStatus?.StatusDisplayColour; text-align:left"></div>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td>
+                            <span style="font-weight:bold">@localizer["Class1CombatRations"]</span> &nbsp;
+                        </td>
+                        <td colspan="2">
+                            <table cellpadding="3">
+                                <tr>
+                                    <td>
+                                        <select id="SustainmentCombatRationsStatusDrpDwn" asp-for="SustainmentCombatRationsStatusId" onchange="changeSustainmentStatus(this, 'SustainmentCombatRationsStatusDisplay')" class="form-select status-dropdown">
+                                            @if (percentStatus != null)
+                                            {
+                                                @foreach (var obj in percentStatus)
+                                                {
+                                                    @if (obj.Id == Model.SustainmentCombatRationsStatusId)
+                                                    {
+                                                        <option value="@obj.Id" selected style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@obj.Id" style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <div id="SustainmentCombatRationsStatusDisplay" class="rounddiv" style="background-color:@Model.SustainmentCombatRationsStatus?.StatusDisplayColour; text-align:left"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td>
+                            <span style="font-weight:bold">@localizer["Class2Personalequipmentanduniforms"]</span> &nbsp;
+                        </td>
+                        <td colspan="2">
+                            <table cellpadding="3">
+                                <tr>
+                                    <td>
+                                        <select id="SustainmentPersonalEquipmentStatusDrpDwn" asp-for="SustainmentPersonalEquipmentStatusId" onchange="changeSustainmentStatus(this,'SustainmentPersonalEquipmentStatusDisplay')" class="form-select status-dropdown">
+                                            @if (percentStatus != null)
+                                            {
+                                                @foreach (var obj in percentStatus)
+                                                {
+                                                    @if (@obj.Id == @Model.SustainmentPersonalEquipmentStatusId)
+                                                    {
+                                                        <option value="@obj.Id" selected style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@obj.Id" style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                }
+                                            }
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <div id="SustainmentPersonalEquipmentStatusDisplay" class="rounddiv" style="background-color:@Model.SustainmentPersonalEquipmentStatus?.StatusDisplayColour; text-align:left"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td>
+                            <span style="font-weight:bold">@localizer["Class3PetroleumOilsLubricants"]</span> &nbsp;
+                        </td>
+                        <td colspan="2">
+                            <table cellpadding="3">
+                                <tr>
+                                    <td>
+                                        <select id="SustainmentPetrolStatusDrpDwn" asp-for="SustainmentPetrolStatusId" onchange="changeSustainmentStatus(this,'SustainmentPetrolStatusDisplay')" class="form-select status-dropdown">
+                                            @if (percentStatus != null)
+                                            {
+                                                @foreach (var obj in percentStatus)
+                                                {
+                                                    @if (@obj.Id == @Model.SustainmentPetrolStatusId)
+                                                    {
+                                                        <option value="@obj.Id" selected style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@obj.Id" style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                }   
+                                            }
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <div id="SustainmentPetrolStatusDisplay" class="rounddiv" style="background-color:@Model.SustainmentPetrolStatus?.StatusDisplayColour; text-align:left"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td>
+                            <span style="font-weight:bold">@localizer["Class5Ammunition"]</span> &nbsp;
+                        </td>
+                        <td colspan="2">
+                            <table cellpadding="3">
+                                <tr>
+                                    <td>
+                                        <select id="SustainmentAmmunitionStatusDrpDwn" asp-for="SustainmentAmmunitionStatusId" onchange="changeSustainmentStatus(this,'SustainmentAmmunitionStatusDisplay')" class="form-select status-dropdown">
+                                            @if (percentStatus != null)
+                                            {
+                                                @foreach (var obj in percentStatus)
+                                                {
+                                                    @if (@obj.Id == @Model.SustainmentAmmunitionStatusId)
+                                                    {
+                                                        <option value="@obj.Id" selected style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@obj.Id" style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                } 
+                                            }
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <div id="SustainmentAmmunitionStatusDisplay" class="rounddiv" style="background-color:@Model.SustainmentAmmunitionStatus?.StatusDisplayColour; text-align:left"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td>
+                            <span style="font-weight:bold">@localizer["Class7SpareParts"]</span> &nbsp;
+                        </td>
+                        <td colspan="2">
+                            <table cellpadding="3">
+                                <tr>
+                                    <td>
+                                        <select id="SustainmentSparesStatusDrpDwn" asp-for="SustainmentSparesStatusId" onchange="changeSustainmentStatus(this,'SustainmentSparesStatusDisplay')" class="form-select status-dropdown">
+                                            @if (percentStatus != null)
+                                            {
+                                                @foreach (var obj in percentStatus)
+                                                {
+                                                    @if (@obj.Id == @Model.SustainmentSparesStatusId)
+                                                    {
+                                                        <option value="@obj.Id" selected style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@obj.Id" style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                }  
+                                            }
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <div id="SustainmentSparesStatusDisplay" class="rounddiv" style="background-color:@Model.SustainmentSparesStatus?.StatusDisplayColour; text-align:left"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td>
+                            <span style="font-weight:bold">@localizer["Class8MedSupplies"]</span> &nbsp;
+                        </td>
+                        <td colspan="2">
+                            <table cellpadding="3">
+                                <tr>
+                                    <td>
+                                        <select id="SustainmentOtherStatusDrpDwn" asp-for="SustainmentOtherStatusId" onchange="changeSustainmentStatus(this,'SustainmentOtherStatusDisplay')" class="form-select status-dropdown">
+                                            @if (percentStatus != null)
+                                            {
+                                                @foreach (var obj in percentStatus)
+                                                {
+                                                    @if (obj.Id == @Model.SustainmentOtherStatusId)
+                                                    {
+                                                        <option value="@obj.Id" selected style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                    else
+                                                    {
+                                                        <option value="@obj.Id" style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                                    }
+                                                }
+                                            } 
+                                        </select>
+                                    </td>
+                                    <td>
+                                        <div id="SustainmentOtherStatusDisplay" class="rounddiv" style="background-color:@Model.SustainmentOtherStatus?.StatusDisplayColour; text-align:left"></div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            <h6>@localizer["FactorsNegativelyAffectingSustainmentReadiness"]</h6>
+                        </td>
+                    </tr>
+                    <tr style="height:30px; vertical-align:top">
+                        <td colspan="3">
+                            <table style="width: 100%;">
+                                <tr class="align-top">
+                                    <td width="33%">
+                                        <input class="form-check-input" asp-for="SustainmentRationsReadinessFactor" id="SustainmentRationsReadinessFactor" />
+                                        <span style="font-weight:bold">@localizer["LowInventoryStock"]</span>
+                                    </td>
+                                    <td width="33%">
+                                        <input class="form-check-input" asp-for="SustainmentFuelReadinessFactor" id="SustainmentFuelReadinessFactor" />
+                                        <span style="font-weight:bold">@localizer["Fuel"]</span>
+                                    </td>
+                                    <td width="34%">
+                                        <input class="form-check-input" asp-for="SustainmentUniformsReadinessFactor" id="SustainmentUniformsReadinessFactor" />
+                                        <span style="font-weight:bold">@localizer["InsufficientStorageFacilities"]</span>
+                                    </td>
+                                </tr>
+                                <tr class="align-top">
+                                    <td width="33%">
+                                        <input class="form-check-input" asp-for="SustainmentAmmunitionReadinessFactor" id="SustainmentAmmunitionReadinessFactor" />
+                                        <span style="font-weight:bold">@localizer["InsufficientLift"]</span>
+                                    </td>
+                                    <td width="33%">
+                                        <input class="form-check-input" asp-for="SustainmentPpereadinessFactor" id="SustainmentPpereadinessFactor" />
+                                        <span style="font-weight:bold">@localizer["PPE"]</span>
+                                    </td>
+                                    <td width="34%">
+                                        <input class="form-check-input" asp-for="SustainmentSparePartsReadinessFactor" />
+                                        <span style="font-weight:bold">@localizer["IndustryDelays"]</span>
+                                    </td>
+                                </tr>
+                                <tr class="align-top">
+                                    <td colspan="2">
+                                        <input class="form-check-input" asp-for="SustainmentOtherReadinessFactor" id="SustainmentOtherReadinessFactor" />
+                                        <span style="font-weight:bold">@localizer["Other"]</span>
+                                    </td>
+                                    <td>&nbsp;</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            <span style="font-weight:bold">@localizer["SustainmentReadinessStatusRemarks"]</span> &nbsp;
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            <input asp-for="SustainmentComments" id="SustainmentComments" class="form-control" />
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <br />
+    <table>
+        <tr>
+            <td>
+                <span style="font-weight:bold">@localizer["LastEditedBy"]</span> &nbsp; @Html.DisplayFor(model => model.LastEditUserNavigation!.UserName)
+            </td>
+        </tr>
+    </table>
+    <br />
+    <div class="form-group">
+        <table style="table-layout: fixed; width: 100%">
+            <tr>
+                <td>
+                    <input type="image" title="@localizer["SaveasDraft"]" src='@Url.Content("~/images/draft.png")' height="32" width="32" onclick="submitDraftForm();return false" /> &nbsp;&nbsp;
+                    <a asp-action="Index"
+                       asp-route-pageNumber="@ViewData["pageNumber"]"
+                       asp-route-sortOrder="@ViewData["sortOrder"]"
+                       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                       asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                       asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                       asp-route-selectedNato="@ViewData["selectedNato"]"
+                       asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                       asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                       title="@localizer["Cancel"]">
+                        <img alt="@localizer["Cancel"]" src='@Url.Content("~/images/Cancel.png")' height="32" width="32" style="vertical-align: inherit;" />
+                    </a>
+                </td>
+                <td>
+                    <div class="text-center">
+                        <button class="btn btn-secondary" onclick="submitForm();return false">@localizer["Submit"]</button>
+                    </div>
+                </td>
+                <td>
+                </td>
+            </tr>
+        </table>
+    </div>
+</form>
+
+<div id='kpiModal' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='kpiModalContent'></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script src="~/js/datacardkpimodal.js"></script>
+    <script src="~/js/inputvalidation.js"></script>
+    <script type="text/javascript">
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip({
+                html: true
+            })
+        })
+
+        //Document load
+        $(document).ready(function () {
+            var cultureInfo = '@System.Globalization.CultureInfo.CurrentCulture.Name';
+
+            if ($('#NatoActive').is(':checked') || $('#NFMActive').is(':checked')) {
+                if($('#NatoActive').is(':checked')){
+                    $('#NFMTitle').hide();
+                    $('#NFMActive').prop("disabled", true);
+                    $('#NatoTitle').show();
+                }
+                else{
+                    $('#NFMTitle').show();
+                    $('#NatoActive').prop("disabled", true);
+                    $('#NatoTitle').hide();
+                }
+                $('#NatoSection').show();
+
+                if (cultureInfo = 'en') {
+                    $('#classificationBanner').text('SECRET REL NATO');
+                }
+                else {
+                    $('#classificationBanner').text("SECRET DIFFUSION À L'OTAN");
+                }
+
+                setInputValidation("#NatoLocation");
+                $('#NatoLocationAstrix').show();
+
+                setInputValidation("#NatoCoordinates");
+                $('#NatoCoordinatesAstrix').show();
+
+                if ($('#NatoEvalCompleted').val() == @ViewData["YNNANoID"]) {
+                    setInputValidation("#NatoPlannedEvalDate");
+                    $('#NatoPlannedEvalDateAstrix').show();
+                } else {
+                    removeInputValidation("#NatoPlannedEvalDate");
+                    $('#NatoPlannedEvalDateAstrix').hide();
+                }
+
+            } else {
+                $('#NatoSection').hide();
+                $('#NatoLocationAstrix').hide();
+                $('#NatoCoordinatesAstrix').hide();
+                if (cultureInfo = 'en') {
+                    $('#classificationBanner').text('SECRET FIVE EYES ONLY')
+                }
+                else {
+                    $('#classificationBanner').text('SECRET DIFFUSION AU GROUPE DES CINQ SEULEMENT')
+                }
+            }
+        });
+
+        //Document load Concurrency
+        $(document).ready(function () {
+            showHideConcurrency();
+        });
+
+        //Document load
+        $(document).ready(function () {
+            var myvar1 = document.getElementById('CommandOverideStatusDrpDwn').value;
+            if (myvar1 == "") {
+                $('#OverrideComments').hide();
+            } else {
+                $('#OverrideComments').show();
+            }
+        });
+
+        //required fields check
+        $(document).ready(function () {
+            setInputValidation("#Division");
+            setInputValidation("#Unit");
+            setInputValidation("#ConcurrencyCommnets");
+            setInputValidation("#Brigade");
+            setInputValidation("#Subunit");
+            setInputValidation("#CategoryId");
+            setInputValidation("#DesignationId");
+            setInputValidation("#ServiceId");
+            setInputValidation("#EchelonId");
+            setInputValidation("#CapabilityId");
+            setInputValidation("#NatoNationalName");
+            setInputValidation("#NatoAfstrainingPercentage");
+            setInputValidation("#NatoEvalCompleted");
+            setInputValidation("#NatoCertProgramCoord");
+            setInputValidation("#NatoCertCompleted");
+            setInputValidation("#NatoStratLiftCapacityId");
+            setInputValidation("#NatoNationalDeployId");
+            setInputValidation("#PersonnelDesignatedStrength");
+            setInputValidation("#PersonnelActualStrength");
+            setInputValidation("#TrainingCreval");
+            setInputValidation("#CommandOverrideComments");
+            setInputValidation("#CommandOverrideAuthority");
+            setInputValidation("#Nato12Sdos");
+            setInputValidation("#Nato18Sdos");
+            setInputValidation("#NatoCurrentSdos");
+            setInputValidation("#NatoNatSupplyPlan");
+            setInputValidation("#NatoNatSupportElem");
+            setInputValidation("#NatoNationalAssesmentComments");
+        });
+
+        //Toggle Nato
+        $('#NatoActive').change(function () {
+            var cultureInfo = '@System.Globalization.CultureInfo.CurrentCulture.Name';
+            if (this.checked) {
+                $('#NFMTitle').hide();
+                $('#NFMActive').prop("disabled", true);
+                $('#NatoTitle').show();
+                $('#NatoSection').show();
+                if (cultureInfo = 'en') {
+                    $('#classificationBanner').text('SECRET REL NATO');
+                }
+                else {
+                    $('#classificationBanner').text("SECRET DIFFUSION À L'OTAN");
+                }
+                setInputValidation("#NatoLocation");
+                setInputValidation("#NatoCoordinates");
+                $('#NatoLocationAstrix').show();
+                $('#NatoCoordinatesAstrix').show();
+            } else {
+                $('#NFMActive').prop("disabled", false);
+                $('#NatoTitle').hide();
+                $('#NatoSection').hide();
+                if (cultureInfo = 'en') {
+                    $('#classificationBanner').text('SECRET FIVE EYES ONLY')
+                }
+                else {
+                    $('#classificationBanner').text('SECRET DIFFUSION AU GROUPE DES CINQ SEULEMENT')
+                }
+                $("#NatoLocation").removeClass("input-validation-error");
+                $("#NatoCoordinates").removeClass("input-validation-error");
+                $('#NatoLocationAstrix').hide();
+                $('#NatoCoordinatesAstrix').hide();
+            }
+        });
+
+        $('#NFMActive').change(function () {
+            var cultureInfo = '@System.Globalization.CultureInfo.CurrentCulture.Name';
+            if (this.checked) {
+                $('#NatoTitle').hide();
+                $('#NatoActive').prop("disabled", true);
+                $('#NFMTitle').show();
+                $('#NatoSection').show();
+                if (cultureInfo = 'en') {
+                    $('#classificationBanner').text('SECRET REL NATO');
+                }
+                else {
+                    $('#classificationBanner').text("SECRET DIFFUSION À L'OTAN");
+                }
+                setInputValidation("#NatoLocation");
+                setInputValidation("#NatoCoordinates");
+                $('#NatoLocationAstrix').show();
+                $('#NatoCoordinatesAstrix').show();
+            } else {
+                $('#NatoActive').prop("disabled", false);
+                $('#NFMTitle').hide();
+                $('#NatoSection').hide();
+                if (cultureInfo = 'en') {
+                    $('#classificationBanner').text('SECRET FIVE EYES ONLY')
+                }
+                else {
+                    $('#classificationBanner').text('SECRET DIFFUSION AU GROUPE DES CINQ SEULEMENT')
+                }
+                $("#NatoLocation").removeClass("input-validation-error");
+                $("#NatoCoordinates").removeClass("input-validation-error");
+                $('#NatoLocationAstrix').hide();
+                $('#NatoCoordinatesAstrix').hide();
+            }
+        });
+
+        $('#CommandOverideStatusDrpDwn').change(function () {
+            if (this.value != "") {
+                $('#OverrideComments').show();
+            } else {
+                $('#OverrideComments').hide();
+            }
+        });
+
+        // Checks fields below and puts red border if missing
+        $("#Division").change(function () { setInputValidation("#Division"); });
+        $("#Unit").change(function () { setInputValidation("#Unit"); });
+        $("#ConcurrencyCommnets").change(function () { setInputValidation("#ConcurrencyCommnets"); });
+        $("#Brigade").change(function () { setInputValidation("#Brigade"); });
+        $("#Subunit").change(function () { setInputValidation("#Subunit"); });
+        $("#CategoryId").change(function () { setInputValidation("#CategoryId"); });
+        $("#DesignationId").change(function () { setInputValidation("#DesignationId"); });
+        $("#ServiceId").change(function () { setInputValidation("#ServiceId"); });
+        $("#EchelonId").change(function () { setInputValidation("#EchelonId"); });
+        $("#CapabilityId").change(function () { setInputValidation("#CapabilityId"); });
+        $("#NatoLocation").change(function () { setInputValidationNato("#NatoLocation"); });
+        $("#NatoCoordinates").change(function () { setInputValidationNato("#NatoCoordinates"); });
+        $("#Subunit").change(function () { setInputValidation("#Subunit"); });
+        $("#NatoNationalName").change(function () { setInputValidation("#NatoNationalName"); });
+        $("#NatoAfstrainingPercentage").change(function () { setInputValidation("#NatoAfstrainingPercentage"); });
+        $("#NatoEvalCompleted").change(function () { 
+            setInputValidation("#NatoEvalCompleted"); 
+            if ($('#NatoEvalCompleted').val() == @ViewData["YNNANoID"]) {
+                setInputValidation("#NatoPlannedEvalDate");
+                $('#NatoPlannedEvalDateAstrix').show();
+            } else {
+                removeInputValidation("#NatoPlannedEvalDate");
+                $('#NatoPlannedEvalDateAstrix').hide();
+            }
+        });
+        $("#NatoPlannedEvalDate").change(function () { 
+            if ($('#NatoEvalCompleted').val() == @ViewData["YNNANoID"]) {
+                setInputValidation("#NatoPlannedEvalDate");
+            } else {
+                removeInputValidation("#NatoPlannedEvalDate");
+            }
+        });
+        $("#NatoCertProgramCoord").change(function () { setInputValidation("#NatoCertProgramCoord"); });
+        $("#NatoCertCompleted").change(function () { setInputValidation("#NatoCertCompleted"); });
+        $("#NatoStratLiftCapacityId").change(function () { setInputValidation("#NatoStratLiftCapacityId"); });
+        $("#NatoNationalDeployId").change(function () { setInputValidation("#NatoNationalDeployId"); });
+        $("#NatoCertProgramCoord").change(function () { setInputValidation("#NatoCertProgramCoord"); });
+        $("#Nato12Sdos").change(function () { setInputValidation("#Nato12Sdos"); });
+        $("#Nato18Sdos").change(function () { setInputValidation("#Nato18Sdos"); });
+        $("#NatoCurrentSdos").change(function () { setInputValidation("#NatoCurrentSdos"); });
+        $("#NatoNatSupplyPlan").change(function () { setInputValidation("#NatoNatSupplyPlan"); });
+        $("#NatoNatSupportElem").change(function () { setInputValidation("#NatoNatSupportElem"); });
+        $("#NatoNationalAssesmentComments").change(function () { setInputValidation("#NatoNationalAssesmentComments"); });
+        $("#PersonnelDesignatedStrength").change(function () { setInputValidation("#PersonnelDesignatedStrength"); });
+        $("#PersonnelActualStrength").change(function () { setInputValidation("#PersonnelActualStrength"); });
+        $("#TrainingCreval").change(function () { setInputValidation("#TrainingCreval"); });
+        $('#CommandOverrideComments').change(function () { setInputValidation("#CommandOverrideComments"); });
+        $('#CommandOverrideAuthority').change(function () { setInputValidation("#CommandOverrideAuthority"); });
+
+        function showHideConcurrency() {
+            var ConplanNaID = '@ViewData["ConplanNaID"]';
+            var OperationNaID = '@ViewData["OperationNaID"]';
+            var conplanArray = [];
+            $("input:checkbox[name=Conplan]:checked").each(function () {
+                if ($(this).val() != ConplanNaID) {
+                    conplanArray.push($(this).val());
+                }
+            });
+            var operationArray = [];
+            $("input:checkbox[name=Operation]:checked").each(function () {
+                if ($(this).val() != OperationNaID) {
+                    operationArray.push($(this).val());
+                }
+            });
+            if (conplanArray.length > 1 || operationArray.length > 1) {
+                $('#concurrencySection').show();
+            } else {
+                $('#ConcurrencyCommnets').val("");
+                $('#concurrencySection').hide();
+            }
+        }
+
+        function submitDraftForm() {
+            $('input[name="DataCardComplete"]').val('false');
+            document.getElementById("EditDataCard").submit();
+        }
+
+        function submitForm() {
+            var cultureInfo = '@System.Globalization.CultureInfo.CurrentCulture.Name';
+            let personnelReturn = personnelStatusComplete();
+            let equipmentReturn = equipmentStatusComplete();
+            let trainingReturn = trainingStatusComplete();
+            let sustainmentReturn = sustainmentStatusComplete();
+            let personnelReadinessFactorsReturn = personnelReadinessFactorsComplete();
+            let equipmentReadinessFactorsReturn = equipmentReadinessFactorsComplete();
+            let trainingReadinessFactorsReturn = trainingReadinessFactorsComplete();
+            let sustainmentReadinessFactorsReturn = sustainmentReadinessFactorsComplete();
+            let dataCardCompleteReturn = dataCardComplete();
+            let natoCompleteReturn = natoComplete();
+            let personnelCompleteReturn = personnelComplete();
+            let trainingCompleteReturn = trainingComplete();
+
+
+            $('#DataCardError').text("");
+            $('#PETSError').text("");
+            $('#NatoError').text("");
+            $('#PersonnelError').text("");
+            $('#TrainingError').text("");
+
+            // Validate form fileds in Data Card
+            // Force Generator, Div/Frm, Bde/Flt/Wg, parent Unit, Sub-Unit, CONPLAN, Operations
+
+            if (dataCardCompleteReturn == false) {
+                if (cultureInfo = 'en') {
+                    var message = "The validation of your Data Card input indicates that not all the mandatory fields are complete.  Please ensure you provide data for all fields marked with an *";
+                }
+                else {
+                    var message = "La validation de votre contribution à la carte de données indique que les champs obligatoires ne sont pas tous remplis. Veuillez vous assurer de fournir les données pour tous les champs marqués d'un *.";
+                }
+                $('#DataCardError').text(message);
+                $('html, body').animate({ scrollTop: $("#DataCardError").offset().top }, 500);
+            }
+
+            else {
+                // eNRF/NRI section: Functional Category, NATO Designation, Service, Echelon, Capability Code, Peacetime Location Name, National Assessment (consideration: this section won't always be selected, so it's only mandatory is the eNRF/NRI checkbox is selected)
+                if (natoCompleteReturn == false) {
+                    if (cultureInfo = 'en') {
+                        var message = "The validation of your eNRF/NRI NATO input indicates that not all the mandatory fields are complete.  Please ensure you provide data for all fields marked with an *";
+                    }
+                    else {
+                        var message = "La validation de votre contribution à la eNRF/NRI de l'OTAN indique que les champs obligatoires ne sont pas tous remplis. Veuillez vous assurer de fournir les données pour tous les champs marqués d'un *.";
+                    }
+
+                    $('#NatoError').text(message);
+                    $('html, body').animate({ scrollTop: $("#NatoError").offset().top }, 500);
+                }
+                else {
+                    // PERSONNEL: Designatied Strength, Actual Strength
+
+                    if (personnelCompleteReturn == false) {
+                        if (cultureInfo = 'en') {
+                            var message = "The validation of your Personnel input indicates that not all the mandatory fields are complete.  Please ensure you provide data for all fields marked with an *";
+                        }
+                        else {
+                            var message = "La validation de votre contribution au personnel indique que les champs obligatoires ne sont pas tous remplis. Veuillez vous assurer de fournir les données pour tous les champs marqués d'un *.";
+                        }
+                        $('#PersonnelError').text(message);
+                        $('html, body').animate({ scrollTop: $("#PersonnelError").offset().top }, 500);
+                    }
+                    else {
+                        // TRAINING: Creval Declaration
+                        if (trainingCompleteReturn == false) {
+                            if (cultureInfo = 'en') {
+                                var message = "The validation of your Training input indicates that not all the mandatory fields are complete.  Please ensure you provide data for all fields marked with an *";
+                            }
+                            else {
+                                var message = "La validation de votre contribution à l'instruction indique que les champs obligatoires ne sont pas tous remplis. Veuillez vous assurer de fournir les données pour tous les champs marqués d'un *.";
+                            }
+
+                            $('#TrainingError').text(message);
+                            $('html, body').animate({ scrollTop: $("#TrainingError").offset().top }, 500);
+                        }
+                        else {
+                            if (personnelReturn == true & equipmentReturn == true & trainingReturn == true & sustainmentReturn == true) {
+                                if (personnelReadinessFactorsReturn == true & equipmentReadinessFactorsReturn == true & trainingReadinessFactorsReturn == true & sustainmentReadinessFactorsReturn == true) {
+                                    //Post the form
+
+                                    $('input[name="DataCardComplete"]').val('true');
+
+                                    document.getElementById("EditDataCard").submit();
+                                }
+                                else {
+                                    if (cultureInfo = 'en') {
+                                        var message = "The validation of your inputed data indicates that you have supplied a PETS that is not Green and have not provided selected a Factor Affecting Readiness.  Please ensure that you select a Factor Affecting Readiness for the PETS area where there is a status value is not Green.";
+                                    }
+                                    else {
+                                        var message = "La validation de vos données saisies indique que vous avez fourni un état de PEFS qui n'est pas Vert ni choisi un facteur ayant une incidence sur l'état de préparation. Veuillez vous assurer de choisir un facteur ayant une incidence négative sur l'état de préparation dans le secteur de PEFS où la valeur de l'état n'est pas verte. ";
+                                    }
+
+                                    $('#PETSError').text(message);
+                                    $('html, body').animate({ scrollTop: $("#PETSError").offset().top }, 500);
+                                }
+                            }
+                            else {
+                                if (cultureInfo = 'en') {
+                                    var message = "The validation of your inputed data indicates that you have supplied a PETS status of Orange and/or Red and have not provided a comment to substatiate the status.  Please ensure that you provide a comment in the PETS area where there is a status value of Orange and/or Red";
+                                }
+                                else {
+                                    var message = "La validation de vos données saisies indique que vous avez fourni un état de PEFS range ou Rouge et n'avez pas fourni un commentaire pour confirmer l'état. Veuillez vous assurer de fournir un commentaire dans le secteur de PEFS où la valeur de l'état est Orange. ";
+                                }
+
+                                $('#PETSError').text(message);
+                                $('html, body').animate({ scrollTop: $("#PETSError").offset().top }, 500);
+                            }
+                        }
+                    }
+                }
+            }
+        }
+
+        function dataCardComplete() {
+            let natoActive = $('#NatoActive').prop('checked');
+            let natoLocation = $("#NatoLocation").val();
+            let natoCoordinates = $("#NatoCoordinates").val();
+            let division = $('#Division').val();
+            let brigade = $('#Brigade').val();
+            let unit = $('#Unit').val();
+            let subunit = $('#Subunit').val();
+            let concurrencyComments = $('#ConcurrencyCommnets').val();
+            let commandOverideStatus = $('#CommandOverideStatusDrpDwn').val();
+            let commandOverrideComments = $('#CommandOverrideComments').val();
+            let commandOverrideAuthority = $('#CommandOverrideAuthority').val();
+
+            if ($(concurrencySection).is(":visible") && $.trim(concurrencyComments) == '') {
+                return false;
+            }
+            else if (commandOverideStatus != '' && ($.trim(commandOverrideComments) == '' || $.trim(commandOverrideAuthority) == '')) {
+                return false;
+            }
+
+            else if (division == '' || brigade == '' || unit == '' || subunit == '') {
+                return false;
+            }
+
+            else if (natoActive == true && ($.trim(natoLocation) == '' || $.trim(natoCoordinates) == '')) {
+                return false;
+            }
+
+            else {
+                return true;
+            }
+        }
+
+        function natoComplete() {
+            let natoNationalName = $("#NatoNationalName").val();
+            let natoAfstrainingPercentage = $("#NatoAfstrainingPercentage").val();
+            let natoEvalCompleted = $("#NatoEvalCompleted").val();
+            let natoPlannedEvalDate = $("#NatoPlannedEvalDate").val();
+            let natoCertProgramCoord = $("#NatoCertProgramCoord").val();
+            let natoCertCompleted = $("#NatoCertCompleted").val();
+            let natoStratLiftCapacityId = $("#NatoStratLiftCapacityId").val();
+
+            let nato12Sdos = $("#Nato12Sdos").val();
+            let nato18Sdos = $("#Nato18Sdos").val();
+            let natoCurrentSdos = $("#NatoCurrentSdos").val();
+            let natoNatSupplyPlan = $("#NatoNatSupplyPlan").val();
+            let natoNatSupportElem = $("#NatoNatSupportElem").val();
+
+            let natoActive = $('#NatoActive').prop('checked');
+            let categoryId = $('#CategoryId').val();
+            let designationId = $('#DesignationId').val();
+            let serviceId = $('#ServiceId').val();
+            let echelonId = $('#EchelonId').val();
+            let capabilityId = $('#CapabilityId').val();
+            let natoLocation = $('#NatoLocation').val();
+            let natoNationalAssesmentComments = $('#NatoNationalAssesmentComments').val();
+
+            if (natoNationalAssesmentComments == "" || natoNationalAssesmentComments == null) {
+                $('#NatoNationalAssesmentComments').addClass("input-validation-error");
+            }
+
+            if (natoActive == true) {
+                if (categoryId == '' || designationId == '' || serviceId == '' || echelonId == '' || capabilityId == ''
+                || $.trim(natoNationalAssesmentComments) == '' || nato12Sdos == '' ||  nato18Sdos == '' || natoCurrentSdos == ''
+                || natoNatSupplyPlan == '' || natoNatSupportElem == '' || natoNationalName == '' ||  natoAfstrainingPercentage == '' || natoEvalCompleted == ''
+                || natoCertProgramCoord == '' || natoCertCompleted == '' ||  natoStratLiftCapacityId == ''|| (natoEvalCompleted == @ViewData["YNNANoID"] && natoPlannedEvalDate == '') ) {
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            }
+            else {
+                return true;
+            }
+        }
+
+        function personnelComplete() {
+            let personnelDesignatedStrength = $('#PersonnelDesignatedStrength').val();
+            let personnelActualStrength = $('#PersonnelActualStrength').val();
+
+            if (personnelDesignatedStrength == '' || personnelActualStrength == '') {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+        function trainingComplete() {
+            let trainingCreval = $('#TrainingCreval').val();
+
+            if (trainingCreval == '') {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+        function personnelStatusComplete() {
+            let personnelStatusId = $('#PersonnelStatusDrpDwn').val();
+            let personnelComments = $('#PersonnelComments').val();
+
+            //If the value is Orange or Red and there are no comment
+            if ((personnelStatusId > 2 && personnelStatusId != 5) && $.trim(personnelComments) == '') {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+        function personnelReadinessFactorsComplete() {
+            let personnelStatusId = $('#PersonnelStatusDrpDwn').val();
+            let personnelLobVal = $('#PersonnelLob').prop('checked');
+            let personnelApsVal = $('#PersonnelAps').prop('checked');
+            let personnelItVal = $('#PersonnelIt').prop('checked');
+            let personnelMedicalVal = $('#PersonnelMedical').prop('checked');
+            let personnelLightDutiesVal = $('#PersonnelLightDuties').prop('checked');
+            let personnelTradeInsufficienciesReadinessFactorVal = $('#PersonnelTradeInsufficienciesReadinessFactor').prop('checked');
+            let personnelDentalVal = $('#PersonnelDental').prop('checked');
+            let personnelFitnessVal = $('#PersonnelFitness').prop('checked');
+
+            if (personnelStatusId != 5) {
+                // If the status is not green and no factors are checked
+                if (personnelStatusId != 1 && personnelLobVal == false && personnelApsVal == false && personnelItVal == false && personnelMedicalVal == false
+                    && personnelLightDutiesVal == false && personnelDentalVal == false && personnelFitnessVal == false && personnelTradeInsufficienciesReadinessFactorVal == false) {
+                    return false;
+                }
+                else {
+                    return true;
+                }
+            }
+            else {
+                return true;
+            }
+        }
+
+        function equipmentStatusComplete() {
+            let equipmentCombatVehicleStatusId = $('#EquipmentCombatVehicleStatusDrpDwn').val();
+            let equipmentSupportVehicleStatusId = $('#EquipmentSupportVehicleStatusDrpDwn').val();
+            let equipmentWeaponsServiceRateStatusId = $('#EquipmentWeaponsServiceRateStatusDrpDwn').val();
+            let equipmentCommunicationsEquipmentStatusId = $('#EquipmentCommunicationsEquipmentStatusDrpDwn').val();
+            let equipmentSpecialEquipmentStatusId = $('#EquipmentSpecialEquipmentStatusDrpDwn').val();
+            let equipmentComments = $('#EquipmentComments').val();
+
+            if (((equipmentCombatVehicleStatusId > 2 && equipmentCombatVehicleStatusId != 5) || (equipmentSupportVehicleStatusId > 2 && equipmentSupportVehicleStatusId != 5) 
+            || (equipmentWeaponsServiceRateStatusId > 2 && equipmentWeaponsServiceRateStatusId != 5) || (equipmentCommunicationsEquipmentStatusId > 2 && equipmentCommunicationsEquipmentStatusId != 5)
+            || (equipmentSpecialEquipmentStatusId > 2 && equipmentSpecialEquipmentStatusId != 5)) && $.trim(equipmentComments) == '') {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+        function equipmentReadinessFactorsComplete() {
+            let equipmentCombatVehicleStatusId = $('#EquipmentCombatVehicleStatusDrpDwn').val();
+            let equipmentSupportVehicleStatusId = $('#EquipmentSupportVehicleStatusDrpDwn').val();
+            let equipmentWeaponsServiceRateStatusId = $('#EquipmentWeaponsServiceRateStatusDrpDwn').val();
+            let equipmentCommunicationsEquipmentStatusId = $('#EquipmentCommunicationsEquipmentStatusDrpDwn').val();
+            let equipmentSpecialEquipmentStatusId = $('#EquipmentSpecialEquipmentStatusDrpDwn').val();
+
+            //Convert all NA values to Green so they will be ignored
+            if (equipmentCombatVehicleStatusId == 5) {
+                equipmentCombatVehicleStatusId = 1;
+            }
+
+            if (equipmentSupportVehicleStatusId == 5) {
+                equipmentSupportVehicleStatusId = 1;
+            }
+
+            if (equipmentWeaponsServiceRateStatusId == 5) {
+                equipmentWeaponsServiceRateStatusId = 1;
+            }
+
+            if (equipmentCommunicationsEquipmentStatusId == 5) {
+                equipmentCommunicationsEquipmentStatusId = 1;
+            }
+
+            if (equipmentSpecialEquipmentStatusId == 5) {
+                equipmentSpecialEquipmentStatusId = 1;
+            }
+
+            let equipmentVehicalsReadinessFactor = $('#EquipmentVehicalsReadinessFactor').prop('checked');
+            let equipmentSpecialEquimentReadinessFactor = $('#EquipmentSpecialEquimentReadinessFactor').prop('checked');
+            let equipmentWeaponsReadinessFactor = $('#EquipmentWeaponsReadinessFactor').prop('checked');
+            let equipmentTechniciansReadinessFactor = $('#EquipmentTechniciansReadinessFactor').prop('checked');
+            let equipmentCommunicationsReadinessFactor = $('#EquipmentCommunicationsReadinessFactor').prop('checked');
+            let equipmentSensorsReadinessFactor = $('#EquipmentSensorsReadinessFactor').prop('checked');
+
+            if ((equipmentCombatVehicleStatusId != 1 || equipmentSupportVehicleStatusId != 1 || equipmentWeaponsServiceRateStatusId != 1 || equipmentCommunicationsEquipmentStatusId != 1 || equipmentSpecialEquipmentStatusId != 1)
+                && (equipmentVehicalsReadinessFactor == false && equipmentSpecialEquimentReadinessFactor == false && equipmentWeaponsReadinessFactor == false && equipmentTechniciansReadinessFactor == false
+                    && equipmentCommunicationsReadinessFactor == false && equipmentSensorsReadinessFactor == false)) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+        function trainingStatusComplete() {
+            let trainingCollectiveTrainingStatusId = $('#TrainingCollectiveTrainingStatusDrpDwn').val();
+            let trainingIndividualTrainingStatusId = $('#TrainingIndividualTrainingStatusDrpDwn').val();
+            let trainingComments = $('#TrainingComments').val();
+
+            if (((trainingCollectiveTrainingStatusId > 2 && trainingCollectiveTrainingStatusId != 5) || (trainingIndividualTrainingStatusId > 2 && trainingIndividualTrainingStatusId != 5)) && $.trim(trainingComments) == '') {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+        function trainingReadinessFactorsComplete() {
+            let trainingCollectiveTrainingStatusId = $('#TrainingCollectiveTrainingStatusDrpDwn').val();
+            let trainingIndividualTrainingStatusId = $('#TrainingIndividualTrainingStatusDrpDwn').val();
+
+            //Convert all NA values to Green so they will be ignored
+            if (trainingCollectiveTrainingStatusId == 5) {
+                trainingCollectiveTrainingStatusId = 1;
+            }
+
+            if (trainingIndividualTrainingStatusId == 5) {
+                trainingIndividualTrainingStatusId = 1;
+            }
+
+            let trainingAmmoReadinessFactor = $('#TrainingAmmoReadinessFactor').prop('checked');
+            let trainingWeaponsReadinessFactor = $('#TrainingWeaponsReadinessFactor').prop('checked');
+            let trainingSparePartssReadinessFactor = $('#TrainingSparePartssReadinessFactor').prop('checked');
+            let trainingFuelReadinessFactor = $('#TrainingFuelReadinessFactor').prop('checked');
+            let trainingRadiosReadinessFactor = $('#TrainingRadiosReadinessFactor').prop('checked');
+            let trainingItreadinessFactor = $('#TrainingItreadinessFactor').prop('checked');
+            let trainingRationsReadinessFactor = $('#TrainingRationsReadinessFactor').prop('checked');
+            let trainingEquipmentReadinessFactor = $('#TrainingEquipmentReadinessFactor').prop('checked');
+            let trainingRangeAvailabilityReadinessFactor = $('#TrainingRangeAvailabilityReadinessFactor').prop('checked');
+            let trainingCtreadinessFactor = $('#TrainingCtreadinessFactor').prop('checked');
+
+            if ((trainingCollectiveTrainingStatusId != 1 || trainingIndividualTrainingStatusId != 1)
+            && (trainingAmmoReadinessFactor == false && trainingWeaponsReadinessFactor == false && trainingSparePartssReadinessFactor == false && trainingFuelReadinessFactor == false
+                && trainingRadiosReadinessFactor == false && trainingItreadinessFactor == false && trainingRationsReadinessFactor == false && trainingEquipmentReadinessFactor == false && trainingRangeAvailabilityReadinessFactor == false && trainingCtreadinessFactor == false)) {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+        function sustainmentStatusComplete() {
+            let sustainmentCombatRationsStatusId = $('#SustainmentCombatRationsStatusDrpDwn').val();
+            let sustainmentPersonalEquipmentStatusId = $('#SustainmentPersonalEquipmentStatusDrpDwn').val();
+            let sustainmentPetrolStatusId = $('#SustainmentPetrolStatusDrpDwn').val();
+            let sustainmentAmmunitionStatusId = $('#SustainmentAmmunitionStatusDrpDwn').val();
+            let sustainmentSparesStatusId = $('#SustainmentSparesStatusDrpDwn').val();
+            let sustainmentOtherStatusId = $('#SustainmentOtherStatusDrpDwn').val();
+
+            let sustainmentComments = $('#SustainmentComments').val();
+
+            if (((sustainmentCombatRationsStatusId > 2 && sustainmentCombatRationsStatusId != 5) || (sustainmentPersonalEquipmentStatusId > 2 && sustainmentPersonalEquipmentStatusId != 5) || (sustainmentPetrolStatusId > 2 && sustainmentPetrolStatusId != 5)
+                || (sustainmentAmmunitionStatusId > 2 && sustainmentAmmunitionStatusId != 5) || (sustainmentSparesStatusId > 2 && sustainmentSparesStatusId != 5) || (sustainmentOtherStatusId > 2 && sustainmentOtherStatusId != 5)) && $.trim(sustainmentComments) == '') {
+                return false;
+            }
+            else {
+                return true;
+            }
+        }
+
+        function sustainmentReadinessFactorsComplete() {
+            let sustainmentCombatRationsStatusId = $('#SustainmentCombatRationsStatusDrpDwn').val();
+            let sustainmentPersonalEquipmentStatusId = $('#SustainmentPersonalEquipmentStatusDrpDwn').val();
+            let sustainmentPetrolStatusId = $('#SustainmentPetrolStatusDrpDwn').val();
+            let sustainmentAmmunitionStatusId = $('#SustainmentAmmunitionStatusDrpDwn').val();
+            let sustainmentSparesStatusId = $('#SustainmentSparesStatusDrpDwn').val();
+            let sustainmentOtherStatusId = $('#SustainmentOtherStatusDrpDwn').val();
+
+            //Convert all NA values to Green so they will be ignored
+            if (sustainmentCombatRationsStatusId == 5) {
+                sustainmentCombatRationsStatusId = 1;
+            }
+
+            if (sustainmentPersonalEquipmentStatusId == 5) {
+                sustainmentPersonalEquipmentStatusId = 1;
+            }
+
+            if (sustainmentPetrolStatusId == 5) {
+                sustainmentPetrolStatusId = 1;
+            }
+
+            if (sustainmentAmmunitionStatusId == 5) {
+                sustainmentAmmunitionStatusId = 1;
+            }
+
+            if (sustainmentSparesStatusId == 5) {
+                sustainmentSparesStatusId = 1;
+            }
+
+            if (sustainmentOtherStatusId == 5) {
+                sustainmentOtherStatusId = 1;
+            }
+
+            let sustainmentRationsReadinessFactor = $('#SustainmentRationsReadinessFactor').prop('checked');
+            let sustainmentFuelReadinessFactor = $('#SustainmentFuelReadinessFactor').prop('checked');
+            let sustainmentUniformsReadinessFactor = $('#SustainmentUniformsReadinessFactor').prop('checked');
+            let sustainmentAmmunitionReadinessFactor = $('#SustainmentAmmunitionReadinessFactor').prop('checked');
+            let sustainmentPpereadinessFactor = $('#SustainmentPpereadinessFactor').prop('checked');
+            let sustainmentSparePartsReadinessFactor = $('#SustainmentSparePartsReadinessFactor').prop('checked');
+            let sustainmentOtherReadinessFactor = $('#SustainmentOtherReadinessFactor').prop('checked');
+
+            if ((sustainmentCombatRationsStatusId != 1 || sustainmentPersonalEquipmentStatusId != 1 || sustainmentPetrolStatusId != 1 || sustainmentAmmunitionStatusId != 1 || sustainmentSparesStatusId != 1)
+                && (sustainmentRationsReadinessFactor == false && sustainmentFuelReadinessFactor == false && sustainmentUniformsReadinessFactor == false && sustainmentAmmunitionReadinessFactor == false
+                    && sustainmentPpereadinessFactor == false && sustainmentSparePartsReadinessFactor == false && sustainmentOtherReadinessFactor == false)) {
+                return false;
+            }
+
+            else {
+                return true;
+            }
+        }
+
+        function setInputValidationNato(field) {
+            let fieldValue = $(field).val();
+            let natoActive = $('#NatoActive').prop('checked');
+
+            if (natoActive == true) {
+                if ($.trim(fieldValue) == "" || fieldValue == null) {
+                    $(field).addClass("input-validation-error");
+                } else {
+                    $(field).removeClass("input-validation-error");
+                }
+            }
+            else {
+                $(field).removeClass("input-validation-error");
+            }
+        }
+
+        function changeCommandOverrideStatus(selectObj, idBox) {
+            $('#' + idBox).css("background-color", $(selectObj).children().filter(':selected').css("background-color"));
+        }
+
+        function changeEquipmentStatus(selectObj, idBox) {
+            $('#' + idBox).css("background-color", $(selectObj).children().filter(':selected').css("background-color"));
+
+            var formData = new FormData();
+
+            formData.append("CombatVehicleStatus", $("#EquipmentCombatVehicleStatusDrpDwn").val());
+            formData.append("SupportVehicleStatus", $("#EquipmentSupportVehicleStatusDrpDwn").val());
+            formData.append("WeaponsServiceRateStatus", $("#EquipmentWeaponsServiceRateStatusDrpDwn").val());
+            formData.append("CommunicationsEquipmentStatus", $("#EquipmentCommunicationsEquipmentStatusDrpDwn").val());
+            formData.append("SpecialEquipmentStatus", $("#EquipmentSpecialEquipmentStatusDrpDwn").val());
+            formData.append("PersonnelStatus", $("#PersonnelStatusDrpDwn").val());
+            formData.append("EquipmentStatus", $("#EquipmentStatusId").val());
+            formData.append("TrainingStatus", $("#TrainingStatusId").val());
+            formData.append("SustainmentStatus", $("#SustainmentStatusId").val());
+            formData.append("DeployedStatus", $("#DeployedStatusDrpDwn").val());
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetEquipmentStatus", "DataCards")',
+                contentType: false,
+                processData: false,
+                cache: false,
+                data: formData,
+                success: function (response) {
+                    var petsStatus = JSON.parse(response.responseMessage);
+                    //Set the status display colour
+                    var statusDisplay = document.getElementById("EquipmentStatusDisplay");
+                    var statusId = document.getElementById("EquipmentStatusId");
+                    var srStatusDisplay = document.getElementById("SrStatusDisplay");
+                    var srStatusId = document.getElementById("SrStatusId");
+
+                    statusId.setAttribute('Value', petsStatus.petsStatusID);
+                    statusDisplay.style.backgroundColor = petsStatus.petsStatusColour;
+                    srStatusDisplay.style.backgroundColor = petsStatus.srStatusColour;
+                    srStatusId.setAttribute('Value', petsStatus.srStatusID);
+
+                    clearCommandOverride();
+                },
+                error: function (data) {
+                    alert("Broken");
+                }
+            });
+        }
+
+        function changeSustainmentStatus(selectObj, idBox) {
+            $('#' + idBox).css("background-color", $(selectObj).children().filter(':selected').css("background-color"));
+            var formData = new FormData();
+
+            formData.append("CombatRationsStatus", $("#SustainmentCombatRationsStatusDrpDwn").val());
+            formData.append("PersonalEquipmentStatus", $("#SustainmentPersonalEquipmentStatusDrpDwn").val());
+            formData.append("PetrolStatus", $("#SustainmentPetrolStatusDrpDwn").val());
+            formData.append("AmmunitionStatus", $("#SustainmentAmmunitionStatusDrpDwn").val());
+            formData.append("SparesStatus", $("#SustainmentSparesStatusDrpDwn").val());
+            formData.append("OtherStatus", $("#SustainmentOtherStatusDrpDwn").val());
+
+            formData.append("PersonnelStatus", $("#PersonnelStatusDrpDwn").val());
+            formData.append("EquipmentStatus", $("#EquipmentStatusId").val());
+            formData.append("TrainingStatus", $("#TrainingStatusId").val());
+            formData.append("SustainimentStatus", $("#SustainmentStatusId").val());
+            formData.append("DeployedStatus", $("#DeployedStatusDrpDwn").val());
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetSustainmentStatus", "DataCards")',
+                contentType: false,
+                processData: false,
+                cache: false,
+                data: formData,
+                success: function (response) {
+                    var petsStatus = JSON.parse(response.responseMessage);
+                    var statusDisplay = document.getElementById("SustainmentStatusDisplay");
+                    var statusId = document.getElementById("SustainmentStatusId");
+                    var srStatusDisplay = document.getElementById("SrStatusDisplay");
+                    var srStatusId = document.getElementById("SrStatusId");
+
+                    statusId.setAttribute('Value', petsStatus.petsStatusID);
+                    statusDisplay.style.backgroundColor = petsStatus.petsStatusColour;
+                    srStatusDisplay.style.backgroundColor = petsStatus.srStatusColour;
+                    srStatusId.setAttribute('Value', petsStatus.srStatusID);
+
+                    clearCommandOverride();
+                },
+                error: function (data) {
+                    alert("Broken");
+                }
+            });
+        }
+
+        function changeTrainingStatus(selectObj, idBox) {
+            $('#' + idBox).css("background-color", $(selectObj).children().filter(':selected').css("background-color"));
+
+            var formData = new FormData();
+
+            formData.append("CollectiveTrainingStatus", $("#TrainingCollectiveTrainingStatusDrpDwn").val());
+            formData.append("IndividualTrainingStatus", $("#TrainingIndividualTrainingStatusDrpDwn").val());
+            formData.append("PersonnelStatus", $("#PersonnelStatusDrpDwn").val());
+            formData.append("EquipmentStatus", $("#EquipmentStatusId").val());
+            formData.append("TrainingStatus", $("#TrainingStatusId").val());
+            formData.append("SustainimentStatus", $("#SustainmentStatusId").val());
+            formData.append("DeployedStatus", $("#DeployedStatusDrpDwn").val());
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetTrainingStatus", "DataCards")',
+                contentType: false,
+                processData: false,
+                cache: false,
+                data: formData,
+                success: function (response) {
+                    var petsStatus = JSON.parse(response.responseMessage);
+                    //Set the status display colour
+                    var statusDisplay = document.getElementById("TrainingStatusDisplay");
+                    var statusId = document.getElementById("TrainingStatusId");
+                    var srStatusDisplay = document.getElementById("SrStatusDisplay");
+                    var srStatusId = document.getElementById("SrStatusId");
+
+                    statusId.setAttribute('Value', petsStatus.petsStatusID);
+                    statusDisplay.style.backgroundColor = petsStatus.petsStatusColour;
+                    srStatusDisplay.style.backgroundColor = petsStatus.srStatusColour;
+                    srStatusId.setAttribute('Value', petsStatus.srStatusID);
+
+                    clearCommandOverride();
+                },
+                error: function (data) {
+                    alert("Broken");
+                }
+            });
+        }
+
+        function changePersonalStatus(selectObj, idBox) {
+            $('#' + idBox).css("background-color", $(selectObj).children().filter(':selected').css("background-color"));
+
+            var formData = new FormData();
+
+            formData.append("PersonnelStatusStatus", $("#PersonnelStatusDrpDwn").val());
+            formData.append("PersonnelStatus", $("#PersonnelStatusDrpDwn").val());
+            formData.append("EquipmentStatus", $("#EquipmentStatusId").val());
+            formData.append("TrainingStatus", $("#TrainingStatusId").val());
+            formData.append("SustainmentStatus", $("#SustainmentStatusId").val());
+            formData.append("DeployedStatus", $("#DeployedStatusDrpDwn").val());
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("GetpersonalStatus", "DataCards")',
+                contentType: false,
+                processData: false,
+                cache: false,
+                data: formData,
+                success: function (response) {
+                    var petsStatus = JSON.parse(response.responseMessage);
+                    //Set the status display colour
+                    var srStatusDisplay = document.getElementById("SrStatusDisplay");
+                    var srStatusId = document.getElementById("SrStatusId");
+
+                    srStatusDisplay.style.backgroundColor = petsStatus.srStatusColour;
+                    srStatusId.setAttribute('Value', petsStatus.srStatusID);
+
+                    clearCommandOverride();
+                },
+                error: function (data) {
+                    alert("Broken");
+                }
+            });
+        }
+
+        function clearCommandOverride() {
+            $("#CommandOverideStatusDrpDwn").prop("selectedIndex", 0).val();
+            $('#CommandOverrideComments').val("");
+            $('#CommandOverrideAuthority').val("");
+            $('#OverrideComments').hide();
+            $('#CommandOverideStatusDisplay').css('background-color', 'white');
+        }
+    </script>
+
+}

@@ -1,0 +1,52 @@
+﻿@model SMARTV3.Models.Service
+
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+@{
+    ViewData["Title"] = localizer["AddService"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h4>@localizer["AddService"]</h4>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AddService">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label class="control-label">@localizer["ServiceName"]</label>
+                <input asp-for="ServiceName" class="form-control" />
+                <span asp-validation-for="ServiceName" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["ServiceNameFre"]</label>
+                <input asp-for="ServiceNameFre" class="form-control" />
+                <span asp-validation-for="ServiceNameFre" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Archived" /> @localizer["Archived"]
+                </label>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["SortOrder"]</label>
+                <input asp-for="Ordered" class="form-control" />
+                <span asp-validation-for="Ordered" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="@localizer["Create"]" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+<br />
+<div>
+    <a asp-action="ManageServices">@localizer["BackToList"]</a>
+</div>
+

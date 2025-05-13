@@ -1,0 +1,104 @@
+﻿@model SMARTV3.Models.Capability
+
+@{
+    ViewData["Title"] = localizer["AddCapability"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+
+
+<h4>@localizer["AddCapability"]</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AddCapability">
+            <input id="parentMetlList" name="parentMetlList" value="@ViewData["CapMetlList"]" hidden />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label class="control-label">@localizer["CapabilityName"]</label>
+                <input asp-for="CapabilityName" class="form-control" />
+                <span asp-validation-for="CapabilityName" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["CapabilityNameFre"]</label>
+                <input asp-for="CapabilityNameFre" class="form-control" />
+                <span asp-validation-for="CapabilityNameFre" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["CapabilityDesc"]</label>
+                <textarea asp-for="CapabilityDesc" class="form-control" ></textarea>
+                <span asp-validation-for="CapabilityDesc" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group form-check-inline">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="NatoCapability" /> @localizer["NatoCapability"]
+                </label>
+            </div>
+            <div class="form-group form-check-inline">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Archived" /> @localizer["Archived"]
+                </label>
+            </div>
+            <br />
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["SortOrder"]</label>
+                <input asp-for="Ordered" class="form-control" />
+                <span asp-validation-for="Ordered" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="@localizer["Create"]" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+     <div class="col-md-4">ADD METL
+        </br>
+        <div class="row">
+            <div class="col-md-6 form-group">
+                <label for="validFrom">@localizer["validFrom"]</label>
+                @Html.TextBox("validFrom", ViewBag.validFrom, "", htmlAttributes: new { @class = "datefield form-select", type = "datetime-local" })
+            </div>
+            <div class="col-md-6 form-group">
+                <label for="validTo">@localizer["validTo"]</label>
+                @Html.TextBox("validTo", ViewBag.validTo, "", htmlAttributes: new { @class = "datefield form-select", type = "datetime-local" })
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="selectedMetl">@localizer["METL"]</label>
+            @Html.DropDownList("metlList", ViewBag.metId, "", htmlAttributes: new { @class = "form-select" })
+        </div>
+        <div class="col align-self-end col-md-2">
+            <input type="image" src="~/images/Add.png" id="addMetl" />
+         </div>
+         <br/>
+        <div class="preview" style="padding-top: 1rem;">
+        </div>
+    </div>
+</div>
+<br />
+<div>
+    <a asp-action="ManageCapabilities">@localizer["BackToList"]</a>
+</div>
+
+@section Scripts{
+    <script type="text/javascript" src="~/js/metlSelect.js"></script>
+    <script type="text/javascript">
+        const addmetl = document.getElementById('addMetl');
+        $(document).ready(function () {
+            addmetl.addEventListener('click', function (event) {
+                    event.preventDefault(); addMetltoJsonFileList(document.getElementById('metlList').value, document.getElementById('metlList').options[document.getElementById('metlList').selectedIndex].text, document.getElementById('validFrom').value, document.getElementById('validTo').value);
+                });
+            listMetls(JSON.parse($("#parentMetlList").val()), false);
+        });
+
+
+    </script>
+}
+

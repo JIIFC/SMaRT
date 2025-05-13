@@ -1,0 +1,272 @@
+﻿@model PaginatedList<SMARTV3.Models.User>
+
+@using SMARTV3.Helpers
+@using static Constants
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+@{
+    ViewData["Title"] = localizer["ManageUsers"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<form asp-action="ManageUsers">
+    <h1 style="display: inline">@localizer["ManageUsers"]</h1>
+    <a asp-action="AddUser"
+       asp-route-sortOrder="@ViewData["sortOrder"]"
+       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+       asp-route-showDisabledUsers="@ViewData["showDisabledUsers"]"
+       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+       asp-route-pageNumber="@ViewData["pageNumber"]">
+        <img src='@Url.Content("~/images/AddUser.png")' height="32" width="25" title="@localizer["AddUser"]" style="float: right;" />
+    </a>
+    <p>
+        <div style="display: inline-block; padding-right: 2rem;">
+            <label for="selectedOrganization">@localizer["Organization"]</label><br />
+            @Html.DropDownList("selectedOrganization", ViewBag.organizationList, "",  htmlAttributes: new { @class = "form-select", style="width: 12rem; display: inline;"})
+        </div>
+        <div class="form-check" style="display: inline-block; padding-right: 2rem;">
+            @Html.CheckBox("showDisabledUsers")
+            <label class="form-check-label" for="ShowDisabledUsers">
+                @localizer["ShowDisabledUsers"]
+            </label>
+        </div>
+        <button type="submit" style="border: 0; background: transparent">
+            <img src='@Url.Content("~/images/More.png")' height="20" width="20" title="@localizer["Filter"]" />
+        </button>
+        <a asp-action="ManageUsers"
+           asp-route-selectedPageSize="@ViewData["selectedPageSize"]">
+            <img src='@Url.Content("~/images/Cancel.png")' height="20" width="20" title="@localizer["Clear"]" />
+        </a>
+    </p>
+    <table class="table">
+        <thead>
+            <tr>
+                <th>
+                    @localizer["Username"]
+                    <a asp-action="ManageUsers"
+                       asp-route-sortOrder="username_asc"
+                       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                       asp-route-showDisabledUsers="@ViewData["showDisabledUsers"]"
+                       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                       class="sort-button">
+                        <img src="~/images/sort-up.svg" alt="@localizer["SortAscending"]" />
+                    </a>
+                    <a asp-action="ManageUsers"
+                       asp-route-sortOrder="username_desc"
+                       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                       asp-route-showDisabledUsers="@ViewData["showDisabledUsers"]"
+                       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                       class="sort-button">
+                        <img src="~/images/sort-down.svg" alt="@localizer["SortDescending"]" />
+                    </a>
+                </th>
+                <th>
+                    @localizer["FirstName"]
+                </th>
+                <th>
+                    @localizer["LastName"]
+                </th>
+                <th>
+                    @localizer["RankTitle"]
+                </th>
+                <th>
+                    @localizer["Email"]
+                </th>
+                <th>
+                    @localizer["Role"]
+                    <a asp-action="ManageUsers"
+                       asp-route-sortOrder="role_asc"
+                       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                       asp-route-showDisabledUsers="@ViewData["showDisabledUsers"]"
+                       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                       class="sort-button">
+                        <img src="~/images/sort-up.svg" alt="@localizer["SortAscending"]" />
+                    </a>
+                    <a asp-action="ManageUsers"
+                       asp-route-sortOrder="role_desc"
+                       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                       class="sort-button">
+                        <img src="~/images/sort-down.svg" alt="@localizer["SortDescending"]" />
+                    </a>
+                </th>
+                <th>
+                    @localizer["Organization"]
+                    <a asp-action="ManageUsers"
+                       asp-route-sortOrder="org_asc"
+                       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                       asp-route-showDisabledUsers="@ViewData["showDisabledUsers"]"
+                       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                       class="sort-button">
+                        <img src="~/images/sort-up.svg" alt="@localizer["SortAscending"]" />
+                    </a>
+                    <a asp-action="ManageUsers"
+                       asp-route-sortOrder="org_desc"
+                       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                       asp-route-showDisabledUsers="@ViewData["showDisabledUsers"]"
+                       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                       class="sort-button">
+                        <img src="~/images/sort-down.svg" alt="@localizer["SortDescending"]" />
+                    </a>
+                </th>
+                <th>
+                    @localizer["Enabled"]
+                </th>
+                <th>
+                    @localizer["POC"]
+                </th>
+                <th></th>
+                @if (User.IsInRole(Admin))
+                {
+                    <th></th>
+                }
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.UserName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.FirstName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.LastName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Title)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Email)
+                    </td>
+                    <td>
+                        @String.Join(", ", @item.Roles.Select(x => x.RoleName).ToArray())
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Organization.OrganizationName)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.Enabled)
+                    </td>
+                    <td>
+                        @Html.DisplayFor(modelItem => item.POC)
+                    </td>
+                    <td>
+                        @if ( User.IsInRole(Admin) || User.IsInRole(SuperUser))
+                        {
+                            <a asp-action="EditUser"
+                               asp-route-id="@item.Id"
+                               asp-route-sortOrder="@ViewData["sortOrder"]"
+                               asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                               asp-route-showDisabledUsers="@ViewData["showDisabledUsers"]"
+                               asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                               asp-route-pageNumber="@ViewData["pageNumber"]">
+                                <img src='@Url.Content("~/images/Edit.png")' height="16" width="16" title="@localizer["Edit"]" />
+                            </a>
+                        }
+                    </td>
+                    @if (User.IsInRole(Admin))
+                    {
+                        <td>
+                            <a asp-action="DeleteUser"
+                               asp-route-id="@item.Id"
+                               asp-route-sortOrder="@ViewData["sortOrder"]"
+                               asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                               asp-route-showDisabledUsers="@ViewData["showDisabledUsers"]"
+                               asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                               asp-route-pageNumber="@ViewData["pageNumber"]">
+                                <img src='@Url.Content("~/images/Delete.png")' height="16" width="16" title="@localizer["Delete"]" />
+                            </a>
+                        </td>
+                    }
+                </tr>
+            }
+        </tbody>
+    </table>
+    @{
+        var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+        var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+    }
+
+    <a asp-action="ManageUsers"
+       asp-route-pageNumber="@(Model.PageIndex - 1)"
+       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+       asp-route-showDisabledUsers="@ViewData["showDisabledUsers"]"
+       asp-route-sortOrder="@ViewData["sortOrder"]"
+       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+       class="btn btn-default @prevDisabled">
+        @localizer["Previous"]
+    </a>
+    @{
+        int currentPage = Model.PageIndex;
+        int i = currentPage;
+        int lastVisiblePage = currentPage + 3;
+        int totalPages = Model.TotalPages;
+        bool moreThanMaxPages = false;
+
+        if (lastVisiblePage > totalPages)
+        {
+            lastVisiblePage = totalPages;
+        }
+        else if (totalPages > lastVisiblePage)
+        {
+            moreThanMaxPages = true;
+        }
+        if (i > 1)
+        {
+            <a asp-action="ManageUsers"
+               asp-route-pageNumber="1"
+               asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+               asp-route-showDisabledUsers="@ViewData["showDisabledUsers"]"
+               asp-route-sortOrder="@ViewData["sortOrder"]"
+               asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+               class="btn btn-default">
+                1
+            </a>
+        }
+        if (currentPage > 2)
+        {
+            <label>...</label>
+        }
+        while (i <= lastVisiblePage)
+        {
+            <a asp-action="ManageUsers"
+               asp-route-pageNumber="@i"
+               asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+               asp-route-showDisabledUsers="@ViewData["showDisabledUsers"]"
+               asp-route-sortOrder="@ViewData["sortOrder"]"
+               asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+               class="btn btn-default">
+                @if (i == currentPage)
+                {
+                    <b>@i</b>
+                }
+                else
+                {
+                    @i
+                }
+            </a>
+            i++;
+        }
+        if (moreThanMaxPages)
+        {
+            <label>...</label>
+        }
+    }
+    <a asp-action="ManageUsers"
+       asp-route-pageNumber="@(Model.PageIndex + 1)"
+       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+       asp-route-showDisabledUsers="@ViewData["showDisabledUsers"]"
+       asp-route-sortOrder="@ViewData["sortOrder"]"
+       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+       class="btn btn-default @nextDisabled">
+        @localizer["Next"]
+    </a>
+
+    <div style="display: inline-block; padding-right: 2rem;">
+        @Html.DropDownList("selectedPageSize", ViewBag.itemsPerPage, null, new { @onchange="form.submit();" })
+    </div>
+</form>

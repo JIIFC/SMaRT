@@ -1,0 +1,215 @@
+﻿@model SMARTV3.Models.ForceElement
+
+@using System.Text.Json;
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+@{
+    string formName = "EditForceElement";
+    ViewData["Title"] = localizer[formName];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<ArchiveComment> comments = new List<ArchiveComment>();
+    foreach (var ForceElementArchiveComments in Model.ForceElementArchiveComments.OrderByDescending(c => c.ArchiveComment.ChangeDate))
+    {
+        comments.Add(ForceElementArchiveComments.ArchiveComment);
+    }
+}
+
+<h4>@localizer[formName]</h4>
+<head>
+    <link rel="stylesheet" href="~/css/ArchiveModal.css" asp-append-version="true" />
+</head>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="@formName" name="@formName" id="@formName">
+            <input id="parentMetlList" name="parentMetlList" value="@ViewData["FelmMetlList"]" hidden />
+            <input type="hidden" name="organizationFilter" value="@ViewData["organizationFilter"]" />
+            <input type="hidden" name="ElementIdFilter" value="@ViewData["ElementIdFilter"]" />
+            <input type="hidden" name="ElementNameFilter" value="@ViewData["ElementNameFilter"]" />
+            <input type="hidden" name="selectedPageSize" value="@ViewData["selectedPageSize"]" />
+            <input type="hidden" name="pageNumber" value="@ViewData["pageNumber"]" />
+            <input type="hidden" name="sortOrder" value="@ViewData["sortOrder"]" />
+            <input type="hidden" name="showDisabledFelms" value="@ViewData["showDisabledFelms"]" />
+            <input type="hidden" name="showAspirationalFelms" value="@ViewData["showAspirationalFelms"]" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" id="ArchiveReason" name="ArchiveReason" />
+
+            <div class="form-group">
+                <label class="control-label">@localizer["ElementId"]</label>
+                <input asp-for="ElementId" maxlength="10" class="form-control" />
+                <span asp-validation-for="ElementId" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["ElementName"]</label>
+                <input asp-for="ElementName" class="form-control" />
+                <span asp-validation-for="ElementName" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["ElementNameFre"]</label>
+                <input asp-for="ElementNameFre" class="form-control" />
+                <span asp-validation-for="ElementNameFre" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["Shortname"]</label>
+                <input asp-for="Shortname" class="form-control" />
+                <span asp-validation-for="Shortname" class="text-danger"></span> 
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["ShortnameFR"]</label>
+                <input asp-for="ShortnameFR" class="form-control" />
+                <span asp-validation-for="ShortnameFR" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["OrganizationForceGenerator"]</label>
+                <select asp-for="OrganizationId" class="form-select" asp-items="ViewBag.OrganizationId"></select>
+                <span asp-validation-for="OrganizationId" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["Weighting"]</label>
+                <select asp-for="WeightingId" class="form-select" asp-items="ViewBag.WeightingId"></select>
+                <span asp-validation-for="WeightingId" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["NoticeToMove"]</label>
+                <select name="NoticeToMoveId" id="NoticeToMoveId" class="form-select" asp-items="ViewBag.NoticeToMoveId"></select>
+            </div>
+            <br />
+            <div id="ntmDetailsDiv">
+                <div class="form-group">
+                    <label class="control-label">@localizer["NTMDetails"]</label>
+                    <input id="Ntmdetails" name="Ntmdetails" class="form-control" value="@ViewData["Ntmdetails"]" />
+                </div>
+                <br />
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Aspirational" /> @localizer["AspirationalForceElement"]
+                </label>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["SortOrder"]</label>
+                <input asp-for="Ordered" class="form-control" />
+                <span asp-validation-for="Ordered" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Archived" /> @localizer["Archived"]
+                </label>
+            </div>
+            <br />
+            <div class="form-group">
+                <a class="btn btn-primary" onclick="isArchivedOrUnarchived()">@localizer["Save"]</a>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-4">ADD METL
+        </br>
+        <div class="row">
+            <div class="col-md-6 form-group">
+                <label for="validFrom">@localizer["validFrom"]</label>
+                @Html.TextBox("validFrom", ViewBag.validFrom, "", htmlAttributes: new { @class = "datefield form-select", type = "datetime-local" })
+            </div>
+            <div class="col-md-6 form-group">
+                <label for="validTo">@localizer["validTo"]</label>
+                @Html.TextBox("validTo", ViewBag.validTo, "", htmlAttributes: new { @class = "datefield form-select", type = "datetime-local" })
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="selectedMetl">@localizer["METL"]</label>
+            @Html.DropDownList("metlList", ViewBag.metId, "", htmlAttributes: new { @class = "form-select" })
+        </div>
+        <div class="col align-self-end col-md-2">
+            <input type="image" src="~/images/Add.png" id="addMetl" />
+         </div>
+         <br/>
+        <div class="preview" style="padding-top: 1rem;">
+        </div>
+
+    </div>
+</div>
+<br />
+<div>
+    <a asp-action="ManageForceElements"
+       asp-route-pageNumber="@ViewData["pageNumber"]"
+       asp-route-sortOrder="@ViewData["sortOrder"]"
+       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+       asp-route-organizationFilter="@ViewData["organizationFilter"]"
+       asp-route-ElementIdFilter="@ViewData["ElementIdFilter"]"
+       asp-route-ElementNameFilter="@ViewData["ElementNameFilter"]"
+       asp-route-ShowDisabledFelms="@ViewData["ShowDisabledFelms"]"
+       asp-route-ShowAspirationalFelms="@ViewData["ShowAspirationalFelms"]">
+        @localizer["BackToList"]
+    </a>
+</div>
+<br />
+@if (Model.ForceElementArchiveComments.Count > 0)
+{
+    await Html.RenderPartialAsync("ArchiveCommentTable", comments);
+}
+
+<div id='archiveModal' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='archiveModalContent'></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script type="text/javascript" src="~/js/archivemodal.js"></script>
+    <script type="text/javascript" src="~/js/metlSelect.js"></script>
+    <script type="text/javascript">
+
+        const addmetl = document.getElementById('addMetl');
+
+        $(document).ready(function () {
+            //showHideNtmDetails();
+            $('#archiveModal').on('hidden.bs.modal', function () {
+                modalHidden('@formName');
+            });
+            @{
+                ArchiveComment? FirstComment = comments.FirstOrDefault();
+                int FirstCommentId = 0;
+                if (FirstComment != null) FirstCommentId = FirstComment.Id;
+            }
+            if (@FirstCommentId != 0) getComment("" + @FirstCommentId);
+            addmetl.addEventListener('click', function (event) {
+                event.preventDefault(); addMetltoJsonFileList(document.getElementById('metlList').value, document.getElementById('metlList').options[document.getElementById('metlList').selectedIndex].text, document.getElementById('validFrom').value, document.getElementById('validTo').value);
+            });
+
+            listMetls(JSON.parse($("#parentMetlList").val()), false);
+        });
+
+        /*       $("#NoticeToMoveId").change(function () { showHideNtmDetails(); });
+
+        function showHideNtmDetails() {
+            if ($('#NoticeToMoveId').val() == @ViewData["NtmOtherID"]) {
+                $('#ntmDetailsDiv').show();
+            } else {
+                $('#ntmDetailsDiv').hide();
+                $('#Ntmdetails').val("");
+            }
+        }
+        */
+        function isArchivedOrUnarchived() {
+            var checkBox = document.getElementById('Archived');
+            if (@Model.Archived.ToString().ToLower() != checkBox.checked) {
+                showModal();
+            } else {
+                submit('@formName');
+            }
+        }
+
+    </script>
+}

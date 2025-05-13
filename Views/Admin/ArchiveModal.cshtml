@@ -1,0 +1,39 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+<head>
+    <link rel="stylesheet" href="~/css/ArchiveModal.css" asp-append-version="true" />
+</head>
+
+<div>
+    <div class="modal-header">
+        <h5 class="modal-title">@localizer["Reason"]</h5>
+        <button type="button" class="btn-close" aria-label="Close" onclick="Cancel()"></button>
+    </div>
+    <textarea class="form-control" id="modalArchiveReason" rows="3" onkeyup="ArchiveReasonChange()"></textarea>
+    <div id="saveDiv">
+        <input type="button" class="btn btn-primary" id="modalSave" value="@localizer["Save"]" data-bs-dismiss="modal"
+               onclick="Save()" disabled />
+    </div>
+</div>
+
+<footer>
+    <script type="text/javascript">
+        function ArchiveReasonChange() {
+            if ($('#modalArchiveReason').val().length > 0) {
+                $('#modalSave').removeAttr('disabled');
+            } else {
+                $('#modalSave').attr('disabled', true);
+            }
+        }
+
+        function Cancel() {
+            $('#modalArchiveReason').val("");
+            $('#archiveModal').modal('hide');
+        }
+
+        function Save() {
+            modalArchiveReason = $('#modalArchiveReason').val();
+        }
+    </script>
+</footer>

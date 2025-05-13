@@ -1,0 +1,9 @@
+﻿.row {
+    padding-bottom: 1rem;
+}
+
+.stat-dropdown {
+    display: inline;
+    width: auto;
+    margin-right: 0.5rem;
+}

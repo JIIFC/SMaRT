@@ -1,0 +1,51 @@
+﻿@model SMARTV3.Models.Designation
+
+@{
+    ViewData["Title"] = localizer["AddDesignation"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+<h4>@localizer["AddDesignation"]</h4>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AddDesignation">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label class="control-label">@localizer["DesignationName"]</label>
+                <input asp-for="DesignationName" class="form-control" />
+                <span asp-validation-for="DesignationName" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["DesignationNameFre"]</label>
+                <input asp-for="DesignationNameFre" class="form-control" />
+                <span asp-validation-for="DesignationNameFre" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Archived" /> @localizer["Archived"]
+                </label>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label"> @localizer["SortOrder"] </label>
+                <input asp-for="Ordered" class="form-control" />
+                <span asp-validation-for="Ordered" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="@localizer["Create"]" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+<br />
+<div>
+    <a asp-action="ManageDesignations">@localizer["BackToList"] </a>
+</div>
+

@@ -1,0 +1,587 @@
+﻿@model SMARTV3.Models.ForcePackage
+
+@using Microsoft.AspNetCore.Mvc.Localization;
+@using SMARTV3.Helpers;
+@using static SMARTV3.Helpers.PaginationHelper;
+@inject IViewLocalizer localizer
+
+@{
+    ViewData["Title"] = localizer["DeleteForcePackage"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    PaginatedList<DummyForceElement>? forceElementList = ViewData["forceElementList"] as PaginatedList<DummyForceElement>;
+    DatacardReadinessTableModel? DRTModel = ViewData["dataCardDisplayModel"] as DatacardReadinessTableModel;
+}
+
+<h4>@localizer["DeleteForcePackage"]</h4>
+<br />
+<h3>@localizer["Confirm"]</h3>
+<div>
+    <hr />
+    <div class="row">
+        <div class="col">
+            <div class="form-group">
+                <b for="ForcePackageName">@localizer["ForcePackageName"]: </b>
+                @Html.DisplayFor(m => m.ForcePackageName)
+                <span id="ForcePackageNameValidation" class="text-danger" style="display: none;">@localizer["ValueRequired"].Value</span>
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <b for="ForcePackagePurpose">@localizer["Purpose"]: </b>
+                <label>@Model.ForcePackagePurposeNavigation.NameEn</label>
+                <span id="ForcePackagePurposeValidation" class="text-danger" style="display: none;">@localizer["ValueRequired"].Value</span>
+            </div>
+        </div>
+    </div><br />
+    <div class="row">
+        <div class="col">
+            <div class="form-group">
+                <b for="ForcePackageDescription">@localizer["ForcePackageDescription"]: </b>
+                @Html.DisplayFor(m => m.ForcePackageDescription)
+            </div>
+        </div>
+    </div><br />
+    <div class="row">
+        <div class="col">
+            <b>@localizer["IdentifiedOperations"]: </b>
+            @{
+                int operationIndex = 0;
+            }
+            @foreach (Operation identifiedOperation in Model.Operations)
+            {
+                <label>@identifiedOperation.OperationName</label>
+                if (operationIndex != Model.Operations.Count - 1)
+                {
+                    <label>, </label>
+                }
+                operationIndex++;
+            }
+        </div>
+        <div class="col">
+            <b>@localizer["IdentifiedConplans"]: </b>
+            @{
+                int conplanIndex = 0;
+            }
+            @foreach (Conplan identifiedConplan in Model.Conplans)
+            {
+                <label>@identifiedConplan.ConplanName</label>
+                if (conplanIndex != Model.Conplans.Count - 1)
+                {
+                    <label>, </label>
+                }
+                conplanIndex++;
+            }
+        </div>
+    </div><br />
+    @if (DRTModel != null)
+    {
+        <div class="row">
+            <div class="col">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>
+                                @localizer["ForceElementID"]
+                                <div class="sort-div">
+                                    <div class="sort-div">
+                                        <a asp-action="Delete"
+                                           asp-route-id="@Model.Id"
+                                           asp-route-deletePageNumber="@forceElementList!.PageIndex"
+                                           asp-route-deletePageSize="@ViewData["deletePageSize"]"
+                                           asp-route-deleteSortOrder="felmId_asc"
+                                           asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                           asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                           asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                           asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                           asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                           asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                           asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                           asp-route-selectedNato="@ViewData["selectedNato"]"
+                                           asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                           asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                           asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                           class="sort-button">
+                                            <img src="~/images/sort-up.svg" alt="@localizer["SortAscending"]" />
+                                        </a>
+                                        <a asp-action="Delete"
+                                           asp-route-id="@Model.Id"
+                                           asp-route-deletePageNumber="@forceElementList.PageIndex"
+                                           asp-route-deletePageSize="@ViewData["deletePageSize"]"
+                                           asp-route-deleteSortOrder="felmId_desc"
+                                           asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                           asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                           asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                           asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                           asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                           asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                           asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                           asp-route-selectedNato="@ViewData["selectedNato"]"
+                                           asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                           asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                           asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                           class="sort-button">
+                                            <img src="~/images/sort-down.svg" alt="@localizer["SortDescending"]" />
+                                        </a>
+                                    </div>
+                                </div>
+                            </th>
+                            <th>
+                                @localizer["ForceElement"]
+                                <div class="sort-div">
+                                    <a asp-action="Delete"
+                                       asp-route-id="@Model.Id"
+                                       asp-route-deletePageNumber="@forceElementList.PageIndex"
+                                       asp-route-deletePageSize="@ViewData["deletePageSize"]"
+                                       asp-route-deleteSortOrder="felmName_asc"
+                                       asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                       asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                       asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                       asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                       asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                       asp-route-selectedNato="@ViewData["selectedNato"]"
+                                       asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                       asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                       asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-up.svg" alt="@localizer["SortAscending"]" />
+                                    </a>
+                                    <a asp-action="Delete"
+                                       asp-route-id="@Model.Id"
+                                       asp-route-deletePageNumber="@forceElementList.PageIndex"
+                                       asp-route-deletePageSize="@ViewData["deletePageSize"]"
+                                       asp-route-deleteSortOrder="felmName_desc"
+                                       asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                       asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                       asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                       asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                       asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                       asp-route-selectedNato="@ViewData["selectedNato"]"
+                                       asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                       asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                       asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-down.svg" alt="@localizer["SortDescending"]" />
+                                    </a>
+                                </div>
+                            </th>
+                            <th>
+                                @localizer["SMaRTReadinessStatus"]
+                                <div class="sort-div">
+                                    <a asp-action="Delete"
+                                       asp-route-id="@Model.Id"
+                                       asp-route-deletePageNumber="@forceElementList.PageIndex"
+                                       asp-route-deletePageSize="@ViewData["deletePageSize"]"
+                                       asp-route-deleteSortOrder="overallStatus_asc"
+                                       asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                       asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                       asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                       asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                       asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                       asp-route-selectedNato="@ViewData["selectedNato"]"
+                                       asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                       asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                       asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-up.svg" alt="@localizer["SortAscending"]" />
+                                    </a>
+                                    <a asp-action="Delete"
+                                       asp-route-id="@Model.Id"
+                                       asp-route-deletePageNumber="@forceElementList.PageIndex"
+                                       asp-route-deletePageSize="@ViewData["deletePageSize"]"
+                                       asp-route-deleteSortOrder="overallStatus_desc"
+                                       asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                       asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                       asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                       asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                       asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                       asp-route-selectedNato="@ViewData["selectedNato"]"
+                                       asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                       asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                       asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-down.svg" alt="@localizer["SortDescending"]" />
+                                    </a>
+                                </div>
+                            </th>
+                            <th>
+                                @localizer["Personnel"]
+                                <div class="sort-div">
+                                    <a asp-action="Delete"
+                                       asp-route-id="@Model.Id"
+                                       asp-route-deletePageNumber="@forceElementList.PageIndex"
+                                       asp-route-deletePageSize="@ViewData["deletePageSize"]"
+                                       asp-route-deleteSortOrder="personnel_asc"
+                                       asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                       asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                       asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                       asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                       asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                       asp-route-selectedNato="@ViewData["selectedNato"]"
+                                       asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                       asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                       asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-up.svg" alt="@localizer["SortAscending"]" />
+                                    </a>
+                                    <a asp-action="Delete"
+                                       asp-route-id="@Model.Id"
+                                       asp-route-deletePageNumber="@forceElementList.PageIndex"
+                                       asp-route-deletePageSize="@ViewData["deletePageSize"]"
+                                       asp-route-deleteSortOrder="personnel_desc"
+                                       asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                       asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                       asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                       asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                       asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                       asp-route-selectedNato="@ViewData["selectedNato"]"
+                                       asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                       asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                       asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-down.svg" alt="@localizer["SortDescending"]" />
+                                    </a>
+                                </div>
+                            </th>
+                            <th>
+                                @localizer["Equipment"]
+                                <div class="sort-div">
+                                    <a asp-action="Delete"
+                                       asp-route-id="@Model.Id"
+                                       asp-route-deletePageNumber="@forceElementList.PageIndex"
+                                       asp-route-deletePageSize="@ViewData["deletePageSize"]"
+                                       asp-route-deleteSortOrder="equipment_asc"
+                                       asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                       asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                       asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                       asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                       asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                       asp-route-selectedNato="@ViewData["selectedNato"]"
+                                       asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                       asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                       asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-up.svg" alt="@localizer["SortAscending"]" />
+                                    </a>
+                                    <a asp-action="Delete"
+                                       asp-route-id="@Model.Id"
+                                       asp-route-deletePageNumber="@forceElementList.PageIndex"
+                                       asp-route-deletePageSize="@ViewData["deletePageSize"]"
+                                       asp-route-deleteSortOrder="equipment_desc"
+                                       asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                       asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                       asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                       asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                       asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                       asp-route-selectedNato="@ViewData["selectedNato"]"
+                                       asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                       asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                       asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-down.svg" alt="@localizer["SortDescending"]" />
+                                    </a>
+                                </div>
+                            </th>
+                            <th>
+                                @localizer["Training"]
+                                <div class="sort-div">
+                                    <a asp-action="Delete"
+                                       asp-route-id="@Model.Id"
+                                       asp-route-deletePageNumber="@forceElementList.PageIndex"
+                                       asp-route-deletePageSize="@ViewData["deletePageSize"]"
+                                       asp-route-deleteSortOrder="training_asc"
+                                       asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                       asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                       asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                       asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                       asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                       asp-route-selectedNato="@ViewData["selectedNato"]"
+                                       asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                       asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                       asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-up.svg" alt="@localizer["SortAscending"]" />
+                                    </a>
+                                    <a asp-action="Delete"
+                                       asp-route-id="@Model.Id"
+                                       asp-route-deletePageNumber="@forceElementList.PageIndex"
+                                       asp-route-deletePageSize="@ViewData["deletePageSize"]"
+                                       asp-route-deleteSortOrder="training_desc"
+                                       asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                       asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                       asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                       asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                       asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                       asp-route-selectedNato="@ViewData["selectedNato"]"
+                                       asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                       asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                       asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-down.svg" alt="@localizer["SortDescending"]" />
+                                    </a>
+                                </div>
+                            </th>
+                            <th>
+                                @localizer["Sustainment"]
+                                <div class="sort-div">
+                                    <a asp-action="Delete"
+                                       asp-route-id="@Model.Id"
+                                       asp-route-deletePageNumber="@forceElementList.PageIndex"
+                                       asp-route-deletePageSize="@ViewData["deletePageSize"]"
+                                       asp-route-deleteSortOrder="sustainment_asc"
+                                       asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                       asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                       asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                       asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                       asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                       asp-route-selectedNato="@ViewData["selectedNato"]"
+                                       asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                       asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                       asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-up.svg" alt="@localizer["SortAscending"]" />
+                                    </a>
+                                    <a asp-action="Delete"
+                                       asp-route-id="@Model.Id"
+                                       asp-route-deletePageNumber="@forceElementList.PageIndex"
+                                       asp-route-deletePageSize="@ViewData["deletePageSize"]"
+                                       asp-route-deleteSortOrder="sustainment_desc"
+                                       asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                       asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                       asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                       asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                       asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                       asp-route-selectedNato="@ViewData["selectedNato"]"
+                                       asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                       asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                       asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                       class="sort-button">
+                                        <img src="~/images/sort-down.svg" alt="@localizer["SortDescending"]" />
+                                    </a>
+                                </div>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (DummyForceElement dummyForceElement in forceElementList)
+                        {
+                            DummyDataCard dummyDataCard = dummyForceElement.DummyDataCards.First();
+                            <tr>
+                                <td>
+                                    <label>@dummyForceElement.ElementId</label>
+                                </td>
+                                <td>
+                                    <label>@dummyForceElement.ElementName</label>
+                                </td>
+                                <td>
+                                    <div class="rounddiv" style="background-color:@dummyDataCard.SrStatus?.StatusDisplayColour"> </div>
+                                </td>
+                                <td>
+                                    <div class="rounddiv" style="background-color:@dummyDataCard.PersonnelStatus?.StatusDisplayColour"> </div>
+                                </td>
+                                <td>
+                                    <div class="rounddiv" style="background-color:@dummyDataCard.EquipmentStatus?.StatusDisplayColour"> </div>
+                                </td>
+                                <td>
+                                    <div class="rounddiv" style="background-color:@dummyDataCard.TrainingStatus?.StatusDisplayColour"> </div>
+                                </td>
+                                <td>
+                                    <div class="rounddiv" style="background-color:@dummyDataCard.SustainmentStatus?.StatusDisplayColour"> </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+                @{
+                    string prevDisabled = !forceElementList.HasPreviousPage ? "disabled" : "";
+                    string nextDisabled = !forceElementList.HasNextPage ? "disabled" : "";
+                }
+
+                <a asp-action="Delete"
+                   asp-route-id="@Model.Id"
+                   asp-route-deletePageNumber="@(forceElementList.PageIndex - 1)"
+                   asp-route-deletePageSize="@ViewData["deletePageSize"]"
+                   asp-route-deleteSortOrder="@ViewData["deleteSortOrder"]"
+                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                   class="btn btn-default @prevDisabled">
+                    @localizer["Previous"]
+                </a>
+                @{
+                    int currentPage = forceElementList.PageIndex;
+                    int i = currentPage;
+                    int lastVisiblePage = currentPage + 3;
+                    int totalPages = forceElementList.TotalPages;
+                    bool moreThanMaxPages = false;
+
+                    if (lastVisiblePage > totalPages)
+                    {
+                        lastVisiblePage = totalPages;
+                    }
+                    else if (totalPages > lastVisiblePage)
+                    {
+                        moreThanMaxPages = true;
+                    }
+                    if (i > 1)
+                    {
+                        <a asp-action="Delete"
+                           asp-route-id="@Model.Id"
+                           asp-route-deletePageNumber="1"
+                           asp-route-deletePageSize="@ViewData["deletePageSize"]"
+                           asp-route-deleteSortOrder="@ViewData["deleteSortOrder"]"
+                           asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                           asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                           asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                           asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                           asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                           asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                           asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                           asp-route-selectedNato="@ViewData["selectedNato"]"
+                           asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                           asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                           asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                           class="btn btn-default">
+                            1
+                        </a>
+                    }
+                    if (currentPage > 2)
+                    {
+                        <label>...</label>
+                    }
+                    while (i <= lastVisiblePage)
+                    {
+                        <a asp-action="Delete"
+                           asp-route-id="@Model.Id"
+                           asp-route-deletePageNumber="@i"
+                           asp-route-deletePageSize="@ViewData["deletePageSize"]"
+                           asp-route-deleteSortOrder="@ViewData["deleteSortOrder"]"
+                           asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                           asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                           asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                           asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                           asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                           asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                           asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                           asp-route-selectedNato="@ViewData["selectedNato"]"
+                           asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                           asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                           asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                           class="btn btn-default">
+                            @if (i == currentPage)
+                            {
+                                <b>@i</b>
+                            }
+                            else
+                            {
+                                @i
+                            }
+                        </a>
+                        i++;
+                    }
+                    if (moreThanMaxPages)
+                    {
+                        <label>...</label>
+                    }
+                }
+                <a asp-action="Delete"
+                   asp-route-id="@Model.Id"
+                   asp-route-deletePageNumber="@(forceElementList.PageIndex + 1)"
+                   asp-route-deletePageSize="@ViewData["deletePageSize"]"
+                   asp-route-deleteSortOrder="@ViewData["deleteSortOrder"]"
+                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                   class="btn btn-default @nextDisabled">
+                    @localizer["Next"]
+                </a>
+                <div style="display: inline-block; padding-right: 2rem;">
+                    @Html.DropDownList("deletePageSize", ViewBag.ItemsPerPage, null, new { onchange="submitForm()" })
+                </div>
+            </div>
+        </div>
+        <br />
+    }
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="@localizer["Delete"]" class="btn btn-danger" />
+        &nbsp;|&nbsp;
+        <a asp-action="Index"
+           asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+           asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+           asp-route-indexPageSize="@ViewData["indexPageSize"]"
+           asp-route-packageOwnersOrganization="@ViewData["packageOwnersOrganization"]"
+           asp-route-selectedPurpose="@ViewData["selectedPurpose"]"
+           asp-route-identifiedOperation="@ViewData["identifiedOperation"]"
+           asp-route-identifiedConplan="@ViewData["identifiedConplan"]"
+           asp-route-onlyShowMyForcePackages="@ViewData["onlyShowMyForcePackages"]">
+            @localizer["BackToList"]
+        </a>
+    </form>
+</div>
+
+
+@section Scripts{
+    <script type="text/javascript">
+        function submitForm() {
+            let id = "@Model.Id";
+            let deletePageNumber = "1";
+            let deletePageSize = document.getElementById("deletePageSize").value;
+            let deleteSortOrder = "@ViewData["deleteSortOrder"]";
+            let indexPageNumber = "@ViewData["indexPageNumber"]";
+            let indexSortOrder = "@ViewData["indexSortOrder"]";
+            let indexPageSize = "@ViewData["indexPageSize"]";
+            let packageOwnersOrganization = "@ViewData["packageOwnersOrganization"]";
+            let selectedPurpose = "@ViewData["selectedPurpose"]";
+            let identifiedOperation = "@ViewData["identifiedOperation"]";
+            let identifiedConplan = "@ViewData["identifiedConplan"]";
+            let onlyShowMyForcePackages = "@ViewData["onlyShowMyForcePackages"]";
+
+            let url = "/ForcePackage/Delete/" + id + "?indexPageNumber=" + indexPageNumber + "&indexSortOrder=" + indexSortOrder + "&indexPageSize=" + indexPageSize + "&packageOwnersOrganization="
+                + packageOwnersOrganization + "&selectedPurpose=" + selectedPurpose + "&identifiedOperation=" + identifiedOperation + "&identifiedConplan=" + identifiedConplan
+                + "&onlyShowMyForcePackages=" + onlyShowMyForcePackages + "&deletePageNumber=" + deletePageNumber + "&deletePageSize=" + deletePageSize + "&deleteSortOrder=" + deleteSortOrder;
+            window.location.href = url;
+        }
+    </script>
+}

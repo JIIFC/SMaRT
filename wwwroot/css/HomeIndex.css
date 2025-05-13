@@ -1,0 +1,24 @@
+﻿#no-permission {
+    color: red;
+    display: block;
+    margin-bottom: 3vh;
+}
+
+.title {
+    margin: 3vh;
+}
+
+#user-guide {
+    display: inline-flex;
+    width: 50%;
+    margin-top: 25vh;
+    text-align: left;
+    align-items:flex-end;
+}
+
+#contactList{
+    margin-top: 5vw;
+    margin-bottom:0;
+    width:45%;
+}
+

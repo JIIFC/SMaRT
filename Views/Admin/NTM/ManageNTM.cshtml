@@ -1,0 +1,57 @@
+﻿@model IEnumerable<SMARTV3.Models.NoticeToMove>
+
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+@{
+    ViewData["Title"] = localizer["ManageNTM"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h4>@localizer["ManageNTM"]</h4>
+
+<hr />
+<p>
+    <a asp-controller="Admin" asp-action="AddNTM">@localizer["CreateNew"]</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @localizer["NTMName"]
+            </th>
+            <th>
+                @localizer["NTMNameFre"]
+            </th>
+            <th>
+                @localizer["Archived"]
+            </th>
+            <th>
+                @localizer["SortOrder"]
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NoticeToMoveName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.NoticeToMoveNameFre)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Archived)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Ordered)
+                </td>
+                <td>
+                    <a asp-action="EditNTM" asp-route-id="@item.Id"><img src='@Url.Content("~/images/Edit.png")' height="16" width="16" title="@localizer["Edit"]" /></a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

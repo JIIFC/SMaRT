@@ -1,0 +1,513 @@
+﻿@model SMARTV3.Models.ForcePackage
+
+@using static Constants
+@using static SMARTV3.Helpers.PaginationHelper;
+@using SMARTV3.Helpers;
+@using System.Text.Json;
+@using System.DirectoryServices.AccountManagement;
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+@{
+    ViewData["Title"] = localizer["ManageForcePackageUsers"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    PaginatedList<User>? userList = ViewData["userList"] as PaginatedList<User>;
+    User? givenUser = ViewData["givenUser"] as User;
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/ForcePackage.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/InputValidation.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/TextAutocomplete.css" asp-append-version="true" />
+</head>
+
+<form asp-action="ManageUsers" name="ManageUsers" id="ManageUsers">
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="PackageOwnerId" />
+    <input type="hidden" asp-for="ForcePackageName" />
+    <input type="hidden" asp-for="ForcePackageDescription" />
+    <input type="hidden" asp-for="ForcePackagePurpose" />
+    <input type="hidden" asp-for="DateLastFetchedLiveData" />
+    <input type="hidden" asp-for="LastEditUser" />
+    <input type="hidden" asp-for="LastEditDate" />
+    <input type="hidden" name="packageOwnersOrganization" value="@ViewData["packageOwnersOrganization"]" />
+    <input type="hidden" name="selectedPurpose" value="@ViewData["selectedPurpose"]" />
+    <input type="hidden" name="identifiedOperation" value="@ViewData["identifiedOperation"]" />
+    <input type="hidden" name="identifiedConplan" value="@ViewData["identifiedConplan"]" />
+    <input type="hidden" name="onlyShowMyForcePackages" value="@ViewData["onlyShowMyForcePackages"]" />
+    <input type="hidden" name="indexPageSize" value="@ViewData["indexPageSize"]" />
+    <input type="hidden" name="indexPageNumber" value="@ViewData["indexPageNumber"]" />
+    <input type="hidden" name="indexSortOrder" value="@ViewData["indexSortOrder"]" />
+    <input type="hidden" name="selectedOrganization" value="@ViewData["selectedOrganization"]" />
+    <input type="hidden" name="selectedConPlan" value="@ViewData["selectedConPlan"]" />
+    <input type="hidden" name="selectedOperation" value="@ViewData["selectedOperation"]" />
+    <input type="hidden" name="readinessStatus" value="@ViewData["readinessStatus"]" />
+    <input type="hidden" name="userPageSize" value="@ViewData["userPageSize"]" />
+    <input type="hidden" name="userPageNumber" value="@ViewData["userPageNumber"]" />
+    <input type="hidden" name="userSortOrder" value="@ViewData["userSortOrder"]" />
+    <input type="hidden" name="forcePackageName" value="@ViewData["forcePackageName"]" />
+    <input type="hidden" name="forcePackagePurpose" value="@ViewData["forcePackagePurpose"]" />
+    <input type="hidden" name="forcePackageDescription" value="@ViewData["forcePackageDescription"]" />
+    <input type="hidden" name="checkedOperations" value="@ViewData["checkedOperations"]" />
+    <input type="hidden" name="checkedConplans" value="@ViewData["checkedConplans"]" />
+    <input type="hidden" name="selectedForceElementIds" value="@ViewData["selectedForceElementIds"]" />
+    <input type="hidden" name="selectedDummyForceElementIds" value="@ViewData["selectedDummyForceElementIds"]" />
+
+    <div class="row">
+        <div class="col">
+            <h3 style="display: inline;">@localizer["ManageForcePackageUsers"]</h3>
+        </div>
+    </div><br />
+    <div class="row">
+        <div class="col">
+            <b>@localizer["ForcePackageName"]: </b>
+            @Html.DisplayFor(fp => fp.ForcePackageName)
+        </div>
+    </div>
+    <hr />
+    <h4>@localizer["AddUser"]</h4>
+    <br />
+    <div class="row">
+        <div class="col">
+            <div class="ui-widget">
+                <label style="display: block;">@localizer["UserName"]</label>
+                <input id="UserName" name="UserName" class="form-control" style="width: auto; display: inline;" />
+                <input type="submit" id="AddUser" value="Add" style="display: inline;" disabled class="btn btn-secondary" />
+            </div>
+        </div>
+    </div><br />
+    <div class="row">
+        <div class="col">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>
+                            @localizer["Username"]
+                            <div class="sort-div">
+                                <a asp-action="ManageUsers"
+                                   asp-route-forcePackageId="@Model.Id"
+                                   asp-route-userPageNumber="@userList?.PageIndex"
+                                   asp-route-userPageSize="@ViewData["userPageSize"]"
+                                   asp-route-userSortOrder="username_asc"
+                                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                   asp-route-readinessStatus="@ViewData["readinessStatus"]"
+                                   asp-route-forcePackageName="@ViewData["forcePackageName"]"
+                                   asp-route-forcePackagePurpose="@ViewData["forcePackagePurpose"]"
+                                   asp-route-forcePackageDescription="@ViewData["forcePackageDescription"]"
+                                   asp-route-checkedOperations="@ViewData["checkedOperations"]"
+                                   asp-route-checkedConplans="@ViewData["checkedConplans"]"
+                                   asp-route-selectedForceElementIds="@ViewData["selectedForceElementIds"]"
+                                   asp-route-selectedDummyForceElementIds="@ViewData["selectedDummyForceElementIds"]"
+                                   class="sort-button">
+                                    <img src="~/images/sort-up.svg" alt="@localizer["SortAscending"]" />
+                                </a>
+                                <a asp-action="ManageUsers"
+                                   asp-route-forcePackageId="@Model.Id"
+                                   asp-route-userPageNumber="@userList?.PageIndex"
+                                   asp-route-userPageSize="@ViewData["userPageSize"]"
+                                   asp-route-userSortOrder="username_desc"
+                                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                   asp-route-readinessStatus="@ViewData["readinessStatus"]"
+                                   asp-route-forcePackageName="@ViewData["forcePackageName"]"
+                                   asp-route-forcePackagePurpose="@ViewData["forcePackagePurpose"]"
+                                   asp-route-forcePackageDescription="@ViewData["forcePackageDescription"]"
+                                   asp-route-checkedOperations="@ViewData["checkedOperations"]"
+                                   asp-route-checkedConplans="@ViewData["checkedConplans"]"
+                                   asp-route-selectedForceElementIds="@ViewData["selectedForceElementIds"]"
+                                   asp-route-selectedDummyForceElementIds="@ViewData["selectedDummyForceElementIds"]"
+                                   class="sort-button">
+                                    <img src="~/images/sort-down.svg" alt="@localizer["SortDescending"]" />
+                                </a>
+                            </div>
+                        </th>
+                        <th>
+                            @localizer["FirstName"]
+                        </th>
+                        <th>
+                            @localizer["LastName"]
+                        </th>
+                        <th>
+                            @localizer["RankTitle"]
+                        </th>
+                        <th>
+                            @localizer["Organization"]
+                            <div class="sort-div">
+                                <a asp-action="ManageUsers"
+                                   asp-route-forcePackageId="@Model.Id"
+                                   asp-route-userPageNumber="@userList?.PageIndex"
+                                   asp-route-userPageSize="@ViewData["userPageSize"]"
+                                   asp-route-userSortOrder="organization_asc"
+                                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                   asp-route-readinessStatus="@ViewData["readinessStatus"]"
+                                   asp-route-forcePackageName="@ViewData["forcePackageName"]"
+                                   asp-route-forcePackagePurpose="@ViewData["forcePackagePurpose"]"
+                                   asp-route-forcePackageDescription="@ViewData["forcePackageDescription"]"
+                                   asp-route-checkedOperations="@ViewData["checkedOperations"]"
+                                   asp-route-checkedConplans="@ViewData["checkedConplans"]"
+                                   asp-route-selectedForceElementIds="@ViewData["selectedForceElementIds"]"
+                                   asp-route-selectedDummyForceElementIds="@ViewData["selectedDummyForceElementIds"]"
+                                   class="sort-button">
+                                    <img src="~/images/sort-up.svg" alt="@localizer["SortAscending"]" />
+                                </a>
+                                <a asp-action="ManageUsers"
+                                   asp-route-forcePackageId="@Model.Id"
+                                   asp-route-userPageNumber="@userList?.PageIndex"
+                                   asp-route-userPageSize="@ViewData["userPageSize"]"
+                                   asp-route-userSortOrder="organization_desc"
+                                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                                   asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                                   asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                                   asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                                   asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                                   asp-route-selectedNato="@ViewData["selectedNato"]"
+                                   asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                                   asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                                   asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                                   asp-route-readinessStatus="@ViewData["readinessStatus"]"
+                                   asp-route-forcePackageName="@ViewData["forcePackageName"]"
+                                   asp-route-forcePackagePurpose="@ViewData["forcePackagePurpose"]"
+                                   asp-route-forcePackageDescription="@ViewData["forcePackageDescription"]"
+                                   asp-route-checkedOperations="@ViewData["checkedOperations"]"
+                                   asp-route-checkedConplans="@ViewData["checkedConplans"]"
+                                   asp-route-selectedForceElementIds="@ViewData["selectedForceElementIds"]"
+                                   asp-route-selectedDummyForceElementIds="@ViewData["selectedDummyForceElementIds"]"
+                                   class="sort-button">
+                                    <img src="~/images/sort-down.svg" alt="@localizer["SortDescending"]" />
+                                </a>
+                            </div>
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (userList != null)
+                    {
+                        @foreach (User user in userList)
+                        {
+                            <tr>
+                                <td>
+                                    @Html.DisplayFor(modelItem => user.UserName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => user.FirstName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => user.LastName)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => user.Title)
+                                </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => user.Organization.OrganizationName)
+                                </td>
+                                <td>
+                                    @if (User.IsInRole(Admin) || Model.PackageOwnerId == givenUser?.Id)
+                                    {
+                                        <a asp-action="RemoveUser"
+                               asp-route-forcePackageId="@Model.Id"
+                               asp-route-userId="@user.Id"
+                               asp-route-userPageNumber="@userList.PageIndex"
+                               asp-route-userPageSize="@ViewData["userPageSize"]"
+                               asp-route-userSortOrder="@ViewData["userSortOrder"]"
+                               asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                               asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                               asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                               asp-route-packageOwnersOrganization="@ViewData["packageOwnersOrganization"]"
+                               asp-route-selectedPurpose="@ViewData["selectedPurpose"]"
+                               asp-route-identifiedOperation="@ViewData["identifiedOperation"]"
+                               asp-route-identifiedConplan="@ViewData["identifiedConplan"]"
+                               asp-route-onlyShowMyForcePackages="@ViewData["onlyShowMyForcePackages"]"
+                               asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                               asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                               asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                               asp-route-readinessStatus="@ViewData["readinessStatus"]"
+                               asp-route-forcePackageName="@ViewData["forcePackageName"]"
+                               asp-route-forcePackagePurpose="@ViewData["forcePackagePurpose"]"
+                               asp-route-forcePackageDescription="@ViewData["forcePackageDescription"]"
+                               asp-route-checkedOperations="@ViewData["checkedOperations"]"
+                               asp-route-checkedConplans="@ViewData["checkedConplans"]"
+                               asp-route-selectedForceElementIds="@ViewData["selectedForceElementIds"]"
+                               asp-route-selectedDummyForceElementIds="@ViewData["selectedDummyForceElementIds"]">
+                                            <img src='@Url.Content("~/images/Delete.png")' title="@localizer["Delete"]" height="16" width="16" />
+                                        </a>
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+            @{
+                string prevDisabled = !userList!.HasPreviousPage ? "disabled" : "";
+                string nextDisabled = !userList.HasNextPage ? "disabled" : "";
+            }
+
+            <a asp-action="ManageUsers"
+               asp-route-forcePackageId="@Model.Id"
+               asp-route-userPageNumber="@(userList.PageIndex - 1)"
+               asp-route-userPageSize="@ViewData["userPageSize"]"
+               asp-route-userSortOrder="@ViewData["userSortOrder"]"
+               asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+               asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+               asp-route-indexPageSize="@ViewData["indexPageSize"]"
+               asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+               asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+               asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+               asp-route-selectedOperation="@ViewData["selectedOperation"]"
+               asp-route-selectedNato="@ViewData["selectedNato"]"
+               asp-route-selectedStatus="@ViewData["selectedStatus"]"
+               asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+               asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+               asp-route-readinessStatus="@ViewData["readinessStatus"]"
+               asp-route-forcePackageName="@ViewData["forcePackageName"]"
+               asp-route-forcePackagePurpose="@ViewData["forcePackagePurpose"]"
+               asp-route-forcePackageDescription="@ViewData["forcePackageDescription"]"
+               asp-route-checkedOperations="@ViewData["checkedOperations"]"
+               asp-route-checkedConplans="@ViewData["checkedConplans"]"
+               asp-route-selectedForceElementIds="@ViewData["selectedForceElementIds"]"
+               asp-route-selectedDummyForceElementIds="@ViewData["selectedDummyForceElementIds"]"
+               class="btn btn-default @prevDisabled">
+                @localizer["Previous"]
+            </a>
+            @{
+                int currentPage = userList.PageIndex;
+                int i = currentPage;
+                int lastVisiblePage = currentPage + 3;
+                int totalPages = userList.TotalPages;
+                bool moreThanMaxPages = false;
+
+                if (lastVisiblePage > totalPages)
+                {
+                    lastVisiblePage = totalPages;
+                }
+                else if (totalPages > lastVisiblePage)
+                {
+                    moreThanMaxPages = true;
+                }
+                if (i > 1)
+                {
+                    <a asp-action="ManageUsers"
+                       asp-route-forcePackageId="@Model.Id"
+                       asp-route-userPageNumber="1"
+                       asp-route-userPageSize="@ViewData["userPageSize"]"
+                       asp-route-userSortOrder="@ViewData["userSortOrder"]"
+                       asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                       asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                       asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                       asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                       asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                       asp-route-selectedNato="@ViewData["selectedNato"]"
+                       asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                       asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                       asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                       asp-route-readinessStatus="@ViewData["readinessStatus"]"
+                       asp-route-forcePackageName="@ViewData["forcePackageName"]"
+                       asp-route-forcePackagePurpose="@ViewData["forcePackagePurpose"]"
+                       asp-route-forcePackageDescription="@ViewData["forcePackageDescription"]"
+                       asp-route-checkedOperations="@ViewData["checkedOperations"]"
+                       asp-route-checkedConplans="@ViewData["checkedConplans"]"
+                       asp-route-selectedForceElementIds="@ViewData["selectedForceElementIds"]"
+                       asp-route-selectedDummyForceElementIds="@ViewData["selectedDummyForceElementIds"]"
+                       class="btn btn-default">
+                        1
+                    </a>
+                }
+                if (currentPage > 2)
+                {
+                    <label>...</label>
+                }
+                while (i <= lastVisiblePage)
+                {
+                    <a asp-action="ManageUsers"
+                       asp-route-forcePackageId="@Model.Id"
+                       asp-route-userPageNumber="@i"
+                       asp-route-userPageSize="@ViewData["userPageSize"]"
+                       asp-route-userSortOrder="@ViewData["userSortOrder"]"
+                       asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                       asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                       asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                       asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+                       asp-route-selectedOperation="@ViewData["selectedOperation"]"
+                       asp-route-selectedNato="@ViewData["selectedNato"]"
+                       asp-route-selectedStatus="@ViewData["selectedStatus"]"
+                       asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+                       asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+                       asp-route-readinessStatus="@ViewData["readinessStatus"]"
+                       asp-route-forcePackageName="@ViewData["forcePackageName"]"
+                       asp-route-forcePackagePurpose="@ViewData["forcePackagePurpose"]"
+                       asp-route-forcePackageDescription="@ViewData["forcePackageDescription"]"
+                       asp-route-checkedOperations="@ViewData["checkedOperations"]"
+                       asp-route-checkedConplans="@ViewData["checkedConplans"]"
+                       asp-route-selectedForceElementIds="@ViewData["selectedForceElementIds"]"
+                       asp-route-selectedDummyForceElementIds="@ViewData["selectedDummyForceElementIds"]"
+                       class="btn btn-default">
+                        @if (i == currentPage)
+                        {
+                            <b>@i</b>
+                        }
+                        else
+                        {
+                            @i
+                        }
+                    </a>
+                    i++;
+                }
+                if (moreThanMaxPages)
+                {
+                    <label>...</label>
+                }
+            }
+            <a asp-action="ManageUsers"
+               asp-route-forcePackageId="@Model.Id"
+               asp-route-userPageNumber="@(userList.PageIndex + 1)"
+               asp-route-userPageSize="@ViewData["userPageSize"]"
+               asp-route-userSortOrder="@ViewData["userSortOrder"]"
+               asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+               asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+               asp-route-indexPageSize="@ViewData["indexPageSize"]"
+               asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+               asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+               asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+               asp-route-selectedOperation="@ViewData["selectedOperation"]"
+               asp-route-selectedNato="@ViewData["selectedNato"]"
+               asp-route-selectedStatus="@ViewData["selectedStatus"]"
+               asp-route-selectedDeployedStatus="@ViewData["selectedDeployedStatus"]"
+               asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]"
+               asp-route-readinessStatus="@ViewData["readinessStatus"]"
+               asp-route-forcePackageName="@ViewData["forcePackageName"]"
+               asp-route-forcePackagePurpose="@ViewData["forcePackagePurpose"]"
+               asp-route-forcePackageDescription="@ViewData["forcePackageDescription"]"
+               asp-route-checkedOperations="@ViewData["checkedOperations"]"
+               asp-route-checkedConplans="@ViewData["checkedConplans"]"
+               asp-route-selectedForceElementIds="@ViewData["selectedForceElementIds"]"
+                       asp-route-selectedDummyForceElementIds="@ViewData["selectedDummyForceElementIds"]"
+               class="btn btn-default @nextDisabled">
+                @localizer["Next"]
+            </a>
+            <div style="display: inline-block; padding-right: 2rem;">
+                @Html.DropDownList("userPageSize", ViewBag.ItemsPerPage, null, new { onchange="submitForm()" })
+            </div>
+        </div>
+    </div><br />
+    <div class="row">
+        <div class="col">
+            <a asp-action="Edit"
+               asp-route-id="@Model.Id"
+               asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+               asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+               asp-route-indexPageSize="@ViewData["indexPageSize"]"
+               asp-route-packageOwnersOrganization="@ViewData["packageOwnersOrganization"]"
+               asp-route-selectedPurpose="@ViewData["selectedPurpose"]"
+               asp-route-identifiedOperation="@ViewData["identifiedOperation"]"
+               asp-route-identifiedConplan="@ViewData["identifiedConplan"]"
+               asp-route-onlyShowMyForcePackages="@ViewData["onlyShowMyForcePackages"]"
+               asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+               asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+               asp-route-selectedOperation="@ViewData["selectedOperation"]"
+               asp-route-readinessStatus="@ViewData["readinessStatus"]"
+               asp-route-forcePackageName="@ViewData["forcePackageName"]"
+               asp-route-forcePackagePurpose="@ViewData["forcePackagePurpose"]"
+               asp-route-forcePackageDescription="@ViewData["forcePackageDescription"]"
+               asp-route-checkedOperations="@ViewData["checkedOperations"]"
+               asp-route-checkedConplans="@ViewData["checkedConplans"]"
+               asp-route-selectedForceElementIds="@ViewData["selectedForceElementIds"]"
+                       asp-route-selectedDummyForceElementIds="@ViewData["selectedDummyForceElementIds"]">
+                @localizer["BackToForcePackage"]
+            </a>
+        </div>
+    </div>
+</form>
+
+@section Scripts{
+    <script type="text/javascript">
+        $("#UserName").keyup(function () { $("#AddUser").attr("disabled", true); });
+
+        $(document).ready(function () {
+            $("#UserName").autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        type: 'GET',
+                        url: '@Url.Action("FindUsersNotInPackage", "ForcePackage")',
+                        data: {
+                            forcePackageId: $("#Id").val(),
+                            userName: $("#UserName").val()
+                        },
+                        success: function (data) {
+                            response(data);
+                        }
+                    });
+                },
+                minLength: 2,
+                select: function (event, ui) {
+                    $("#AddUser").removeAttr("disabled");
+                }
+            });
+        });
+
+        function submitForm() {
+            let id = "@Model.Id";
+            let userPageNumber = "1";
+            let userPageSize = document.getElementById("userPageSize").value;
+            let userSortOrder = "@ViewData["userSortOrder"]";
+            let indexPageNumber = "@ViewData["indexPageNumber"]";
+            let indexSortOrder = "@ViewData["indexSortOrder"]";
+            let indexPageSize = "@ViewData["indexPageSize"]";
+            let packageOwnersOrganization = "@ViewData["packageOwnersOrganization"]";
+            let selectedPurpose = "@ViewData["selectedPurpose"]";
+            let identifiedOperation = "@ViewData["identifiedOperation"]";
+            let identifiedConplan = "@ViewData["identifiedConplan"]";
+            let onlyShowMyForcePackages = "@ViewData["onlyShowMyForcePackages"]";
+            let forcePackageName = "@ViewData["forcePackageName"]";
+            let forcePackagePurpose = "@ViewData["forcePackagePurpose"]";
+            let forcePackageDescription = "@ViewData["forcePackageDescription"]";
+            let selectedForceElementIds = "@ViewData["selectedForceElementIds"]";
+            let selectedDummyForceElementIds = "@ViewData["selectedDummyForceElementIds"]";
+            let checkedOperations = "@ViewData["checkedOperations"]";
+            let checkedConplans = "@ViewData["checkedConplans"]";
+
+            let url = "/ForcePackage/ManageUsers" + "?forcePackageId=" + id + "&indexPageNumber=" + indexPageNumber + "&indexSortOrder=" + indexSortOrder
+                + "&indexPageSize=" + indexPageSize + "&packageOwnersOrganization=" + packageOwnersOrganization + "&selectedPurpose=" + selectedPurpose
+                + "&identifiedOperation=" + identifiedOperation + "&identifiedConplan=" + identifiedConplan + "&onlyShowMyForcePackages=" + onlyShowMyForcePackages
+                + "&userPageNumber=" + userPageNumber + "&userPageSize=" + userPageSize + "&userSortOrder=" + userSortOrder + "&forcePackageName=" + forcePackageName
+                + "&forcePackagePurpose=" + forcePackagePurpose + "&forcePackageDescription=" + forcePackageDescription + "&selectedForceElementIds=" + selectedForceElementIds
+                + "&selectedDummyForceElementIds=" + selectedDummyForceElementIds + "&checkedOperations=" + checkedOperations + "&checkedConplans=" + checkedConplans;
+            window.location.href = url;
+        }
+    </script>
+}

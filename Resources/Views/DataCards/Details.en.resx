@@ -1,0 +1,576 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <!-- 
+    Microsoft ResX Schema 
+    
+    Version 2.0
+    
+    The primary goals of this format is to allow a simple XML format 
+    that is mostly human readable. The generation and parsing of the 
+    various data types are done through the TypeConverter classes 
+    associated with the data types.
+    
+    Example:
+    
+    ... ado.net/XML headers & schema ...
+    <resheader name="resmimetype">text/microsoft-resx</resheader>
+    <resheader name="version">2.0</resheader>
+    <resheader name="reader">System.Resources.ResXResourceReader, System.Windows.Forms, ...</resheader>
+    <resheader name="writer">System.Resources.ResXResourceWriter, System.Windows.Forms, ...</resheader>
+    <data name="Name1"><value>this is my long string</value><comment>this is a comment</comment></data>
+    <data name="Color1" type="System.Drawing.Color, System.Drawing">Blue</data>
+    <data name="Bitmap1" mimetype="application/x-microsoft.net.object.binary.base64">
+        <value>[base64 mime encoded serialized .NET Framework object]</value>
+    </data>
+    <data name="Icon1" type="System.Drawing.Icon, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
+        <value>[base64 mime encoded string representing a byte array form of the .NET Framework object]</value>
+        <comment>This is a comment</comment>
+    </data>
+                
+    There are any number of "resheader" rows that contain simple 
+    name/value pairs.
+    
+    Each data row contains a name, and value. The row also contains a 
+    type or mimetype. Type corresponds to a .NET class that support 
+    text/value conversion through the TypeConverter architecture. 
+    Classes that don't support this are serialized and stored with the 
+    mimetype set.
+    
+    The mimetype is used for serialized objects, and tells the 
+    ResXResourceReader how to depersist the object. This is currently not 
+    extensible. For a given mimetype the value must be set accordingly:
+    
+    Note - application/x-microsoft.net.object.binary.base64 is the format 
+    that the ResXResourceWriter will generate, however the reader can 
+    read any of the formats listed below.
+    
+    mimetype: application/x-microsoft.net.object.binary.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Binary.BinaryFormatter
+            : and then encoded with base64 encoding.
+    
+    mimetype: application/x-microsoft.net.object.soap.base64
+    value   : The object must be serialized with 
+            : System.Runtime.Serialization.Formatters.Soap.SoapFormatter
+            : and then encoded with base64 encoding.
+
+    mimetype: application/x-microsoft.net.object.bytearray.base64
+    value   : The object must be serialized into a byte array 
+            : using a System.ComponentModel.TypeConverter
+            : and then encoded with base64 encoding.
+    -->
+  <xsd:schema id="root" xmlns="" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:msdata="urn:schemas-microsoft-com:xml-msdata">
+    <xsd:import namespace="http://www.w3.org/XML/1998/namespace" />
+    <xsd:element name="root" msdata:IsDataSet="true">
+      <xsd:complexType>
+        <xsd:choice maxOccurs="unbounded">
+          <xsd:element name="metadata">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" />
+              </xsd:sequence>
+              <xsd:attribute name="name" use="required" type="xsd:string" />
+              <xsd:attribute name="type" type="xsd:string" />
+              <xsd:attribute name="mimetype" type="xsd:string" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="assembly">
+            <xsd:complexType>
+              <xsd:attribute name="alias" type="xsd:string" />
+              <xsd:attribute name="name" type="xsd:string" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="data">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+                <xsd:element name="comment" type="xsd:string" minOccurs="0" msdata:Ordinal="2" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" msdata:Ordinal="1" />
+              <xsd:attribute name="type" type="xsd:string" msdata:Ordinal="3" />
+              <xsd:attribute name="mimetype" type="xsd:string" msdata:Ordinal="4" />
+              <xsd:attribute ref="xml:space" />
+            </xsd:complexType>
+          </xsd:element>
+          <xsd:element name="resheader">
+            <xsd:complexType>
+              <xsd:sequence>
+                <xsd:element name="value" type="xsd:string" minOccurs="0" msdata:Ordinal="1" />
+              </xsd:sequence>
+              <xsd:attribute name="name" type="xsd:string" use="required" />
+            </xsd:complexType>
+          </xsd:element>
+        </xsd:choice>
+      </xsd:complexType>
+    </xsd:element>
+  </xsd:schema>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="12Sdos" xml:space="preserve">
+    <value>12 SDOS</value>
+  </data>
+  <data name="18Sdos" xml:space="preserve">
+    <value>18 SDOS</value>
+  </data>
+  <data name="ActualStrengthCurrent" xml:space="preserve">
+    <value>Actual Strength (Current)</value>
+  </data>
+  <data name="AFSTraining" xml:space="preserve">
+    <value>AFS Training</value>
+  </data>
+  <data name="AlertsBasedOnReadiness" xml:space="preserve">
+    <value>Alerts based on readiness</value>
+  </data>
+  <data name="AlertsForChanges" xml:space="preserve">
+    <value>Alerts for changes</value>
+  </data>
+  <data name="Ammo" xml:space="preserve">
+    <value>Ammo</value>
+  </data>
+  <data name="Ammunition" xml:space="preserve">
+    <value>Ammunition</value>
+  </data>
+  <data name="APS" xml:space="preserve">
+    <value>APS</value>
+  </data>
+  <data name="AssetsDeclared" xml:space="preserve">
+    <value>Assets Declared</value>
+  </data>
+  <data name="BackToList" xml:space="preserve">
+    <value>Back to List</value>
+  </data>
+  <data name="BdeFltWg" xml:space="preserve">
+    <value>Bde Flt Wg</value>
+  </data>
+  <data name="CapabilityCode" xml:space="preserve">
+    <value>Capability Code</value>
+  </data>
+  <data name="Caveats" xml:space="preserve">
+    <value>Caveats</value>
+  </data>
+  <data name="CertCompleted" xml:space="preserve">
+    <value>Certification Completed</value>
+  </data>
+  <data name="CertProgramCoord" xml:space="preserve">
+    <value>Certification Program Coordinated</value>
+  </data>
+  <data name="Class1CombatRations" xml:space="preserve">
+    <value>Class 1 - Combat Rations</value>
+  </data>
+  <data name="Class2Personalequipmentanduniforms" xml:space="preserve">
+    <value>Class 2 - Personal equipment and uniforms</value>
+  </data>
+  <data name="Class3PetroleumOilsLubricants" xml:space="preserve">
+    <value>Class 3 - Petroleum, Oils, Lubricants</value>
+  </data>
+  <data name="Class5Ammunition" xml:space="preserve">
+    <value>Class 5 - Ammunition</value>
+  </data>
+  <data name="Class7SpareParts" xml:space="preserve">
+    <value>Class 7 - Spare Parts</value>
+  </data>
+  <data name="Class8MedSupplies" xml:space="preserve">
+    <value>Class 8 - Med Supplies</value>
+  </data>
+  <data name="CollectiveTraining" xml:space="preserve">
+    <value>Collective Training</value>
+  </data>
+  <data name="CombatEffectivenessAssessment" xml:space="preserve">
+    <value>Combat Effectiveness Assessment</value>
+  </data>
+  <data name="CombatVehicleVesselAircraftServiceabilityRate" xml:space="preserve">
+    <value>Combat Vehicle/Vessel/Aircraft Serviceability Rate</value>
+  </data>
+  <data name="CommandOverrideReadinessAuthority" xml:space="preserve">
+    <value>Command Override Readiness Authority</value>
+  </data>
+  <data name="CommandOverrideReadinessStatus" xml:space="preserve">
+    <value>Command Override Readiness Status</value>
+  </data>
+  <data name="CommandOverrideReadinessStatusRemarks" xml:space="preserve">
+    <value>Command Override Readiness Status Remarks</value>
+  </data>
+  <data name="Communications" xml:space="preserve">
+    <value>Fleet Reductions</value>
+  </data>
+  <data name="CommunicationsEquipmentServiceabilityRate" xml:space="preserve">
+    <value>Communications Equipment Serviceability Rate</value>
+  </data>
+  <data name="Complete" xml:space="preserve">
+    <value>Complete</value>
+  </data>
+  <data name="ConcurrencyComments" xml:space="preserve">
+    <value>Concurrency Comments</value>
+  </data>
+  <data name="ConcurrencyDetails" xml:space="preserve">
+    <value>Concurrency Details</value>
+  </data>
+  <data name="CONPLANs" xml:space="preserve">
+    <value>CONPLAN(s)</value>
+  </data>
+  <data name="CREVALDate" xml:space="preserve">
+    <value>CREVAL Date</value>
+  </data>
+  <data name="CREVALOPREDDeclaration" xml:space="preserve">
+    <value>CREVAL (OPRED Declaration)</value>
+  </data>
+  <data name="CT" xml:space="preserve">
+    <value>Course Loads (capacity)</value>
+  </data>
+  <data name="CurrentSdos" xml:space="preserve">
+    <value>Current SDOS</value>
+  </data>
+  <data name="DataCardDetails" xml:space="preserve">
+    <value>Data Card Details</value>
+  </data>
+  <data name="Dental" xml:space="preserve">
+    <value>Dental</value>
+  </data>
+  <data name="DesignatedStrengthDeclared" xml:space="preserve">
+    <value>Designated Strength (Declared)</value>
+  </data>
+  <data name="DivFrm" xml:space="preserve">
+    <value>Div/Frm</value>
+  </data>
+  <data name="Echelon" xml:space="preserve">
+    <value>Echelon</value>
+  </data>
+  <data name="Edit" xml:space="preserve">
+    <value>Edit</value>
+  </data>
+  <data name="eNRFNRI" xml:space="preserve">
+    <value>eNRF/NRI</value>
+  </data>
+  <data name="eNRFNRINATOReadinessReportingInformation" xml:space="preserve">
+    <value>eNRF / NRI NATO Readiness Reporting Information</value>
+  </data>
+  <data name="Equipment" xml:space="preserve">
+    <value>Equipment</value>
+  </data>
+  <data name="EquipmentReadinessStatusRemarks" xml:space="preserve">
+    <value>Equipment Readiness Status Remarks</value>
+  </data>
+  <data name="EquipmentStatus" xml:space="preserve">
+    <value>Equipment Status</value>
+  </data>
+  <data name="EquipmentStatus1" xml:space="preserve">
+    <value>Equipment</value>
+  </data>
+  <data name="EvalCompleted" xml:space="preserve">
+    <value>Evaluation Completed</value>
+  </data>
+  <data name="FactorsNegativelyAffectingEquipmentReadiness" xml:space="preserve">
+    <value>Factors Negatively Affecting Equipment Readiness</value>
+  </data>
+  <data name="FactorsNegativelyAffectingPersonnelReadiness" xml:space="preserve">
+    <value>Factors Negatively Affecting Personnel Readiness</value>
+  </data>
+  <data name="FactorsNegativelyAffectingSustainmentReadiness" xml:space="preserve">
+    <value>Factors Negatively Affecting Sustainment Readiness</value>
+  </data>
+  <data name="FactorsNegativelyAffectingTrainingReadiness" xml:space="preserve">
+    <value>Factors Negatively Affecting Training Readiness</value>
+  </data>
+  <data name="FElmID" xml:space="preserve">
+    <value>FElm ID</value>
+  </data>
+  <data name="FElmName" xml:space="preserve">
+    <value>FElm Name</value>
+  </data>
+  <data name="Fitness" xml:space="preserve">
+    <value>Fitness</value>
+  </data>
+  <data name="ForceElementDataCard" xml:space="preserve">
+    <value>Force Element (FElm) Data Card</value>
+  </data>
+  <data name="ForceElementDescription" xml:space="preserve">
+    <value>Force Element Description</value>
+  </data>
+  <data name="ForceEmploymentStatus" xml:space="preserve">
+    <value>Force Employment Status</value>
+  </data>
+  <data name="FPH" xml:space="preserve">
+    <value>FP&amp;amp;H</value>
+  </data>
+  <data name="Fuel" xml:space="preserve">
+    <value>Fuel</value>
+  </data>
+  <data name="Fuel1" xml:space="preserve">
+    <value>Fuel</value>
+  </data>
+  <data name="FunctionalCategory" xml:space="preserve">
+    <value>Functional Category</value>
+  </data>
+  <data name="FwdToNato" xml:space="preserve">
+    <value>Fwd To Nato</value>
+  </data>
+  <data name="GeneralRemarks" xml:space="preserve">
+    <value>General Remarks</value>
+  </data>
+  <data name="HighReadinessFrom" xml:space="preserve">
+    <value>High Readiness From</value>
+  </data>
+  <data name="HighReadinessTo" xml:space="preserve">
+    <value>High Readiness To</value>
+  </data>
+  <data name="Incomplete" xml:space="preserve">
+    <value>Incomplete</value>
+  </data>
+  <data name="IndividualTraining" xml:space="preserve">
+    <value>Individual Training</value>
+  </data>
+  <data name="IndustryDelays" xml:space="preserve">
+    <value>Industry Delays</value>
+  </data>
+  <data name="InsufficientLift" xml:space="preserve">
+    <value>Insufficient Lift (delivery delays)</value>
+  </data>
+  <data name="InsufficientStorageFacilities" xml:space="preserve">
+    <value>Insufficient Storage Facilities</value>
+  </data>
+  <data name="IT" xml:space="preserve">
+    <value>Incremental Tasks</value>
+  </data>
+  <data name="IT1" xml:space="preserve">
+    <value>Simulators (lack of)</value>
+  </data>
+  <data name="LastEditedBy" xml:space="preserve">
+    <value>Last Edited By: </value>
+  </data>
+  <data name="LifeExtensionDelays" xml:space="preserve">
+    <value>Life Extension Delays</value>
+  </data>
+  <data name="LOB" xml:space="preserve">
+    <value>LOB</value>
+  </data>
+  <data name="LowInventoryStock" xml:space="preserve">
+    <value>Low Inventory / Stock (Depot)</value>
+  </data>
+  <data name="LtDuties" xml:space="preserve">
+    <value>Lt Duties</value>
+  </data>
+  <data name="MajorEquipmentRemarks" xml:space="preserve">
+    <value>Major Equipment Remarks</value>
+  </data>
+  <data name="Medical" xml:space="preserve">
+    <value>Medical</value>
+  </data>
+  <data name="NA" xml:space="preserve">
+    <value>N/A</value>
+  </data>
+  <data name="NationalAssessmentRemarks" xml:space="preserve">
+    <value>National Assessment Remarks</value>
+  </data>
+  <data name="NationalDeploy" xml:space="preserve">
+    <value>National Deploy</value>
+  </data>
+  <data name="NationalDeployRemarks" xml:space="preserve">
+    <value>National Deploy Remarks</value>
+  </data>
+  <data name="NationalName" xml:space="preserve">
+    <value>National Name</value>
+  </data>
+  <data name="NationalSupplyPlan" xml:space="preserve">
+    <value>National Supply Plan</value>
+  </data>
+  <data name="NationalSupportElements" xml:space="preserve">
+    <value>National Support Elements</value>
+  </data>
+  <data name="NationalTrainingRemarks" xml:space="preserve">
+    <value>National Training Remarks</value>
+  </data>
+  <data name="NATODesignation" xml:space="preserve">
+    <value>NATO Designation</value>
+  </data>
+  <data name="NFMReadinessReportingInformation" xml:space="preserve">
+    <value>NFM NATO Readiness Reporting Information</value>
+  </data>
+  <data name="NotEmployed" xml:space="preserve">
+    <value>Not Employed</value>
+  </data>
+  <data name="NoticeToEffect" xml:space="preserve">
+    <value>Notice To Effect</value>
+  </data>
+  <data name="NoticeToMove" xml:space="preserve">
+    <value>Notice To Move (NTM) / Response Posture (RP)</value>
+  </data>
+  <data name="NTMDetails" xml:space="preserve">
+    <value>NTM Details / RP Details</value>
+  </data>
+  <data name="Operations" xml:space="preserve">
+    <value>Operation(s)</value>
+  </data>
+  <data name="OrganizationName" xml:space="preserve">
+    <value>Organization Name</value>
+  </data>
+  <data name="Other" xml:space="preserve">
+    <value>Other</value>
+  </data>
+  <data name="ParentUnit" xml:space="preserve">
+    <value>Parent Unit</value>
+  </data>
+  <data name="PeacetimeLocationCoordinates" xml:space="preserve">
+    <value>Peacetime Location Coordinates</value>
+  </data>
+  <data name="PeacetimeLocationName" xml:space="preserve">
+    <value>Peacetime Location Name</value>
+  </data>
+  <data name="Personnel" xml:space="preserve">
+    <value>Personnel</value>
+  </data>
+  <data name="PersonnelReadinessStatusRemarks" xml:space="preserve">
+    <value>Personnel Readiness Status Remarks</value>
+  </data>
+  <data name="PersonnelStatus" xml:space="preserve">
+    <value>Personnel Status</value>
+  </data>
+  <data name="PlannedEvalDate" xml:space="preserve">
+    <value>Planned Evaluation Date</value>
+  </data>
+  <data name="PPE" xml:space="preserve">
+    <value>PPE</value>
+  </data>
+  <data name="ProjectedCREVALOPREDDeclarationDate" xml:space="preserve">
+    <value>Projected CREVAL (OPRED Declaration) Date</value>
+  </data>
+  <data name="Projection" xml:space="preserve">
+    <value>Projection</value>
+  </data>
+  <data name="ProtectionSuites" xml:space="preserve">
+    <value>Protection Suites (lack of)</value>
+  </data>
+  <data name="Radios" xml:space="preserve">
+    <value>Radios</value>
+  </data>
+  <data name="RangeAvailability" xml:space="preserve">
+    <value>Range Availability</value>
+  </data>
+  <data name="Rations" xml:space="preserve">
+    <value>Rations</value>
+  </data>
+  <data name="Rations1" xml:space="preserve">
+    <value>Rations</value>
+  </data>
+  <data name="RDS" xml:space="preserve">
+    <value>RDS</value>
+  </data>
+  <data name="Readiness" xml:space="preserve">
+    <value>Readiness</value>
+  </data>
+  <data name="ReadinessStatus" xml:space="preserve">
+    <value>Readiness Status</value>
+  </data>
+  <data name="SecretFiveEyesOnly" xml:space="preserve">
+    <value>SECRET FIVE EYES ONLY</value>
+  </data>
+  <data name="SecretRelNATO" xml:space="preserve">
+    <value>SECRET REL NATO</value>
+  </data>
+  <data name="Sensors" xml:space="preserve">
+    <value>Sensors</value>
+  </data>
+  <data name="Service" xml:space="preserve">
+    <value>Service</value>
+  </data>
+  <data name="Shortname" xml:space="preserve">
+    <value>Short Name</value>
+  </data>
+  <data name="SMaRTReadinessStatus" xml:space="preserve">
+    <value>SMaRT Readiness Status:</value>
+  </data>
+  <data name="SpecializedEquipmentServiceabilityRate" xml:space="preserve">
+    <value>Specialized Equipment Serviceability Rate</value>
+  </data>
+  <data name="SpecialQuals" xml:space="preserve">
+    <value>Special Quals (lacking)</value>
+  </data>
+  <data name="SpecialtySkills" xml:space="preserve">
+    <value>Specialty Skills</value>
+  </data>
+  <data name="SpEquipment" xml:space="preserve">
+    <value>Sp Equipment</value>
+  </data>
+  <data name="SpParts" xml:space="preserve">
+    <value>Sp Parts</value>
+  </data>
+  <data name="SpParts1" xml:space="preserve">
+    <value>Sp Parts</value>
+  </data>
+  <data name="StratLiftCapacity" xml:space="preserve">
+    <value>Strat Lift Capacity</value>
+  </data>
+  <data name="StratLiftCapacityRemarks" xml:space="preserve">
+    <value>Strat Lift Capacity Remarks</value>
+  </data>
+  <data name="SubUnitName" xml:space="preserve">
+    <value>Sub-Unit Name:</value>
+  </data>
+  <data name="SupportVehicleVesselAircraftServiceabilityRate" xml:space="preserve">
+    <value>Support Vehicle/Vessel/Aircraft Serviceability Rate</value>
+  </data>
+  <data name="Sustainability" xml:space="preserve">
+    <value>Sustainability</value>
+  </data>
+  <data name="Sustainment" xml:space="preserve">
+    <value>Sustainment</value>
+  </data>
+  <data name="SustainmentReadinessStatusRemarks" xml:space="preserve">
+    <value>Sustainment Readiness Status Remarks</value>
+  </data>
+  <data name="SustainmentStatus" xml:space="preserve">
+    <value>Sustainment Status</value>
+  </data>
+  <data name="Technicians" xml:space="preserve">
+    <value>Technicians</value>
+  </data>
+  <data name="TradeInsufficiencies" xml:space="preserve">
+    <value>Trade Insufficiencies</value>
+  </data>
+  <data name="Training" xml:space="preserve">
+    <value>Training</value>
+  </data>
+  <data name="TrainingReadinessStatusRemarks" xml:space="preserve">
+    <value>Training Readiness Status Remarks</value>
+  </data>
+  <data name="TrainingStatus" xml:space="preserve">
+    <value>Training Status</value>
+  </data>
+  <data name="TrgFleetsEqptSets" xml:space="preserve">
+    <value>Trg Fleets / Eqpt Sets</value>
+  </data>
+  <data name="Uniforms" xml:space="preserve">
+    <value>Uniforms</value>
+  </data>
+  <data name="Unit" xml:space="preserve">
+    <value>Unit</value>
+  </data>
+  <data name="ValidityDTG" xml:space="preserve">
+    <value>Validity DTG</value>
+  </data>
+  <data name="Vehicles" xml:space="preserve">
+    <value>2nd/3rd Line Delays</value>
+  </data>
+  <data name="Weapons" xml:space="preserve">
+    <value>Weapons</value>
+  </data>
+  <data name="Weapons1" xml:space="preserve">
+    <value>Maintenance Infrastucture (lack of)</value>
+  </data>
+  <data name="WeaponsServiceabilityRate" xml:space="preserve">
+    <value>Weapons Serviceability Rate</value>
+  </data>
+  <data name="Weighting" xml:space="preserve">
+    <value>Weighting</value>
+  </data>
+</root>

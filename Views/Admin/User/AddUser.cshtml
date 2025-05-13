@@ -1,0 +1,150 @@
+﻿@model SMARTV3.Models.User
+
+@using static Constants
+@using System.DirectoryServices.AccountManagement;
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+@{
+    ViewData["Title"] = localizer["AddUser"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/TextAutocomplete.css" asp-append-version="true" />
+</head>
+
+<h4>@localizer["AddUser"]</h4>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AddUser">
+            <input type="hidden" name="sortOrder" value="@ViewData["sortOrder"]" />
+            <input type="hidden" name="selectedOrganization" value="@ViewData["selectedOrganization"]" />
+            <input type="hidden" name="showDisabledUsers" value="@ViewData["showDisabledUsers"]" />
+            <input type="hidden" name="selectedPageSize" value="@ViewData["selectedPageSize"]" />
+            <input type="hidden" name="pageNumber" value="@ViewData["pageNumber"]" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="ui-widget">
+                @localizer["UserName"]
+                <input asp-for="UserName" class="form-control" />
+                <span asp-validation-for="UserName" class="text-danger"></span>
+            </div>
+            </br>
+            <div class="form-group">
+                @localizer["FirstName"]
+                <input asp-for="FirstName" class="form-control" />
+                <span asp-validation-for="FirstName" class="text-danger"></span>
+            </div>
+            </br>
+            <div class="form-group">
+                @localizer["LastName"]
+                <input asp-for="LastName" class="form-control" />
+                <span asp-validation-for="LastName" class="text-danger"></span>
+            </div>
+            </br>
+            <div class="form-group">
+                @localizer["RankTitle"]
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            </br>
+            <div class="form-group">
+                @localizer["Email"]
+                <input asp-for="Email" class="form-control" />
+                <span asp-validation-for="Email" class="text-danger"></span>
+            </div>
+            </br>
+            <div class="form-group">
+                @Html.CheckBoxFor(m => m.Enabled, new { @class = "form-check-input", @checked = true })
+                @localizer["Enabled"]
+                <span asp-validation-for="Enabled" class="text-danger"></span>
+            </div>
+            </br>
+            <div class="form-group">
+                @Html.CheckBoxFor(m => m.POC, new { @class = "form-check-input" })
+                @localizer["POC"]
+                <span asp-validation-for="POC" class="text-danger"></span>
+            </div>
+            </br>
+            <div class="form-group">
+                @localizer["Role"]
+                @Html.ListBox("SelectedRole", ViewBag.Roles as MultiSelectList, new { @class = "form-control", @size = 7 })
+                <span class="font-italic text-danger"><small>@localizer["RoleWarning"]</small></span>
+            </div>
+            </br>
+            <div class="form-group">
+                @localizer["Organization"]
+                <select asp-for="OrganizationId" id="OrganizationId" class="form-select" asp-items="ViewBag.OrganizationId"><option></option> </select>
+                <span asp-validation-for="OrganizationId" class="text-danger"></span>
+            </div>
+            </br>
+            <div class="row"> 
+                <div class="col">
+                    <a asp-action="ManageUsers"
+                       asp-route-sortOrder="@ViewData["sortOrder"]"
+                       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                       asp-route-showDisabledUsers="@ViewData["showDisabledUsers"]"
+                       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                       asp-route-pageNumber="@ViewData["pageNumber"]">
+                        @localizer["BackToList"]
+                    </a>
+                </div>
+                <div class="col">
+                    <div class="form-group">
+                        <br />
+                        <input type="submit" value="@localizer["Create"]" class="btn btn-primary" />
+                    </div>
+                </div>
+                <div class="col">
+                </div>
+            </div>
+            
+        </form>
+    </div>
+</div>
+
+@section Scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            $("#UserName").autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        type: 'GET',
+                        url: '@Url.Action("FindUsersInAD", "Admin")',
+                        data: {
+                            userName: $("#UserName").val()
+                        },
+                        success: function (data) {
+                            response(data);
+                        }
+                    });
+                },
+                select: function (event, ui) {
+                    $.ajax({
+                        type: 'GET',
+                        url: '@Url.Action("FindUserInAD", "Admin")',
+                        data: {
+                            userName: ui.item.value
+                        },
+                        success: function (data) {
+                            $("#FirstName").val(data.FirstName);
+                            $("#LastName").val(data.LastName);
+                            $("#Email").val(data.Email);
+                        },
+                        dataType: "json"
+                    });
+                },
+                minLength: 2
+            }).focus(function () {
+                $(this).autocomplete("search");
+            });
+        });
+        $("#UserName").keyup(function () {
+            $("#FirstName").val("");
+            $("#LastName").val("");
+            $("#Title").val("");
+            $("#Email").val("");
+        });
+    </script>
+}

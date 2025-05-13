@@ -1,0 +1,78 @@
+﻿@model IEnumerable<SMARTV3.Models.Service>
+
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+@{
+    ViewData["Title"] = localizer["ManageServices"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h4>@localizer["ManageServices"]</h4>
+
+<hr />
+<p>
+    <a asp-action="AddService">@localizer["CreateNew"]</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @localizer["ServiceName"]
+            </th>
+            <th>
+                @localizer["ServiceNameFre"]
+            </th>
+            <th>
+                @localizer["Archived"]
+            </th>
+            <th>
+                @localizer["SortOrder"]
+            </th>
+            <th>
+                @localizer["ArchiveComments"]
+            </th>
+            <th>
+                @localizer["CommentDate"]
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            ServiceArchiveComment? newestComment = item.ServiceArchiveComments.LastOrDefault();
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ServiceName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.ServiceNameFre)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Archived)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Ordered)
+                </td>
+                @if (newestComment != null)
+                {
+                    <td>
+                        <label class="comment-scroll">@newestComment.ArchiveComment.Comments</label>
+                    </td>
+                    <td>
+                        <label>@newestComment.ArchiveComment.ChangeDate.ToString("g")</label>
+                    </td>
+                }
+                else
+                {
+                    <td></td>
+                    <td></td>
+                }
+                <td>
+                    <a asp-action="EditService" asp-route-id="@item.Id"><img src='@Url.Content("~/images/Edit.png")' height="16" width="16" title="@localizer["Edit"]" /></a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

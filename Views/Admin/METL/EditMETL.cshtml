@@ -1,0 +1,63 @@
+﻿@model SMARTV3.Models.Metl
+
+@using Microsoft.AspNetCore.Mvc.Localization
+
+@inject IViewLocalizer localizer
+
+@{
+    string formName = "EditMetl";
+    ViewData["Title"] = localizer[formName];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h4>@localizer[formName]</h4>
+<head>
+    <link rel="stylesheet" href="~/css/ArchiveModal.css" asp-append-version="true" />
+</head>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="@formName" name="@formName" id="@formName">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="MetId" />
+            <div class="form-group">
+                <label class="control-label">@localizer["MetCode"]</label>
+                <input asp-for="MetCode" class="form-control" />
+                <span asp-validation-for="MetCode" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["MetName"]</label>
+                <input asp-for="MetName" class="form-control" />
+                <span asp-validation-for="MetName" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["MetDesc"]</label>
+                <textarea asp-for="MetDesc" class="form-control" ></textarea>
+                <span asp-validation-for="MetDesc" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Archived" /> @localizer["Archived"]
+                </label>
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" class="btn btn-primary" value="@localizer["Save"]" />
+            </div>
+        </form>
+    </div>
+</div>
+<br />
+<div>
+    <a asp-action="ManageMETLS">@localizer["BackToList"]</a>
+</div>
+<br />
+
+@section Scripts{
+    <script type="text/javascript" src="~/js/archivemodal.js"></script>
+    <script type="text/javascript">
+    </script>
+}

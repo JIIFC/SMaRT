@@ -1,0 +1,450 @@
+﻿@model SMARTV3.Models.DummyDataCard
+
+@using Microsoft.AspNetCore.Mvc.Localization
+@using SMARTV3.Helpers
+@inject IViewLocalizer localizer
+
+@{
+    ViewData["Title"] = localizer["CreateDummyForceElement"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    CultureHelper cultureHelper = new CultureHelper();
+    string lang = cultureHelper.GetCurrentCulture();
+
+    IEnumerable<PetsoverallStatus>? petsOverallStatus = ViewData["PetsOverallStatus"] as IEnumerable<PetsoverallStatus>;
+    IEnumerable<DeployedStatus>? deployStatus = ViewData["deployStatus"] as IEnumerable<DeployedStatus>;
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/DummyForceElement.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/InputValidation.css" asp-append-version="true" />
+</head>
+
+<h4>@localizer["CreateDummyForceElement"]</h4>
+<hr />
+<div class="row">
+    <div class="col">
+        <a asp-action="Edit"
+           asp-route-id="@ViewData["ForcePackageId"]"
+           asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+           asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+           asp-route-indexPageSize="@ViewData["indexPageSize"]"
+           asp-route-packageOwnersOrganization="@ViewData["packageOwnersOrganization"]"
+           asp-route-selectedPurpose="@ViewData["selectedPurpose"]"
+           asp-route-identifiedOperation="@ViewData["identifiedOperation"]"
+           asp-route-identifiedConplan="@ViewData["identifiedConplan"]"
+           asp-route-onlyShowMyForcePackages="@ViewData["onlyShowMyForcePackages"]"
+           asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+           asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+           asp-route-selectedOperation="@ViewData["selectedOperation"]"
+           asp-route-readinessStatus="@ViewData["readinessStatus"]"
+           asp-route-forcePackageName="@ViewData["forcePackageName"]"
+           asp-route-forcePackagePurpose="@ViewData["forcePackagePurpose"]"
+           asp-route-forcePackageDescription="@ViewData["forcePackageDescription"]"
+           asp-route-checkedOperations="@ViewData["checkedOperations"]"
+           asp-route-checkedConplans="@ViewData["checkedConplans"]"
+           asp-route-selectedForceElementIds="@ViewData["selectedForceElementIds"]"
+           asp-route-selectedDummyForceElementIds="@ViewData["selectedDummyForceElementIds"]">
+            @localizer["Cancel"]
+        </a>
+    </div>
+    <div class="col"></div>
+</div>
+<form asp-action="CreateDummyForceElement" name="CreateDummyForceElement" id="CreateDummyForceElement">
+    <input type="hidden" name="ForcePackageId" value="@ViewData["ForcePackageId"]" />
+    <input type="hidden" name="packageOwnersOrganization" value="@ViewData["packageOwnersOrganization"]" />
+    <input type="hidden" name="selectedPurpose" value="@ViewData["selectedPurpose"]" />
+    <input type="hidden" name="identifiedOperation" value="@ViewData["identifiedOperation"]" />
+    <input type="hidden" name="identifiedConplan" value="@ViewData["identifiedConplan"]" />
+    <input type="hidden" name="onlyShowMyForcePackages" value="@ViewData["onlyShowMyForcePackages"]" />
+    <input type="hidden" name="indexPageSize" value="@ViewData["indexPageSize"]" />
+    <input type="hidden" name="indexPageNumber" value="@ViewData["indexPageNumber"]" />
+    <input type="hidden" name="sortOrder" value="@ViewData["sortOrder"]" />
+    <input type="hidden" name="selectedOrganization" value="@ViewData["selectedOrganization"]" />
+    <input type="hidden" name="selectedConPlan" value="@ViewData["selectedConPlan"]" />
+    <input type="hidden" name="selectedOperation" value="@ViewData["selectedOperation"]" />
+    <input type="hidden" name="readinessStatus" value="@ViewData["readinessStatus"]" />
+    <input type="hidden" name="forcePackageName" value="@ViewData["forcePackageName"]" />
+    <input type="hidden" name="forcePackagePurpose" value="@ViewData["forcePackagePurpose"]" />
+    <input type="hidden" name="forcePackageDescription" value="@ViewData["forcePackageDescription"]" />
+    <input type="hidden" name="checkedOperations" value="@ViewData["checkedOperations"]" />
+    <input type="hidden" name="checkedConplans" value="@ViewData["checkedConplans"]" />
+    <input type="hidden" name="selectedForceElementIds" value="@ViewData["selectedForceElementIds"]" />
+    <input type="hidden" name="selectedDummyForceElementIds" value="@ViewData["selectedDummyForceElementIds"]" />
+    <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    <div class="row">
+        <div class="col-4">
+            <div class="form-group">
+                <label class="control-label">@localizer["ForcePackageName"]</label>
+                <input asp-for="DummyForceElement.ForcePackage.ForcePackageName" disabled class="form-control" />
+                <span asp-validation-for="DummyForceElement.ForcePackage.ForcePackageName" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="form-group">
+                <span class="error">* &nbsp;</span><span>@localizer["ElementId"]</span>
+                <input asp-for="DummyForceElement.ElementId" class="form-control" />
+                <span asp-validation-for="DummyForceElement.ElementId" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-4">
+            <div class="form-group">
+                <span class="error">* &nbsp;</span><span>@localizer["ElementName"]</span>
+                <input asp-for="DummyForceElement.ElementName" class="form-control" />
+                <span asp-validation-for="DummyForceElement.ElementName" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="form-group">
+                <label class="control-label">@localizer["ElementNameFre"]</label>
+                <input asp-for="DummyForceElement.ElementNameFre" class="form-control" />
+                <span asp-validation-for="DummyForceElement.ElementNameFre" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-4">
+            <div class="form-group">
+                <label class="control-label">@localizer["OrganizationForceGenerator"]</label>
+                <select asp-for="DummyForceElement.OrganizationId" class="form-select" asp-items="ViewBag.OrganizationId"></select>
+                <span asp-validation-for="DummyForceElement.OrganizationId" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-4"></div>
+    </div>
+    <div class="row">
+        <div class="col-4">
+            <div class="form-group">
+                <label class="control-label">@localizer["DivFrm"]</label>
+                <input asp-for="Division" class="form-control">
+                <span asp-validation-for="Division" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="form-group">
+                <label class="control-label">@localizer["BdeFltWg"]</label>
+                <input asp-for="Brigade" class="form-control">
+                <span asp-validation-for="Brigade" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-4">
+            <div class="form-group">
+                <label class="control-label">@localizer["ParentUnit"]</label>
+                <input asp-for="Unit" class="form-control">
+                <span asp-validation-for="Unit" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="form-group">
+                <label class="control-label">@localizer["SubUnitName"]</label>
+                <input asp-for="Subunit" class="form-control">
+                <span asp-validation-for="Subunit" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-4">
+            <div class="form-group">
+                <label class="control-label">@localizer["PeacetimeLocationName"]</label>
+                <input asp-for="NatoLocation" class="form-control">
+                <span asp-validation-for="NatoLocation" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="form-group">
+                <label class="control-label">@localizer["PeacetimeLocationCoordinates"]</label>
+                <input asp-for="NatoCoordinates" class="form-control">
+                <span asp-validation-for="NatoCoordinates" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-4">
+            <div class="form-group">
+                <label class="control-label">@localizer["HighReadinessTo"]</label>
+                <input asp-for="ReadinessToDate" class="form-control" type="date" />
+                <span asp-validation-for="ReadinessToDate" class="text-danger"></span>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="form-group">
+                <label class="control-label">@localizer["HighReadinessFrom"]</label>
+                <input asp-for="ReadinessFromDate" class="form-control" type="date" />
+                <span asp-validation-for="ReadinessFromDate" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-4">
+            <label>Operations</label>
+            <ul>
+                @foreach (Operation operation in Model.DummyForceElement.ForcePackage.Operations)
+                {
+                    <li>
+                        @if (lang == "en")
+                        {
+                            @operation.OperationName
+                        }
+                        else
+                        {
+                            @operation.OperationNameFre
+                        }
+                    </li>
+                }
+            </ul>
+            <br />
+        </div>
+        <div class="col-4">
+            <label>Conplans</label>
+            <ul>
+                @foreach (Conplan conplan in Model.DummyForceElement.ForcePackage.Conplans)
+                {
+                    <li>
+                        @if (lang == "en")
+                        {
+                            @conplan.ConplanName
+                        }
+                        else
+                        {
+                            @conplan.ConplanNameFre
+                        }
+                    </li>
+                }
+            </ul>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-4">
+            <div class="form-group">
+                <label class="control-label">@localizer["ForceEmploymentStatus"]</label>
+                <table cellpadding="5">
+                    <tr>
+                        <td>
+                            <select id="DeployedStatusDrpDwn" asp-for="DeployedStatusId" onchange="setChicletColor(this,'DeployedStatusDisplay')" class="form-select">
+                                @if (deployStatus != null)
+                                {
+                                    @foreach (var obj in deployStatus)
+                                    {
+                                        @if (Model.DeployedStatus != null && obj.Id == Model.DeployedStatus.Id)
+                                        {
+                                            <option value="@obj.Id" selected style="background-color:@obj.StausDisplayColour">
+                                                @if (lang == "en")
+                                                {
+                                                    @obj.StatusDisplayValue
+                                                }
+                                                else
+                                                {
+                                                    @obj.StatusDisplayValueFre
+                                                }
+                                            </option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@obj.Id" style="background-color:@obj.StausDisplayColour">
+                                                @if (lang == "en")
+                                                {
+                                                    @obj.StatusDisplayValue
+                                                }
+                                                else
+                                                {
+                                                    @obj.StatusDisplayValueFre
+                                                }
+                                            </option>
+                                        }
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="DeployedStatusId" class="text-danger"></span>
+                        </td>
+                        <td>
+                            @if (Model.DeployedStatus != null)
+                            {
+                                <div id="DeployedStatusDisplay" class="rounddiv" style="background-color:@Model.DeployedStatus.StausDisplayColour"></div>
+                            }
+                            else
+                            {
+                                <div id="DeployedStatusDisplay" class="rounddiv"></div>
+                            }
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="col-4">
+            <div class="form-group">
+                <label class="control-label">@localizer["Weighting"]</label>
+                <select asp-for="DummyForceElement.WeightingId" class="form-select" asp-items="ViewBag.WeightingId"></select>
+                <span asp-validation-for="DummyForceElement.WeightingId" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+    <hr />
+    <div class="row">
+        <div class="col">
+            <div class="form-group">
+                <label class="control-label">@localizer["PersonnelReadiness"]</label><br />
+                <table cellpadding="5">
+                    <tr>
+                        <td>
+                            <select id="PersonnelStatusId" asp-for="PersonnelStatusId" onchange="setChiclet(this,'PersStatusDisplay')" class="form-select status-dropdown">
+                                @if (petsOverallStatus != null)
+                                {
+                                    @foreach (var obj in petsOverallStatus)
+                                    {
+                                        @if (obj.Id == Model.PersonnelStatusId)
+                                        {
+                                            <option value="@obj.Id" selected style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@obj.Id" style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </td>
+                        <td>
+                            <div id="PersStatusDisplay" class="rounddiv" style="background-color:@Model.SrStatus?.StatusDisplayColour"> </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <label class="control-label">@localizer["EquipmentReadiness"]</label><br />
+                <table cellpadding="5">
+                    <tr>
+                        <td>
+                            <select id="EquipmentStatusId" asp-for="EquipmentStatusId" onchange="setChiclet(this,'EquipStatusDisplay')" class="form-select status-dropdown">
+                                @if (petsOverallStatus != null)
+                                {
+                                    @foreach (var obj in petsOverallStatus)
+                                    {
+                                        @if (obj.Id == Model.EquipmentStatusId)
+                                        {
+                                            <option value="@obj.Id" selected style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@obj.Id" style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </td>
+                        <td>
+                            <div id="EquipStatusDisplay" class="rounddiv" style="background-color:@Model.SrStatus?.StatusDisplayColour"> </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <label class="control-label">@localizer["TrainingReadiness"]</label><br />
+                <table cellpadding="5">
+                    <tr>
+                        <td>
+                            <select id="TrainingStatusId" asp-for="TrainingStatusId" onchange="setChiclet(this,'TrainStatusDisplay')" class="form-select status-dropdown">
+                                @if (petsOverallStatus != null)
+                                {
+                                    @foreach (var obj in petsOverallStatus)
+                                    {
+                                        @if (obj.Id == Model.TrainingStatusId)
+                                        {
+                                            <option value="@obj.Id" selected style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@obj.Id" style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </td>
+                        <td>
+                            <div id="TrainStatusDisplay" class="rounddiv" style="background-color:@Model.SrStatus?.StatusDisplayColour"> </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <label class="control-label">@localizer["SustainmentReadiness"]</label><br />
+                <table cellpadding="5">
+                    <tr>
+                        <td>
+                            <select id="SustainmentStatusId" asp-for="SustainmentStatusId" onchange="setChiclet(this,'SustStatusDisplay')" class="form-select status-dropdown">
+                                @if (petsOverallStatus != null)
+                                {
+                                    @foreach (var obj in petsOverallStatus)
+                                    {
+                                        @if (obj.Id == Model.SustainmentStatusId)
+                                        {
+                                            <option value="@obj.Id" selected style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="@obj.Id" style="background-color:@obj.StatusDisplayColour">@obj.StatusDisplayValue</option>
+                                        }
+                                    }
+                                }
+                            </select>
+                        </td>
+                        <td>
+                            <div id="SustStatusDisplay" class="rounddiv" style="background-color:@Model.SrStatus?.StatusDisplayColour"> </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+    <br />
+    <span>@localizer["SMaRTReadinessStatus"]</span>
+    &nbsp;
+    <div id="SrStatusDisplay" class="rounddiv" style="background-color:@Model.SrStatus?.StatusDisplayColour"> </div>
+    <input asp-for="SrStatusId" hidden />
+    <br /><br />
+    <div class="row">
+        <div class="col">
+            <a asp-action="Edit"
+               asp-route-id="@ViewData["ForcePackageId"]"
+               asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+               asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+               asp-route-indexPageSize="@ViewData["indexPageSize"]"
+               asp-route-packageOwnersOrganization="@ViewData["packageOwnersOrganization"]"
+               asp-route-selectedPurpose="@ViewData["selectedPurpose"]"
+               asp-route-identifiedOperation="@ViewData["identifiedOperation"]"
+               asp-route-identifiedConplan="@ViewData["identifiedConplan"]"
+               asp-route-onlyShowMyForcePackages="@ViewData["onlyShowMyForcePackages"]"
+               asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+               asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+               asp-route-selectedOperation="@ViewData["selectedOperation"]"
+               asp-route-readinessStatus="@ViewData["readinessStatus"]"
+               asp-route-forcePackageName="@ViewData["forcePackageName"]"
+               asp-route-forcePackagePurpose="@ViewData["forcePackagePurpose"]"
+               asp-route-forcePackageDescription="@ViewData["forcePackageDescription"]"
+               asp-route-checkedOperations="@ViewData["checkedOperations"]"
+               asp-route-checkedConplans="@ViewData["checkedConplans"]"
+               asp-route-selectedForceElementIds="@ViewData["selectedForceElementIds"]"
+               asp-route-selectedDummyForceElementIds="@ViewData["selectedDummyForceElementIds"]">
+                @localizer["Cancel"]
+            </a>
+        </div>
+        <div class="col" style="text-align: center;">
+            <div onclick="submit('CreateDummyForceElement')" class="btn btn-primary">@localizer["Create"]</div>
+        </div>
+        <div class="col"></div>
+    </div>
+</form>
+
+@section Scripts{
+    <script src="~/js/inputvalidation.js"></script>
+    <script src="~/js/dummyforceelement.js"></script>
+}

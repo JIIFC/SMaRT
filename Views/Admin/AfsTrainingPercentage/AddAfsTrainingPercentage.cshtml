@@ -1,0 +1,53 @@
+﻿@model SMARTV3.Models.AfsTrainingPercentage
+
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+
+@{
+    ViewData["Title"] = localizer["AddAfsTrainingPercentage"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h4>@localizer["AddAfsTrainingPercentage"]</h4>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AddAfsTrainingPercentage">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label class="control-label">@localizer["StatusDisplayColour"]</label>
+                <input asp-for="StatusDisplayColour" class="form-control" />
+                <span asp-validation-for="StatusDisplayColour" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["StatusDisplayValue"]</label>
+                <input asp-for="StatusDisplayValue" class="form-control" />
+                <span asp-validation-for="StatusDisplayValue" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["Ordering"]</label>
+                <input asp-for="Ordering" class="form-control" />
+                <span asp-validation-for="Ordering" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Archived" /> @localizer["Archived"]
+                </label>
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="@localizer["Create"]" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+<br />
+<div>
+    <a asp-action="ManageAfsTrainingPercentages">@localizer["BackToList"]</a>
+</div>
+

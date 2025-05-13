@@ -1,0 +1,48 @@
+﻿@model List<ArchiveComment>
+
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+<head>
+    <link rel="stylesheet" href="~/css/ArchiveCommentTable.css" asp-append-version="true" />
+</head>
+
+<div class="row">
+    <div class="col">
+        <h3>@localizer["ArchiveHistory"]</h3>
+        <div id="commentsLeft">
+            <table class="table table-bordered table-hover">
+                <thead class="table-light">
+                    <tr>
+                        <th scope="col">@localizer["Date"]</th>
+                        <th scope="col">@localizer["Archived"]</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (ArchiveComment comment in Model)
+                    {
+                        <tr onclick="getComment('@comment.Id');setCurrentComment('@("comment"+comment.Id)');"
+                        class="cursor-hover" id="@("comment"+comment.Id)">
+                            <td>@comment.ChangeDate.ToString("g")</td>
+                            <td>@comment.Archived</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+    <div class="col">
+        <h3>@localizer["Comments"]</h3>
+        <div id="commentsRight">
+            <div id="archiveComments">
+                <b>@localizer["ChangeDate"]: </b>
+                <label id="commentChangeDate" class="comment-padding"></label>
+                <b>@localizer["ChangeUser"]: </b>
+                <label id="commentChangeUser" class="comment-padding"></label>
+                <b>@localizer["Archived"]: </b>
+                <label id="commentArchived" class="comment-padding"></label>
+                <label id="comments" class="comment-padding"></label>
+            </div>
+        </div>
+    </div>
+</div>

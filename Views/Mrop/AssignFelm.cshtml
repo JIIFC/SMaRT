@@ -1,0 +1,49 @@
+﻿@model SMARTV3.Models.OutputForceElement;
+
+
+@{
+    ViewData["Title"] = localizer["AssignForceElement"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+<h5>@localizer["AssignForceElement"]</h5>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AssignFelm">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label class="control-label">@localizer["OutputTask"]</label>
+                <select asp-for="OutputTaskId" class="form-select" asp-items="ViewBag.outputTaskId"></select>
+                <span asp-validation-for="OutputTaskId" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["ForceElement"]</label>
+                <select asp-for="FelmId" class="form-select" asp-items="ViewBag.felmId"></select>
+                <span asp-validation-for="FelmId" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label for="AssignmentStart">@localizer["AssignmentStart"]</label>
+                @Html.TextBox("assignmentStart", ViewBag.assignmentStart, "", htmlAttributes: new { @class = "datefield form-select", type = "date" })
+            </div>
+            <div class="form-group">
+                <label for="AssignmentEnd">@localizer["AssignmentEnd"]</label>
+                @Html.TextBox("assignmentEnd", ViewBag.assignmentEnd, "", htmlAttributes: new { @class = "datefield form-select", type = "date" })
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="@localizer["Create"]" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+<br />
+<div>
+    <a asp-action="Index">@localizer["Back"]</a>
+</div>

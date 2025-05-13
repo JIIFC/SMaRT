@@ -1,0 +1,148 @@
+﻿@model SMARTV3.Models.Capability
+
+@using Microsoft.AspNetCore.Mvc.Localization
+
+@inject IViewLocalizer localizer
+
+@{
+    string formName = "EditCapability";
+    ViewData["Title"] = localizer[formName];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<ArchiveComment> comments = new List<ArchiveComment>();
+    foreach (var CapabilityArchiveComments in Model.CapabilityArchiveComments.OrderByDescending(c => c.ArchiveComment.ChangeDate))
+    {
+        comments.Add(CapabilityArchiveComments.ArchiveComment);
+    }
+}
+
+<h4>@localizer[formName]</h4>
+<head>
+    <link rel="stylesheet" href="~/css/ArchiveModal.css" asp-append-version="true" />
+</head>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="@formName" name="@formName" id="@formName">
+            <input id="parentMetlList" name="parentMetlList" value="@ViewData["CapMetlList"]" hidden />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <input type="hidden" id="ArchiveReason" name="ArchiveReason" />
+            <div class="form-group">
+                <label class="control-label">@localizer["CapabilityName"]</label>
+                <input asp-for="CapabilityName" class="form-control" />
+                <span asp-validation-for="CapabilityName" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["CapabilityNameFre"]</label>
+                <input asp-for="CapabilityNameFre" class="form-control" />
+                <span asp-validation-for="CapabilityNameFre" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["CapabilityDesc"]</label>
+                <textarea asp-for="CapabilityDesc" class="form-control" ></textarea>
+                <span asp-validation-for="CapabilityDesc" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group form-check-inline">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="NatoCapability" /> @localizer["NatoCapability"]
+                </label>
+            </div>
+            <div class="form-group form-check-inline">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Archived" /> @localizer["Archived"]
+                </label>
+            </div>
+            <br />
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["SortOrder"]</label>
+                <input asp-for="Ordered" class="form-control" />
+                <span asp-validation-for="Ordered" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <a class="btn btn-primary" onclick="isArchivedOrUnarchived()">@localizer["Save"]</a>
+            </div>
+        </form>
+    </div>
+    <div class="col-md-4">ADD METL
+        </br>
+        <div class="row">
+            <div class="col-md-6 form-group">
+                <label for="validFrom">@localizer["validFrom"]</label>
+                @Html.TextBox("validFrom", ViewBag.validFrom, "", htmlAttributes: new { @class = "datefield form-select", type = "datetime-local" })
+            </div>
+            <div class="col-md-6 form-group">
+                <label for="validTo">@localizer["validTo"]</label>
+                @Html.TextBox("validTo", ViewBag.validTo, "", htmlAttributes: new { @class = "datefield form-select", type = "datetime-local" })
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="selectedMetl">@localizer["METL"]</label>
+            @Html.DropDownList("metlList", ViewBag.metId, "", htmlAttributes: new { @class = "form-select" })
+        </div>
+        <div class="col align-self-end col-md-2">
+            <input type="image" src="~/images/Add.png" id="addMetl" />
+         </div>
+         <br/>
+        <div class="preview" style="padding-top: 1rem;">
+        </div>
+    </div>
+</div>
+<br />
+<div>
+    <a asp-action="ManageCapabilities">@localizer["BackToList"]</a>
+</div>
+<br />
+@if (Model.CapabilityArchiveComments.Count > 0)
+{
+    await Html.RenderPartialAsync("ArchiveCommentTable", comments);
+}
+
+<div id='archiveModal' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='archiveModalContent'></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script type="text/javascript" src="~/js/archivemodal.js"></script>
+    <script type="text/javascript" src="~/js/metlSelect.js"></script>
+    <script type="text/javascript">
+
+        const addmetl = document.getElementById('addMetl');
+
+        $(document).ready(function () {
+            $('#archiveModal').on('hidden.bs.modal', function () {
+                modalHidden('@formName');
+            });
+        @{
+            ArchiveComment? FirstComment = comments.FirstOrDefault();
+            int FirstCommentId = 0;
+            if (FirstComment != null) FirstCommentId = FirstComment.Id;
+        }
+                            if (@FirstCommentId != 0) getComment("" + @FirstCommentId);
+                                addmetl.addEventListener('click', function (event) {
+                    event.preventDefault(); addMetltoJsonFileList(document.getElementById('metlList').value, document.getElementById('metlList').options[document.getElementById('metlList').selectedIndex].text, document.getElementById('validFrom').value, document.getElementById('validTo').value);
+                });
+
+                listMetls(JSON.parse($("#parentMetlList").val()), false);
+        });
+
+        function isArchivedOrUnarchived() {
+            var checkBox = document.getElementById('Archived');
+            if (@Model.Archived.ToString().ToLower() != checkBox.checked) {
+                showModal();
+            } else {
+                submit('@formName');
+            }
+            
+        }
+
+    </script>
+}

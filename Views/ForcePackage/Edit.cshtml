@@ -1,0 +1,534 @@
+﻿@model SMARTV3.Models.ForcePackage
+
+@using static Constants
+@using System.Text.Json;
+@using System.DirectoryServices.AccountManagement;
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+@{
+    ViewData["Title"] = localizer["EditForcePackage"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    
+    User? givenUser = ViewData["givenUser"] as User;
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/ForcePackage.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/InputValidation.css" asp-append-version="true" />
+</head>
+
+<div class="toast" style="position: absolute; top: 4rem; right: 2rem;">
+    <div class="toast-body alert-success">
+        @localizer["ChangesSaved"]
+    </div>
+</div>
+
+<form asp-action="Edit" name="EditForcePackage" id="EditForcePackage">
+    <input type="hidden" asp-for="Id" />
+    <div class="secretbannerdiv">@localizer["SecretFiveEyesOnly"]</div>
+    <br /> <br />
+    <div class="row">
+        <div class="col">
+            <h3 style="display: inline;">@localizer["EditForcePackage"]</h3>
+        </div>
+    </div>
+    <hr>
+    <div class="row">
+        <div class="col">
+            <div>
+                <div onclick="submit()" title="@localizer["Save"]" style="display: inline; cursor: pointer;">
+                    <img alt="@localizer["Save"]" src="~/images/Save.png" height="32" width="32" style="vertical-align: inherit;" />
+                </div>&nbsp;&nbsp;
+                <a asp-action="Index"
+                   asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+                   asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+                   asp-route-indexPageSize="@ViewData["indexPageSize"]"
+                   asp-route-packageOwnersOrganization="@ViewData["packageOwnersOrganization"]"
+                   asp-route-selectedPurpose="@ViewData["selectedPurpose"]"
+                   asp-route-identifiedOperation="@ViewData["identifiedOperation"]"
+                   asp-route-identifiedConplan="@ViewData["identifiedConplan"]"
+                   asp-route-onlyShowMyForcePackages="@ViewData["onlyShowMyForcePackages"]"
+                   title="@localizer["Cancel"]"
+                   style="text-decoration: none;">
+                   <img alt="@localizer["Cancel"]" src="~/images/Cancel.png" height="32" width="32" style="vertical-align: inherit;" />
+                </a>
+            </div>
+        </div>
+        @*<div class="col">
+            <button type="button" onclick="showModal(@Model.Id)" class="btn btn-sm btn-secondary">
+                Manage Force Package KPI
+            </button>
+        </div>*@
+        <div class="col-1">
+            <div onclick="redirectToManageUsers()" class="link-button">
+                <img src="~/images/ManageUsers.png" height="42" width="42" title="@localizer["ManageForcePackageUsers"]" style="float: right;" />
+            </div>
+        </div>
+        <div class="col-1">
+            <div onclick="redirectToDuplicateForcePackage()" class="link-button">
+                <img src="~/images/Duplicate.png" height="42" width="42" title="@localizer["Duplicate"]" style="float: right;" />
+            </div>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col">
+            <div class="form-group">
+                <span class="error">* &nbsp;</span><label for="ForcePackageName">@localizer["ForcePackageName"]</label>
+                @Html.TextBoxFor(m => m.ForcePackageName, htmlAttributes: new { @class = "form-control" })
+                <span id="ForcePackageNameValidation" class="text-danger" style="display: none;">@localizer["ValueRequired"].Value</span>
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <span class="error">* &nbsp;</span><label for="ForcePackagePurpose">@localizer["Purpose"]</label>
+                @Html.DropDownList("ForcePackagePurpose", ViewBag.purposeId, "", htmlAttributes: new { @class = "form-select" })
+                <span id="ForcePackagePurposeValidation" class="text-danger" style="display: none;">@localizer["ValueRequired"].Value</span>
+            </div>
+        </div>
+    </div><br />
+    <div class="row">
+        <div class="col">
+            <div class="form-group">
+                <label for="ForcePackageDescription">@localizer["ForcePackageDescription"]</label>
+                @Html.TextAreaFor(m => m.ForcePackageDescription, htmlAttributes: new { @class = "form-control" })
+            </div>
+        </div>
+    </div><br />
+    <h5>@localizer["FilterAvailableForceElements"]</h5>
+    <hr />
+    <div class="row" style="padding-bottom: 1rem;">
+        <div class="col">
+            <div class="form-group">
+                <label for="selectedOrganization">@localizer["Organizations"]</label>
+                @Html.DropDownList("selectedOrganization", ViewBag.organizationList, "", htmlAttributes: new { @class = "form-select" })
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <label for="selectedConPlan">@localizer["ContingencyPlan"]</label>
+                @Html.DropDownList("selectedConPlan", ViewBag.conPlanList, "", htmlAttributes: new { @class = "form-select" })
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <label for="selectedOperation">@localizer["Operations"]</label>
+                @Html.DropDownList("selectedOperation", ViewBag.operationList, "", htmlAttributes: new { @class = "form-select" })
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <label for="selectedOverallStatus">@localizer["ReadinessStatus"]</label>
+                <select id="selectedOverallStatus" name="selectedOverallStatus" class="form-select" onchange="selectedOverallStatusFunction()" style="width: 8ch;">
+                    <option></option>
+                    @foreach (var status in ViewBag.overallStatusList)
+                    {
+                        if (status.Id == ViewBag.readinessStatus)
+                        {
+                            <option value="@status.Id" selected style="color:@status.StatusDisplayColour">&#11044;</option>
+                        } else
+                        {
+                            <option value="@status.Id" style="color:@status.StatusDisplayColour">&#11044;</option>
+                        }
+                    }
+                </select>
+            </div>
+        </div>
+        <div class="col" style="align-self: end; text-align: end;">
+            <div onclick="redirectToEdit('Filter')" class="link-button">
+                <img src="~/images/More.png" height="20" width="20" title="@localizer["Filter"]" />
+            </div>
+            <div onclick="redirectToEdit('ClearFilters')" class="link-button">
+                <img src="~/images/Cancel.png" height="20" width="20" title="@localizer["Clear"]" />
+            </div>
+        </div>
+    </div>
+    <hr />
+    <div class="row" style="display: inline-flex; padding-top: 1rem;">
+        <div class="col">
+            <label>@localizer["IdentifiedOperations"]</label>
+            <div class="checkbox-scroll-list">
+                @{
+                    List<Operation> operationList = (List<Operation>)ViewBag.operationListForCheckboxes;
+                    int operationIndex = 0;
+                }
+                @foreach (Operation operation in operationList)
+                {
+                    <div class="form-group form-check checkbox-list-item">
+                        <label class="form-check-label">
+                            @Html.CheckBox("operation" + operation.Id, htmlAttributes: new { @class = "operation-checkbox" })
+                            @operation.OperationName
+                        </label>
+                    </div>
+                    if (operationIndex != operationList.Count - 1)
+                    {
+                        <hr style="margin: auto;">
+                    }
+                    operationIndex++;
+                }
+            </div>
+        </div>
+        <div class="col">
+            <label>@localizer["IdentifiedConplans"]</label>
+            <div class="checkbox-scroll-list">
+                @{
+                    List<Conplan> conplanList = (List<Conplan>)ViewBag.conplanListForCheckboxes;
+                    int conplanIndex = 0;
+                }
+                @foreach (Conplan conplan in conplanList)
+                {
+                    <div class="form-group form-check checkbox-list-item">
+                        <label class="form-check-label">
+                            @Html.CheckBox("conplan" + conplan.Id, htmlAttributes: new { @class = "conplan-checkbox" })
+                            @conplan.ConplanName
+                        </label>
+                    </div>
+                    if (conplanIndex != conplanList.Count - 1)
+                    {
+                        <hr style="margin: auto;">
+                    }
+                    conplanIndex++;
+                }
+            </div>
+        </div>
+        <div class="col" style="padding-right: 3.5rem;">
+            <div class="vl"></div>
+        </div>
+    </div>
+    <div class="row" style="display: inline-flex; padding-top: 1rem;">
+        <div class="col">
+            <label>@localizer["AvailableForceElements"]</label>
+            <ul id="availableForceElements" class="forceElement-list" title="@localizer["DragTitle"]">
+                @{
+                    List<DummyForceElement> availableDummyFElmList = new();
+                    List<int> selectedDummyFelmIdsList = new();
+                    int? readinessStatus = ViewBag.readinessStatus;
+                    string? selectedDummyForceElementIds = ViewData["selectedDummyForceElementIds"]?.ToString();
+                    if (selectedDummyForceElementIds != null)
+                    {
+                        selectedDummyFelmIdsList = JsonSerializer.Deserialize<List<string>>(selectedDummyForceElementIds)!.Select(int.Parse).ToList();
+                    }
+
+                    if (selectedDummyFelmIdsList.Count() > 0)
+                    {
+                        if (readinessStatus != null)
+                        {
+                            availableDummyFElmList = Model.DummyForceElements.Where(f => !f.IsActiveInForcePackage
+                                && (selectedDummyFelmIdsList.Contains(f.Id) || f.DummyDataCards.First().SrStatusId == readinessStatus)).OrderBy(f => f.ElementName).ToList();
+                        } else
+                        {
+                            availableDummyFElmList = Model.DummyForceElements.Where(f => !f.IsActiveInForcePackage || !selectedDummyFelmIdsList.Contains(f.Id)).OrderBy(f => f.ElementName).ToList();
+                        }
+
+                    } else
+                    {
+                        if (readinessStatus != null)
+                        {
+                            availableDummyFElmList = Model.DummyForceElements.Where(f => !f.IsActiveInForcePackage && f.DummyDataCards.First().SrStatusId == readinessStatus).OrderBy(f => f.ElementName).ToList();
+                        } else
+                        {
+                            availableDummyFElmList = Model.DummyForceElements.Where(f => !f.IsActiveInForcePackage).OrderBy(f => f.ElementName).ToList();
+                        }
+                    } 
+                }
+                @foreach (DummyForceElement dummyForceElement in availableDummyFElmList)
+                {
+                    <li class="forceElement" id="@("dummyForceElement" + dummyForceElement.Id)" title="@localizer["DragTitle"]">
+                        <div class="rounddiv" style="background-color:@dummyForceElement.DummyDataCards.FirstOrDefault()?.SrStatus?.StatusDisplayColour"> </div>
+                        @dummyForceElement.ElementName
+                        @if (!dummyForceElement.IsTiedToRealFelm)
+                        {
+                             <div onclick="redirectToEditDummy('@dummyForceElement.Id')" class="link-button" style="display: inline-flex;">
+                                <img src="~/images/Edit.png" height="16" width="16" title="@localizer["EditDummyForceElement"]" style="float: right; margin: 0.3rem;" />
+                            </div>
+                            <div onclick="redirectToDeleteDummy('@dummyForceElement.Id')" class="link-button" style="display: inline-flex;">
+                                <img src="~/images/Delete.png" height="16" width="16" title="@localizer["DeleteDummyForceElement"]" />
+                            </div>
+                        }
+                    </li>
+                }
+                @foreach (ForceElement forceElement in ViewBag.forceElementList)
+                {
+                    <li class="forceElement" id="@("forceElement" + forceElement.Id)" title="@localizer["DragTitle"]">
+                        <div class="rounddiv" style="background-color:@forceElement.DataCards.FirstOrDefault()?.SrStatus?.StatusDisplayColour"> </div>
+                        @forceElement.ElementName
+                    </li>
+                }
+            </ul>
+        </div>
+        <div class="col">
+            <label>@localizer["PackageForceElements"]</label>
+            @{
+               List<DummyForceElement> packagedummyFElmList = new();
+               if (selectedDummyFelmIdsList.Count() > 0)
+               {
+                   packagedummyFElmList = Model.DummyForceElements.Where(f => f.IsActiveInForcePackage && selectedDummyFelmIdsList.Contains(f.Id))
+                                                                  .OrderBy(f => f.ElementName).ToList();
+               } else
+               {
+                   packagedummyFElmList = Model.DummyForceElements.Where(f => f.IsActiveInForcePackage)
+                                                                  .OrderBy(f => f.ElementName).ToList();
+               }
+            }
+            <ul id="packageForceElements" class="forceElement-list" title="@localizer["DragTitle"]">
+                @foreach (DummyForceElement dummyForceElement in packagedummyFElmList)
+                {
+                    <li class="forceElement" id="@("dummyForceElement" + dummyForceElement.Id)" title="@localizer["DragTitle"]">
+                        <div class="rounddiv" style="background-color:@dummyForceElement.DummyDataCards.FirstOrDefault()?.SrStatus?.StatusDisplayColour"> </div>
+                        @dummyForceElement.ElementName
+                        @if (!dummyForceElement.IsTiedToRealFelm)
+                        {
+                            <div onclick="redirectToEditDummy('@dummyForceElement.Id')" class="link-button" style="display: inline-flex;">
+                                <img src="~/images/Edit.png" height="16" width="16" title="@localizer["EditDummyForceElement"]" style="float: right; margin: 0.3rem;" />
+                            </div>
+                            <div onclick="redirectToDeleteDummy('@dummyForceElement.Id')" class="link-button" style="display: inline-flex;">
+                                <img src="~/images/Delete.png" height="16" width="16" title="@localizer["DeleteDummyForceElement"]" />
+                            </div>
+                        }
+                    </li>
+                }
+            </ul>
+            <div onclick="redirectToCreateDummy()" style="padding-top: 1rem;">
+                <div class="btn btn-secondary">@localizer["CreateDummyForceElement"]</div>
+            </div>
+        </div>
+    </div><br />
+    <br />
+    <div class="row">
+        <div class="col">
+            <label>@localizer["LastEditedBy"]</label>
+            @Html.DisplayFor(m => m.LastEditUserNavigation!.UserName)
+        </div>
+        <div class="col">
+            <label>@localizer["DateLastEdited"]</label>
+            <label>@(Model.LastEditDate?.ToString("yyyy-MM-dd"))</label>
+        </div>
+    </div><br />
+    <div>
+        <div onclick="submit()" title="@localizer["Save"]" style="display: inline; cursor: pointer;">
+            <img alt="@localizer["Save"]" src="~/images/Save.png" height="32" width="32" style="vertical-align: inherit;" />
+        </div>&nbsp;&nbsp;
+        <a asp-action="Index"
+           asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+           asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+           asp-route-indexPageSize="@ViewData["indexPageSize"]"
+           asp-route-packageOwnersOrganization="@ViewData["packageOwnersOrganization"]"
+           asp-route-selectedPurpose="@ViewData["selectedPurpose"]"
+           asp-route-identifiedOperation="@ViewData["identifiedOperation"]"
+           asp-route-identifiedConplan="@ViewData["identifiedConplan"]"
+           asp-route-onlyShowMyForcePackages="@ViewData["onlyShowMyForcePackages"]"
+           title="@localizer["Cancel"]"
+           style="text-decoration: none;">
+           <img alt="@localizer["Cancel"]" src="~/images/Cancel.png" height="32" width="32" style="vertical-align: inherit;" />
+        </a>
+    </div>
+</form>
+
+<div id='kpiModal' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='kpiModalContent'></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script src="~/js/forcepackagekpimodal.js"></script>
+    <script src="~/js/forcepackage.js"></script>
+    <script type="text/javascript">
+        $("#ForcePackageName").change(function () { setMissingValueErrors(); });
+        $("#ForcePackagePurpose").change(function () { setMissingValueErrors(); });
+
+        // Initialize sortable list
+        $(function () {
+            $("#availableForceElements, #packageForceElements").sortable({
+                connectWith: ".forceElement-list",
+                placeholder: "placeholder",
+                delay: 150
+            })
+            .dblclick(function (e) {
+                var item = e.target;
+                if ($(item).is("div")) {
+                    item = $(item).parent();
+                }
+                if (e.currentTarget.id === 'availableForceElements') {
+                    $(item).fadeOut('fast', function () {
+                        $(item).appendTo($('#packageForceElements')).fadeIn('slow');
+                    });
+                } else {
+                    $(item).fadeOut('fast', function () {
+                        $(item).appendTo($('#availableForceElements')).fadeIn('slow');
+                    });
+                }
+            });
+        });
+
+        $(document).ready(function () {
+            setCheckedboxes();
+            var showSavedToast = "@ViewData["showSavedToast"]";
+            if (showSavedToast != null && showSavedToast == "true") {
+                $('.toast').toast('show');
+            }
+            // replace &quot; with ". JSON serialization messes this up. This is fix
+            let selectedFelmIdsString = "@ViewData["selectedForceElementIds"]".replaceAll("&quot;", "\"");
+            if (selectedFelmIdsString != "") {
+                let selectedForceElementIds = JSON.parse(selectedFelmIdsString);
+                selectedForceElementIds.forEach(function (element) {
+                    $("#forceElement" + element).appendTo($('#packageForceElements'));
+                });
+            }
+
+            let selectedDummyFelmIdsString = "@ViewData["selectedDummyForceElementIds"]".replaceAll("&quot;", "\"");
+            if (selectedDummyFelmIdsString != "") {
+                let selectedDummyForceElementIds = JSON.parse(selectedDummyFelmIdsString);
+                selectedDummyForceElementIds.forEach(function (element) {
+                    if ($("#dummyForceElement" + element).length) {
+                        $("#dummyForceElement" + element).appendTo($('#packageForceElements'));
+                    }
+                });
+            }
+
+            var colorId = '@ViewData["readinessStatus"]';
+            if (colorId != null && colorId != "") {
+                document.getElementById('selectedOverallStatus').value = colorId;
+                $.ajax({
+                    type: 'GET',
+                    url: '/DataCards/GetPetsOverallColourById/' + colorId + '/',
+                    success: function (response) {
+                        if (response == "") {
+                            response = "White";
+                        }
+                        document.getElementById('selectedOverallStatus').style.color = response;
+                    },
+                    error: function (data) {
+                        console.log("GetPetsOverallColourById failed on document ready");
+                    }
+                });
+            } else {
+                document.getElementById('selectedOverallStatus').style.color = "White";
+            }
+        });
+
+        function submit() {
+            var forcePackageName = $("#ForcePackageName").val();
+            var forcePackagePurpose = $("#ForcePackagePurpose").val()
+
+            if (forcePackageName != "" && forcePackageName != null && forcePackagePurpose != "" && forcePackagePurpose != null) {
+                var postData = {
+                    Id: $("#Id").val(),
+                    ForcePackageName: forcePackageName,
+                    ForcePackagePurpose: forcePackagePurpose,
+                    ForcePackageDescription: $("#ForcePackageDescription").val(),
+                    CheckedOperations: getCheckboxesOfType("operation"),
+                    CheckedConplans: getCheckboxesOfType("conplan"),
+                    SelectedForceElements: getForcePackageElementIds("forceElement"),
+                    SelectedDummyForceElements: getForcePackageElementIds("dummyForceElement")
+                };
+
+                $.ajax({
+                    type: 'POST',
+                    url: '@Url.Action("Edit", "ForcePackage")',
+                    data: postData,
+                    headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                    success: function (response) {
+                        redirectToEdit("Submit");
+                    },
+                    error: function (data) {
+                        setMissingValueErrors();
+                    },
+                    traditional: true
+                });
+            }
+        }
+
+        function makeParameterUrl(type) {
+            // Makes a string for the url that contains the appropriate parameters
+            var indexSortOrder = "@ViewData["indexSortOrder"]";
+            var indexPageSize = "@ViewData["indexPageSize"]";
+            var indexPageNumber = "@ViewData["indexPageNumber"]";
+            var packageOwnersOrganization = "@ViewData["packageOwnersOrganization"]";
+            var selectedPurpose = "@ViewData["selectedPurpose"]";
+            var selectedOrganization = $("#selectedOrganization").val();
+            var selectedConPlan = $("#selectedConPlan").val();
+            var selectedOperation = $("#selectedOperation").val();
+            var identifiedOperation = "@ViewData["identifiedOperation"]";
+            var identifiedConplan = "@ViewData["identifiedConplan"]";
+            var onlyShowMyForcePackages = "@ViewData["onlyShowMyForcePackages"]";
+            var readinessStatus = $("#selectedOverallStatus").val();
+            var forcePackageName = $("#ForcePackageName").val();
+            var forcePackagePurpose = $("#ForcePackagePurpose").val();
+            var forcePackageDescription = $("#ForcePackageDescription").val();
+            var selectedForceElementIds = getForcePackageElementIds("forceElement");
+            var selectedDummyForceElementIds = getForcePackageElementIds("dummyForceElement");
+            var checkedOperations = $(".operation-checkbox").map(function() {
+                if (this.checked) {
+                    return this.id.replace('operation','')
+                }
+            }).get();
+            var checkedConplans = $(".conplan-checkbox").map(function() {
+                if (this.checked) {
+                    return this.id.replace('conplan','')
+                }
+            }).get();
+
+            var url = "indexSortOrder=" + indexSortOrder + "&indexPageSize=" + indexPageSize + "&indexPageNumber=" + indexPageNumber
+                + "&packageOwnersOrganization=" + packageOwnersOrganization + "&selectedPurpose=" + selectedPurpose
+                + "&identifiedOperation=" + identifiedOperation + "&identifiedConplan=" + identifiedConplan + "&onlyShowMyForcePackages=" + onlyShowMyForcePackages
+                + "&forcePackageName=" + forcePackageName + "&forcePackagePurpose=" + forcePackagePurpose + "&forcePackageDescription=" + forcePackageDescription
+                + "&checkedOperations=" + JSON.stringify(checkedOperations) + "&checkedConplans=" + JSON.stringify(checkedConplans);
+
+            if (type != "ClearFilters") {
+                url += "&selectedOrganization=" + selectedOrganization + "&selectedConPlan=" + selectedConPlan + "&selectedOperation=" + selectedOperation
+                + "&readinessStatus=" + readinessStatus;
+            }
+
+            if (type == "Submit") {
+                url += "&showSavedToast=" + "true"
+            } else {
+                url += "&selectedForceElementIds=" + JSON.stringify(selectedForceElementIds) + "&selectedDummyForceElementIds=" + JSON.stringify(selectedDummyForceElementIds);
+            }
+
+            return url;
+        }
+
+        function redirectToCreateDummy() {
+            window.location.href = "/ForcePackage/CreateDummyForceElement?forcePackageId=@Model.Id&" + makeParameterUrl("CreateDummy");
+        }
+
+        function redirectToDeleteDummy(dummyForceElementId) {
+            window.location.href = "/ForcePackage/DeleteDummyForceElement?forcePackageId=@Model.Id&DummyForceElementId=" + dummyForceElementId + "&" + makeParameterUrl("DeleteDummy");
+        }
+
+        function redirectToEditDummy(dummyForceElementId) {
+            window.location.href = "/ForcePackage/EditDummyForceElement?forcePackageId=@Model.Id&DummyForceElementId=" + dummyForceElementId + "&" + makeParameterUrl("CreateDummy");
+        }
+
+        function redirectToEdit(type) {
+            window.location.href = "/ForcePackage/Edit/@Model.Id?" + makeParameterUrl(type);
+        }
+
+        function redirectToDuplicateForcePackage() {
+            window.location.href = "/ForcePackage/DuplicateForcePackage?forcePackageToDuplicateId=@Model.Id&" + makeParameterUrl("DuplicateForcePackage");
+        }
+
+        function redirectToManageUsers() {
+            window.location.href = "/ForcePackage/ManageUsers?forcePackageId=@Model.Id&" + makeParameterUrl("ManageUsers");
+        }
+
+        function setCheckedboxes() {
+            if ('@Model.Operations.ToList()' != null) {
+                var operationList = @Html.Raw(JsonSerializer.Serialize(Model.Operations.ToList(), new JsonSerializerOptions() {ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles}));
+                for (let i = 0; i < operationList.length; i++) {
+                    $("#operation" + operationList[i].Id).prop('checked', true);
+                }
+            }
+            if ('@Model.Conplans.ToList()' != null) {
+                var conplanList = @Html.Raw(JsonSerializer.Serialize(Model.Conplans.ToList(), new JsonSerializerOptions() {ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles}));
+                for (let i = 0; i < conplanList.length; i++) {
+                    $("#conplan" + conplanList[i].Id).prop('checked', true);
+                }
+            }
+        }
+    </script>
+}

@@ -1,0 +1,59 @@
+﻿@model SMARTV3.Models.DatacardKpi
+
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Newtonsoft.Json
+@inject IViewLocalizer localizer
+
+<div>
+    <input type="hidden" asp-for="Id" />
+    <input type="hidden" asp-for="UserId" />
+    <input type="hidden" asp-for="DatacardId" />
+    <input type="hidden" asp-for="OverallStatusBelowId" />
+    <input type="hidden" asp-for="OverallStatusAboveId" />
+    <div class="modal-header">
+        <h5 class="modal-title">@localizer["Title"]</h5>
+        <button type="button" class="btn-close" aria-label="Close" onclick="$('#kpiModal').modal('hide')"></button>
+    </div>
+    <div class="modal-body">
+        <div class="row">
+            <div class="col">
+                <div class="form-check form-switch">
+                    <input id="AlertAnyChanges" class="form-check-input" type="checkbox" role="switch">
+                    <label class="form-check-label" for="AlertAnyChanges">@localizer["AnyChanges"]</label>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="form-check form-switch">
+                    <input id="AlertOnSubmit" class="form-check-input" type="checkbox" role="switch">
+                    <label class="form-check-label" for="AlertOnSubmit">@localizer["DatacardSubmitted"]</label>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col">
+                <div class="form-check form-switch">
+                    <input id="AlertWhenIncomplete" class="form-check-input" type="checkbox" role="switch">
+                    <label class="form-check-label" for="AlertWhenIncomplete">@localizer["BecomeIncomplete"]</label>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">@localizer["Close"]</button>
+        <button type="button" onclick="Save(@Model.Id, 'Change')" class="btn btn-primary">@localizer["Save"]</button>
+    </div>
+</div>
+
+<footer>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            if (@Model.Id != 0) {
+                $("#AlertAnyChanges").prop('checked', "@Model.AlertAnyChanges" == "True");
+                $("#AlertOnSubmit").prop('checked', "@Model.AlertOnSubmit" == "True");
+                $("#AlertWhenIncomplete").prop('checked', "@Model.AlertWhenIncomplete" == "True");
+            }
+        });
+    </script>
+</footer>

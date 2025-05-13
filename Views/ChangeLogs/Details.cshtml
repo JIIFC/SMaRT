@@ -1,0 +1,142 @@
+﻿@model SMARTV3.Models.ChangeLog
+
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<PetsoverallStatus>? overallStatusList = ViewData["overallStatusList"] as List<PetsoverallStatus>;
+    List<DeployedStatus>? deployedStatusListNonSelect = ViewData["deployedStatusListNonSelect"] as List<DeployedStatus>;
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/ChangelogDetails.css" asp-append-version="true" />
+</head>
+
+@if (Model.NatoGeneralComments != null | Model.NatoMajorEquipmentComments != null | Model.NatoCavets != null | Model.NatoStratLiftCapacityComments != null | Model.NatoNationalDeployComments != null | Model.NatoNationalAssesmentComments != null)
+{
+    <div id="classificationBanner" class="secretbannerdiv">@localizer["SecretRelNATO"]</div>
+}
+else
+{
+    <div id="classificationBanner" class="secretbannerdiv">@localizer["SecretFiveEyesOnly"]</div>
+}
+
+<br />
+<br />
+<div>
+    <h4>@localizer["ChangeLogDetails"]</h4>
+    <hr />
+    <div>
+        <a asp-action="Index"
+           asp-route-pageNumber="@ViewData["pageNumber"]"
+           asp-route-sortOrder="@ViewData["sortOrder"]"
+           asp-route-elementIdFilter="@ViewData["ElementIdFilter"]"
+           asp-route-elementNameFilter="@ViewData["ElementNameFilter"]"
+           asp-route-startDateFilter="@ViewData["StartDateFilter"]"
+           asp-route-endDateFilter="@ViewData["EndDateFilter"]"
+           asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+           asp-route-changeUser="@ViewData["changeUser"]">
+            @localizer["BackToList"]
+        </a>
+    </div>
+    <br />
+    <table width="1200px">
+        <tr>
+            <th width="200px" height="30px">@localizer["Ready"]</th>
+            <td><div class="rounddiv" style="background-color:@overallStatusList?.Find(s => s.Id == 1)?.StatusDisplayColour"> </div></td>
+        </tr>
+        <tr>
+            <th width="200px" height="30px">@localizer["ReadyWithLimits"] </th>
+            <td> <div class="rounddiv" style="background-color:@overallStatusList?.Find(s => s.Id == 2)?.StatusDisplayColour"> </div></td>
+        </tr>
+        <tr>
+            <th width="200px" height="30px">@localizer["CombatIneffective"] &nbsp; </th>
+            <td><div class="rounddiv" style="background-color:@overallStatusList?.Find(s => s.Id == 3)?.StatusDisplayColour"> </div></td>
+        </tr>
+        <tr>
+            <th width="200px" height="30px">@localizer["NotReady"] </th>
+            <td> <div class="rounddiv" style="background-color:@overallStatusList?.Find(s => s.Id == 4)?.StatusDisplayColour"> </div></td>
+        </tr>
+        <tr>
+            <th width="200px" height="30px">@localizer["Deployed"]</th>
+            <td><div class="rounddiv" style="background-color:@deployedStatusListNonSelect?.Find(s => s.StatusDisplayValue == "Deployed")?.StausDisplayColour"> </div></td>
+        </tr>
+        <tr>
+            <th width="200px" height="30px">@localizer["PartiallyDeployed"]</th>
+            <td> <div class="rounddiv" style="background-color:@deployedStatusListNonSelect?.Find(s => s.StatusDisplayValue == "Partially Deployed")?.StausDisplayColour"> </div></td>
+        </tr>
+        <tr>
+            <th width="200px" height="30px">@localizer["HighAlertImmediateReadiness"]</th>
+            <td> <div class="rounddiv" style="background-color:@deployedStatusListNonSelect?.Find(s => s.StatusDisplayValue == "High Alert/Immediate Reachback")?.StausDisplayColour"> </div></td>
+        </tr>
+        <tr>
+            <th width="200px" height="30px">@localizer["ForceGenerating"]</th>
+            <td> <div class="rounddiv" style="background-color:@deployedStatusListNonSelect?.Find(s => s.StatusDisplayValue == "Force Generating")?.StausDisplayColour"> </div></td>
+        </tr>
+        <tr>
+            <th width="200px" height="30px">@localizer["InDevelopment"]</th>
+            <td> <div class="rounddiv" style="background-color:@deployedStatusListNonSelect?.Find(s => s.StatusDisplayValue == "In Development")?.StausDisplayColour"> </div></td>
+        </tr>
+    </table>
+    <br />
+    <h4>@localizer["Details"]</h4>
+    <hr />
+
+    <ul style="list-style: none;">
+        <li class="data"><b>@localizer["ForceElement"]</b> @Html.DisplayFor(model => model.ForceElement!.ElementName)</li>
+        <li class="data"><b>@localizer["SMARTReadinessStatus"]</b> <div class="rounddiv" style="background-color:@Model.SrStatus!.StatusDisplayColour"> </div></li>
+        <li class="data">
+            <b>
+                @localizer["CommandOverrideStatus"]
+            </b>
+            @if (Model.CommandOverideStatus is not null)
+            {
+                <div class="rounddiv" style="background-color:@Model.CommandOverideStatus.StausDisplayColour"> </div>
+            }
+        </li>
+        <li class="data"><b>@localizer["CommandOverrideComments"]</b> @Html.DisplayFor(model => model.CommandOverrideComments)</li>
+        <li class="data"><b>@localizer["CommandOverrideAuthority"]</b> @Html.DisplayFor(model => model.CommandOverrideAuthority)</li>
+        <li class="data">
+            <b>
+                @localizer["DeployedStatus"]
+            </b>
+            @if (Model.DeployedStatus is not null)
+            {
+                <div class="rounddiv" style="background-color:@Model.DeployedStatus.StausDisplayColour"> </div>
+            }
+        </li>
+        <li class="data">
+            <b>@localizer["NATOGeneralComments"]</b> @Html.DisplayFor(model => model.NatoGeneralComments)
+        </li>
+        <li class="data"><b>@localizer["NATOMajorEquipmentComments"]</b> @Html.DisplayFor(model => model.NatoMajorEquipmentComments)</li>
+        <li class="data"><b>@localizer["NATOCaveats"]</b> @Html.DisplayFor(model => model.NatoCavets)</li>
+        <li class="data"><b>@localizer["NATOStratLiftCapacityComments"]</b> @Html.DisplayFor(model => model.NatoStratLiftCapacityComments)</li>
+        <li class="data"><b>@localizer["NATONationalDeployComments"]</b> @Html.DisplayFor(model => model.NatoNationalDeployComments)</li>
+        <li class="data"><b>@localizer["NATONationalAssessmentComments"]</b> @Html.DisplayFor(model => model.NatoNationalAssesmentComments)</li>
+        <li class="data"><b>@localizer["PersonnelStatus"]</b> <div class="rounddiv" style="background-color:@Model.PersonnelStatus?.StatusDisplayColour"> </div></li>
+        <li class="data"><b>@localizer["PersonnelComments"]</b> @Html.DisplayFor(model => model.PersonnelComments)</li>
+        <li class="data"><b>@localizer["EquipmentStatus"]</b> <div class="rounddiv" style="background-color:@Model.EquipmentStatus?.StatusDisplayColour"> </div></li>
+        <li class="data"><b>@localizer["EquipmentComments"]</b> @Html.DisplayFor(model => model.EquipmentComments)</li>
+        <li class="data"><b>@localizer["TrainingStatus"]</b> <div class="rounddiv" style="background-color:@Model.TrainingStatus?.StatusDisplayColour"> </div></li>
+        <li class="data"><b>@localizer["TrainingComments"]</b> @Html.DisplayFor(model => model.TrainingComments)</li>
+        <li class="data"><b>@localizer["SustainmentStatus"]</b> <div class="rounddiv" style="background-color:@Model.SustainmentStatus?.StatusDisplayColour"> </div></li>
+        <li class="data"><b>@localizer["SustainmentComments"]</b> @Html.DisplayFor(model => model.SustainmentComments)</li>
+        <li class="data"><b>@localizer["ChangedDate"]</b> <span>@(Model.ChangedDate == null ? "" : ((DateTime)Model.ChangedDate).ToString("yyyy-MM-dd"))</span></li>
+        <li class="data"><b>@localizer["ChangedBy"]</b> @Html.DisplayFor(model => model.LastEditUserNavigation!.UserName)</li>
+    </ul>
+</div>
+<div>
+    <a asp-action="Index"
+       asp-route-pageNumber="@ViewData["pageNumber"]"
+       asp-route-sortOrder="@ViewData["sortOrder"]"
+       asp-route-elementIdFilter="@ViewData["ElementIdFilter"]"
+       asp-route-elementNameFilter="@ViewData["ElementNameFilter"]"
+       asp-route-startDateFilter="@ViewData["StartDateFilter"]"
+       asp-route-endDateFilter="@ViewData["EndDateFilter"]"
+       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+       asp-route-changeUser="@ViewData["changeUser"]">
+        @localizer["BackToList"]
+    </a>
+</div>

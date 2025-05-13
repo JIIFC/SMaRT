@@ -1,0 +1,388 @@
+﻿@model PaginatedList<SMARTV3.Models.ChangeLog>
+
+@using SMARTV3.Helpers
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+@{
+    ViewData["Title"] = "Change Logs";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    List<PetsoverallStatus>? overallStatusList = ViewData["overallStatusList"] as List<PetsoverallStatus>;
+    List<DeployedStatus>? deployedStatusListNonSelect = ViewData["deployedStatusListNonSelect"] as List<DeployedStatus>;
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/TextAutocomplete.css" asp-append-version="true" />
+</head>
+
+<form asp-action="Index">
+    <div class="secretbannerdiv">@localizer["SecretFiveEyesOnly"]</div>
+    <br /> <br />
+    <h4>@localizer["ChangeLogs"]</h4>
+    <hr />
+    <br />
+    <h5>@localizer["FilterChangeLogs"]</h5>
+    <hr />
+    <div class="row" style="padding-bottom: 1rem;">
+        <div class="col">
+            <div class="form-group">
+                <label for="ElementIdFilter">@localizer["ElementId"]</label>
+                @Html.TextBox("ElementIdFilter","","", new { @class = "form-control filter-field"})
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <label for="ElementNameFilter">@localizer["ElementName"]</label>
+                @Html.TextBox("ElementNameFilter","","", new { @class = "form-control filter-field"})
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <label for="StartDateFilter">@localizer["ChangeFrom"]</label>
+                @Html.TextBox("StartDateFilter","","", new { @type = "date", @class = "form-control filter-field"})
+            </div>
+        </div>
+    </div>
+    <div class="row" style="padding-bottom: 1rem;">
+        <div class="col">
+            <div class="form-group">
+                <label for="StartDateFilter">@localizer["ChangeTo"]</label>
+                @Html.TextBox("EndDateFilter","","", new { @type = "date", @class = "form-control filter-field"})
+            </div>
+        </div>
+        <div class="col">
+            <div class="ui-widget">
+                @localizer["ChangedBy"]
+                <input id="ChangeUser" name="ChangeUser" class="form-control" />
+            </div>
+        </div>
+        <div class="col" style="align-self: end; text-align: end;">
+            <button type="submit" style="border: 0; background: transparent">
+                <img src='@Url.Content("~/images/More.png")' height="20" width="20" title="@localizer["Filter"]" />
+            </button>
+            <a asp-action="Index"
+               asp-route-selectedPageSize="@ViewData["selectedPageSize"]">
+                <img src='@Url.Content("~/images/Cancel.png")' height="20" width="20" title="@localizer["Clear"]" />
+            </a>
+        </div>
+    </div>
+    <br />
+    <h5>@localizer["ChangeLogs"]</h5>
+    <hr />
+
+    <table width="1200px">
+        <tr>
+            <th width="200px" height="30px">@localizer["Ready"]</th>
+            <td><div class="rounddiv" style="background-color:@overallStatusList?.Find(s => s.Id == 1)?.StatusDisplayColour"></div></td>
+        </tr>
+        <tr>
+            <th width="200px" height="30px">@localizer["ReadyWithLimits"] </th>
+            <td><div class="rounddiv" style="background-color:@overallStatusList?.Find(s => s.Id == 2)?.StatusDisplayColour"></div></td>
+        </tr>
+        <tr>
+            <th width="200px" height="30px">@localizer["CombatIneffective"]&nbsp; </th>
+            <td><div class="rounddiv" style="background-color:@overallStatusList?.Find(s => s.Id == 3)?.StatusDisplayColour"> </div></td>
+        </tr>
+        <tr>
+            <th width="200px" height="30px">@localizer["NotReady"] </th>
+            <td><div class="rounddiv" style="background-color:@overallStatusList?.Find(s => s.Id == 4)?.StatusDisplayColour"></div></td>
+        </tr>
+        <tr>
+            <th width="200px" height="30px">@localizer["Deployed"]</th>
+            <td><div class="rounddiv" style="background-color:@deployedStatusListNonSelect?.Find(s => s.StatusDisplayValue == "Deployed")?.StausDisplayColour"></div></td>
+        </tr>
+        <tr>
+            <th width="200px" height="30px">@localizer["PartiallyDeployed"]</th>
+            <td><div class="rounddiv" style="background-color:@deployedStatusListNonSelect?.Find(s => s.StatusDisplayValue == "Partially Deployed")?.StausDisplayColour"></div></td>
+        </tr>
+         <tr>
+            <th width="200px" height="30px">@localizer["ForwardToNato"]</th>
+            <td><div class="rounddiv" style="background-color:@deployedStatusListNonSelect?.Find(s => s.StatusDisplayValue == "Forward to NATO")?.StausDisplayColour"></div></td>
+        </tr>
+        <tr>
+            <th width="200px" height="30px">@localizer["HighAlertImmediateReadiness"]</th>
+            <td><div class="rounddiv" style="background-color:@deployedStatusListNonSelect?.Find(s => s.StatusDisplayValue == "High Alert/Immediate Reachback")?.StausDisplayColour"></div></td>
+        </tr>
+        <tr>
+            <th width="200px" height="30px">@localizer["InDevelopment"]</th>
+            <td><div class="rounddiv" style="background-color:@deployedStatusListNonSelect?.Find(s => s.StatusDisplayValue == "In Development")?.StausDisplayColour"></div></td>
+        </tr>
+    </table>
+    <br />
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>@localizer["ElementId"]</th>
+                <th>@localizer["ForceElement"]</th>
+                <th>@localizer["SMaRTStatus"]</th>
+                <th>@localizer["CommandOverride"]</th>
+                <th>@localizer["Deployed"]</th>
+                <th>@localizer["Personnel"]</th>
+                <th>@localizer["Equipment"]</th>
+                <th>@localizer["Training"]</th>
+                <th>@localizer["Sustainment"]</th>
+                <th>
+                    @localizer["ChangedDate"]
+                    <div class="sort-div">
+                        <a asp-action="Index"
+                           asp-route-sortOrder="date_asc"
+                           asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                           asp-route-changeUser="@ViewData["changeUser"]"
+                           asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                           asp-route-showDisabledUsers="@ViewData["showDisabledUsers"]"
+                           asp-route-pageNumber="@ViewData["pageNumber"]"
+                           asp-route-elementIdFilter="@ViewData["ElementIdFilter"]"
+                           asp-route-elementNameFilter="@ViewData["ElementNameFilter"]"
+                           asp-route-startDateFilter="@ViewData["StartDateFilter"]"
+                           asp-route-endDateFilter="@ViewData["EndDateFilter"]"
+                           class="sort-button">
+                            <img src="~/images/sort-up.svg" alt="@localizer["SortAscending"]" />
+                        </a>
+                        <a asp-action="Index"
+                           asp-route-sortOrder="date_desc"
+                           asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                           asp-route-changeUser="@ViewData["changeUser"]"
+                           asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                           asp-route-showDisabledUsers="@ViewData["showDisabledUsers"]"
+                           asp-route-pageNumber="@ViewData["pageNumber"]"
+                           asp-route-elementIdFilter="@ViewData["ElementIdFilter"]"
+                           asp-route-elementNameFilter="@ViewData["ElementNameFilter"]"
+                           asp-route-startDateFilter="@ViewData["StartDateFilter"]"
+                           asp-route-endDateFilter="@ViewData["EndDateFilter"]"
+                           class="sort-button">
+                            <img src="~/images/sort-down.svg" alt="@localizer["SortDescending"]" />
+                        </a>
+                    </div>
+
+                </th>
+                <th>
+                    @localizer["ChangedBy"]
+                    <div class="sort-div">
+                        <a asp-action="Index"
+                           asp-route-sortOrder="changeUser_asc"
+                           asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                           asp-route-changeUser="@ViewData["changeUser"]"
+                           asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                           asp-route-showDisabledUsers="@ViewData["showDisabledUsers"]"
+                           asp-route-pageNumber="@ViewData["pageNumber"]"
+                           asp-route-elementIdFilter="@ViewData["ElementIdFilter"]"
+                           asp-route-elementNameFilter="@ViewData["ElementNameFilter"]"
+                           asp-route-startDateFilter="@ViewData["StartDateFilter"]"
+                           asp-route-endDateFilter="@ViewData["EndDateFilter"]"
+                           class="sort-button">
+                            <img src="~/images/sort-up.svg" alt="@localizer["SortAscending"]" />
+                        </a>
+                        <a asp-action="Index"
+                           asp-route-sortOrder="changeUser_desc"
+                           asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                           asp-route-changeUser="@ViewData["changeUser"]"
+                           asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                           asp-route-showDisabledUsers="@ViewData["showDisabledUsers"]"
+                           asp-route-pageNumber="@ViewData["pageNumber"]"
+                           asp-route-elementIdFilter="@ViewData["ElementIdFilter"]"
+                           asp-route-elementNameFilter="@ViewData["ElementNameFilter"]"
+                           asp-route-startDateFilter="@ViewData["StartDateFilter"]"
+                           asp-route-endDateFilter="@ViewData["EndDateFilter"]"
+                           class="sort-button">
+                            <img src="~/images/sort-down.svg" alt="@localizer["SortDescending"]" />
+                        </a>
+                    </div>
+                </th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (ChangeLog? item in Model)
+            {
+                @if (item != null)
+                {
+                    <tr>
+                        <td>@Html.DisplayFor(modelItem => item.ForceElement!.ElementId)</td>
+                        <td>@Html.DisplayFor(modelItem => item.ForceElement!.ElementName)</td>
+                        <td>
+                            <div class="rounddiv" style="background-color:@item?.SrStatus?.StatusDisplayColour"> </div>
+                        </td>
+                        <td>
+                            @if (item!.CommandOverideStatus != null)
+                            {
+                                <div class="rounddiv" style="background-color:@item.CommandOverideStatus.StausDisplayColour"> </div>
+                            }
+                        </td>
+                        <td>
+                            @if (item.DeployedStatus != null)
+                            {
+                                <div class="rounddiv" style="background-color:@item.DeployedStatus.StausDisplayColour"> </div>
+                            }
+                        </td>
+                        <td>
+                            <div class="rounddiv" style="background-color:@item?.PersonnelStatus?.StatusDisplayColour"> </div>
+                        </td>
+                        <td>
+                            <div class="rounddiv" style="background-color:@item?.EquipmentStatus?.StatusDisplayColour"> </div>
+                        </td>
+                        <td>
+                            <div class="rounddiv" style="background-color:@item?.TrainingStatus?.StatusDisplayColour"> </div>
+                        </td>
+                        <td>
+                            <div class="rounddiv" style="background-color:@item?.SustainmentStatus?.StatusDisplayColour"> </div>
+                        </td>
+                        <td>
+                            <span>@(item?.ChangedDate == null ? "" : ((DateTime)item.ChangedDate).ToString("yyyy-MM-dd"))</span>
+                        </td>
+                        <td>@Html.DisplayFor(modelItem => item!.LastEditUserNavigation!.UserName)</td>
+                        <td>
+                            <a asp-action="Details"
+                       asp-route-id="@item!.Id"
+                       asp-route-sortOrder="@ViewData["sortOrder"]"
+                       asp-route-pageNumber="@ViewData["pageNumber"]"
+                       asp-route-elementIdFilter="@ViewData["ElementIdFilter"]"
+                       asp-route-elementNameFilter="@ViewData["ElementNameFilter"]"
+                       asp-route-startDateFilter="@ViewData["StartDateFilter"]"
+                       asp-route-endDateFilter="@ViewData["EndDateFilter"]"
+                       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+                       asp-route-changeUser="@ViewData["changeUser"]"
+                       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+                       asp-route-showDisabledUsers="@ViewData["showDisabledUsers"]">
+                                @localizer["Details"]
+                            </a>
+                        </td>
+                    </tr>
+                }
+            }
+        </tbody>
+    </table>
+
+    @{
+        var prevDisabled = !Model.HasPreviousPage ? "disabled" : "";
+        var nextDisabled = !Model.HasNextPage ? "disabled" : "";
+    }
+
+    <a asp-action="Index"
+       asp-route-pageNumber="@(Model.PageIndex - 1)"
+       asp-route-sortOrder="@ViewData["sortOrder"]"
+       asp-route-elementIdFilter="@ViewData["ElementIdFilter"]"
+       asp-route-elementNameFilter="@ViewData["ElementNameFilter"]"
+       asp-route-startDateFilter="@ViewData["StartDateFilter"]"
+       asp-route-endDateFilter="@ViewData["EndDateFilter"]"
+       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+       asp-route-changeUser="@ViewData["changeUser"]"
+       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+       asp-route-showDisabledUsers="@ViewData["showDisabledUsers"]"
+       class="btn btn-default @prevDisabled">
+        @localizer["Previous"]
+    </a>
+
+    @{
+        int currentPage = Model.PageIndex;
+        int i = currentPage;
+        int lastVisiblePage = currentPage + 3;
+        int totalPages = Model.TotalPages;
+        bool moreThanMaxPages = false;
+
+        if (lastVisiblePage > totalPages)
+        {
+            lastVisiblePage = totalPages;
+        }
+        else if (totalPages > lastVisiblePage)
+        {
+            moreThanMaxPages = true;
+        }
+    }
+
+    @if (i > 1)
+    {
+        <a asp-action="Index"
+           asp-route-pageNumber="1"
+           asp-route-sortOrder="@ViewData["sortOrder"]"
+           asp-route-elementIdFilter="@ViewData["ElementIdFilter"]"
+           asp-route-elementNameFilter="@ViewData["ElementNameFilter"]"
+           asp-route-startDateFilter="@ViewData["StartDateFilter"]"
+           asp-route-endDateFilter="@ViewData["EndDateFilter"]"
+           asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+           asp-route-changeUser="@ViewData["changeUser"]"
+           asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+           asp-route-showDisabledUsers="@ViewData["showDisabledUsers"]"
+           class="btn btn-default">
+            1
+        </a>
+    }
+
+    @if (currentPage > 2)
+    {
+        <label>...</label>
+    }
+
+    @while (i <= lastVisiblePage)
+    {
+        <a asp-action="Index"
+           asp-route-pageNumber="@i"
+           asp-route-sortOrder="@ViewData["sortOrder"]"
+           asp-route-elementIdFilter="@ViewData["ElementIdFilter"]"
+           asp-route-elementNameFilter="@ViewData["ElementNameFilter"]"
+           asp-route-startDateFilter="@ViewData["StartDateFilter"]"
+           asp-route-endDateFilter="@ViewData["EndDateFilter"]"
+           asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+           asp-route-changeUser="@ViewData["changeUser"]"
+           asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+           asp-route-showDisabledUsers="@ViewData["showDisabledUsers"]"
+           class="btn btn-default">
+            @if (i == currentPage)
+            {
+                <b>@i</b>
+            }
+            else
+            {
+                @i
+            }
+        </a>
+        i++;
+    }
+
+    @if (moreThanMaxPages)
+    {
+        <label>...</label>
+    }
+
+    <a asp-action="Index"
+       asp-route-pageNumber="@(Model.PageIndex + 1)"
+       asp-route-sortOrder="@ViewData["sortOrder"]"
+       asp-route-elementIdFilter="@ViewData["ElementIdFilter"]"
+       asp-route-elementNameFilter="@ViewData["ElementNameFilter"]"
+       asp-route-startDateFilter="@ViewData["StartDateFilter"]"
+       asp-route-endDateFilter="@ViewData["EndDateFilter"]"
+       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+       asp-route-changeUser="@ViewData["changeUser"]"
+       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+       asp-route-showDisabledUsers="@ViewData["showDisabledUsers"]"
+       class="btn btn-default @nextDisabled">
+        @localizer["Next"]
+    </a>
+
+    <div style="display: inline-block; padding-right: 2rem;">
+        @Html.DropDownList("selectedPageSize", ViewBag.ItemsPerPage, null, new { @onchange="form.submit();" })
+    </div>
+</form>
+
+@section Scripts{
+    <script type="text/javascript">
+        $(document).ready(function () {
+            document.getElementById('ChangeUser').value = "@ViewData["changeUser"]";
+            $("#ChangeUser").autocomplete({
+                source: function (request, response) {
+                    $.ajax({
+                        type: 'GET',
+                        url: '@Url.Action("FindExistingUsers", "Admin")',
+                        data: {
+                            userName: $("#ChangeUser").val()
+                        },
+                        success: function (data) {
+                            response(data);
+                        }
+                    });
+                },
+                minLength: 2
+            });
+        });
+    </script>
+}

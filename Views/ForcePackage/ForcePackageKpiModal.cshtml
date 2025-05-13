@@ -1,0 +1,68 @@
+﻿@model SMARTV3.Models.ForcePackageKpi
+
+@using Microsoft.AspNetCore.Mvc.Localization
+@using Newtonsoft.Json
+@inject IViewLocalizer localizer
+
+<div>
+    <div class="modal-header">
+        <h5 class="modal-title">Manage Force Package KPI</h5>
+        <button type="button" class="btn-close" aria-label="Close" onclick="$('#kpiModal').modal('hide')"></button>
+    </div>
+    <div class="modal-body">
+        <div class="form-check form-switch">
+            <input id="enableSwitch" class="form-check-input" type="checkbox" role="switch" onchange="$('#belowReadinessDiv').toggle()">
+            <label class="form-check-label" for="enableSwitch">Enable Alert</label>
+        </div>
+    </div>
+    <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+        <button type="button" onclick="Save()" class="btn btn-primary">Save changes</button>
+    </div>
+</div>
+
+<footer>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            if (@Model.Id != 0) {
+                $("#enableSwitch").prop('checked', true);
+            }
+        });
+
+        function Save() {
+            if ($("#enableSwitch").is(":checked")) {
+                if (@Model.Id == 0) {
+                    let SerializedKpi = "@JsonConvert.SerializeObject(Model, new JsonSerializerSettings() { ReferenceLoopHandling = ReferenceLoopHandling.Ignore })";
+                    SerializedKpi = SerializedKpi.replaceAll("&quot;", "\"");
+                    // Create
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("CreateForcePackageKpi", "ForcePackage")',
+                        data: {
+                            serializedKpi: SerializedKpi
+                        },
+                        headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                        success: function (response) {
+                        }
+                    });
+                }
+            } else {
+                if (@Model.Id != 0) {
+                    // Delete
+                    $.ajax({
+                        type: 'POST',
+                        url: '@Url.Action("DeleteForcePackageKpi", "ForcePackage")',
+                        data: {
+                            forcePackageKpiId: @Model.Id
+                        },
+                        headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                        success: function (response) {
+                        }
+                    });
+                }
+            }
+            $('#kpiModal').modal('hide');
+        }
+
+    </script>
+</footer>

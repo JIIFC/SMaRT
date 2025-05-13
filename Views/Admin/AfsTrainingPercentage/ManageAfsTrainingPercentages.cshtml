@@ -1,0 +1,79 @@
+﻿@model IEnumerable<SMARTV3.Models.AfsTrainingPercentage>
+
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+@{
+    ViewData["Title"] = localizer["ManageAfsTrainingPercentages"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h4>@localizer["ManageAfsTrainingPercentages"]</h4>
+
+<hr />
+<p>
+    <a asp-controller="Admin" asp-action="AddAfsTrainingPercentage">@localizer["CreateNew"]</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @localizer["StatusDisplayColour"]
+            </th>
+            <th>
+                @localizer["StatusDisplayValue"]
+            </th>
+            <th>
+                @localizer["Ordering"]
+            </th>
+            <th>
+                @localizer["Archived"]
+            </th>
+            <th>
+                @localizer["ArchiveComments"]
+            </th>
+            <th>
+                @localizer["CommentDate"]
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            AfsTrainingPercentageArchiveComment? newestComment = item.AfsTrainingPercentageArchiveComments.LastOrDefault();
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StatusDisplayColour)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.StatusDisplayValue)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Ordering)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Archived)
+                </td>
+                @if (newestComment != null)
+                {
+                    <td>
+                        <label class="comment-scroll">@newestComment.ArchiveComment.Comments</label>
+                    </td>
+                    <td>
+                        <label>@newestComment.ArchiveComment.ChangeDate.ToString("g")</label>
+                    </td>
+                }
+                else
+                {
+                    <td></td>
+                    <td></td>
+                }
+                <td>
+                    <a asp-action="EditAfsTrainingPercentage" asp-route-id="@item.Id"><img src='@Url.Content("~/images/Edit.png")'
+                        height="16" width="16" title="@localizer["Edit"]" /></a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

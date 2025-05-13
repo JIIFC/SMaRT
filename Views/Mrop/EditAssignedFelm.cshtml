@@ -1,0 +1,53 @@
+﻿@model SMARTV3.Models.OutputForceElement;
+
+
+@{
+    ViewData["Title"] = localizer["EditAssignedForceElement"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+<h5>@localizer["EditAssignedForceElement"]</h5>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="EditAssignedFelm">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label class="control-label">@localizer["OutputTask"]</label>
+                <select asp-for="OutputTaskId" class="form-select" asp-items="ViewBag.outputTaskId"></select>
+                <span asp-validation-for="OutputTaskId" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["ForceElement"]</label>
+                <select asp-for="FelmId" class="form-select" asp-items="ViewBag.felmId"></select>
+                <span asp-validation-for="FelmId" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label for="AssignmentStart">@localizer["AssignmentStart"]</label>
+                <input id="AssignmentStart" name="AssignmentStart" value="@Model.AssignmentStart.ToString("yyyy-MM-dd")" type="date" class="form-control" />
+            </div>
+            <div class="form-group">
+                <label for="AssignmentEnd">@localizer["AssignmentEnd"]</label>
+                <input id="AssignmentEnd" name="AssignmentEnd" value="@Model.AssignmentEnd.ToString("yyyy-MM-dd")" type="date" class="form-control" />                
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="@localizer["Update"]" class="btn btn-primary" /> 
+            </div>
+        </form>
+        <form asp-action="DeleteAssignedForceElement">
+            <input type="hidden" asp-for="Id" />
+            <input type="submit" value="Delete" class="btn btn-danger" />
+        </form>
+    </div>
+</div>
+<br />
+<div>
+    <a asp-action="Index">@localizer["Back"]</a>
+</div>

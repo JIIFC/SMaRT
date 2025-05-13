@@ -1,0 +1,1131 @@
+﻿@model SMARTV3.Models.DataCard
+
+@using Microsoft.AspNetCore.Mvc.Localization
+@using SMARTV3.Helpers
+@using System.Globalization
+@inject IViewLocalizer localizer
+
+@{
+    ViewData["Title"] = "Details";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    bool? UserCanEdit = ViewData["UserCanEdit"] as bool?;
+    CultureHelper cultureHelper = new CultureHelper();
+    string lang = cultureHelper.GetCurrentCulture();
+}
+
+<div id="classificationBanner" class="secretbannerdiv">
+    @if (Model.NatoActive == false && Model.NFMActive == false)
+    {
+        @localizer["SecretFiveEyesOnly"]
+    }
+    else
+    {
+        @localizer["SecretRelNATO"]
+    }
+</div>
+
+<head>
+    <link rel="stylesheet" href="~/css/Datacard.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/css/InputValidation.css" asp-append-version="true" />
+</head>
+
+<br />
+<br />
+<h3>@localizer["DataCardDetails"]</h3>
+<br />
+<div class="row">
+    <div class="col">
+        @if (UserCanEdit != null && UserCanEdit == true)
+        {
+            <a asp-action="Edit"
+               asp-route-id="@Model?.Id"
+               asp-route-sortOrder="@ViewData["sortOrder"]"
+               asp-route-pageNumber="@ViewData["pageNumber"]"
+               asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+               asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+               asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+               asp-route-selectedOperation="@ViewData["selectedOperation"]"
+               asp-route-selectedNato="@ViewData["selectedNato"]"
+               asp-route-selectedStatus="@ViewData["selectedStatus"]"
+               asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]">
+                @localizer["Edit"]
+            </a> <label>|</label>
+        }
+        <a asp-action="Index"
+           asp-route-sortOrder="@ViewData["sortOrder"]"
+           asp-route-pageNumber="@ViewData["pageNumber"]"
+           asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+           asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+           asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+           asp-route-selectedOperation="@ViewData["selectedOperation"]"
+           asp-route-selectedNato="@ViewData["selectedNato"]"
+           asp-route-selectedStatus="@ViewData["selectedStatus"]"
+           asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]">
+            @localizer["BackToList"]
+        </a>
+    </div>
+    <div class="col"></div>
+    <div class="col">
+        <button type="button" onclick="showModal(@Model.Id, 'Readiness')" class="btn btn-sm btn-secondary" style="float: right;">
+            @localizer["AlertsBasedOnReadiness"]
+        </button>
+    </div>
+    <div class="col">
+        <button type="button" onclick="showModal(@Model.Id, 'Change')" class="btn btn-sm btn-secondary" style="float: right;">
+            @localizer["AlertsForChanges"]
+        </button>
+    </div>
+</div>
+<br />
+<div>
+    <h5>@localizer["ForceElementDataCard"]</h5>
+    <hr />
+    <br />
+    @if (Model!.DataCardComplete == false)
+    {
+        <div style="color: red;font-weight: bold;">@localizer["Incomplete"]</div>
+    }
+    else
+    {
+        <div style="color: green;font-weight: bold;">@localizer["Complete"]</div>
+    }
+    <br />
+    <div class="row">
+        <div class="col"><b>@localizer["FElmID"] </b></>@Html.DisplayFor(model => model.ForceElement!.ElementId)</div>
+        <div class="col">
+            <b>@localizer["FElmName"] </b>
+            @if (lang == "en")
+            {
+                @Html.DisplayFor(model => model.ForceElement!.ElementName)
+            }
+            else
+            {
+                @Html.DisplayFor(model => model.ForceElement!.ElementNameFre)
+            }
+        </div>
+        <div class="col">
+            <b>@localizer["Shortname"]</b>
+            @if (lang == "en")
+            {
+                @Html.DisplayFor(model => model.ForceElement!.Shortname)
+            }
+            else
+            {
+                @Html.DisplayFor(model => model.ForceElement!.ShortnameFR)
+            }
+        </div>
+        
+        
+    </div><br />
+    <div class="row">
+        <div class="col">
+            <b>@localizer["OrganizationName"] </b>
+            @if (lang == "en")
+            {
+                @Html.DisplayFor(model => model.ForceElement!.Organization.OrganizationName)
+            }
+            else
+            {
+                @Html.DisplayFor(model => model.ForceElement!.Organization.OrganizationNameFre)
+            }
+        </div>
+        <div class="col"><b>@localizer["DivFrm"] </b>@Html.DisplayFor(model => model.Division)</div>
+        <div class="col"><b>@localizer["BdeFltWg"] </b>@Html.DisplayFor(model => model.Brigade)</div>
+        
+    </div><br />
+
+    <div class="row">
+        <div class="col"><b>@localizer["ParentUnit"] </b>@Html.DisplayFor(model => model.Unit)</div>
+        <div class="col"><b>@localizer["SubUnitName"] </b>@Html.DisplayFor(model => model.Subunit)</div>
+        <div class="col">
+            <b>@localizer["Weighting"] </b>
+            <label>@Model.ForceElement?.Weighting?.WeightValue?.ToString("##0.##", CultureInfo.InvariantCulture)</label>
+        </div>
+    </div><br />
+    <div class="row">
+        <div class="col">
+            <b>@localizer["HighReadinessFrom"] </b>
+            <label>
+                @if (Model.ReadinessFromDate != null)
+                {
+                    Model.ReadinessFromDate.Value.ToString("yyyy-MM-dd");
+                }
+            </label>
+        </div>
+        <div class="col">
+            <b>@localizer["HighReadinessTo"] </b>
+            <label>
+                @if (Model.ReadinessToDate != null)
+                {
+                    Model.ReadinessToDate.Value.ToString("yyyy-MM-dd");
+                }
+            </label>
+        </div>
+    </div><br />
+    <div class="row">
+        <div class= "col">
+            <b>@localizer["ForceElementDescription"] </b>@Html.DisplayFor(model => model.ForceElementDesc)
+        </div>
+    </div><br />
+    <div class="row">
+        <div class="col"><b>@localizer["PeacetimeLocationName"] </b>@Html.DisplayFor(model => model.NatoLocation)</div>
+        <div class="col"><b>@localizer["PeacetimeLocationCoordinates"] </b>@Html.DisplayFor(model => model.NatoCoordinates)</div>
+    </div><br />
+    <div class="row">
+        <div class="col">
+            <span style="font-weight:bold">@localizer["NoticeToMove"]</span>
+            @if (lang == "en")
+            {
+                @Html.DisplayFor(model => model.NoticeToMove!.NoticeToMoveName)
+            }
+            else
+            {
+                @Html.DisplayFor(model => model.NoticeToMove!.NoticeToMoveNameFre)
+            }
+        </div>
+        <div class="col">
+            
+                <span style="font-weight:bold">@localizer["NTMDetails"]</span>
+                @Html.DisplayFor(model => model.Ntmdetails)
+            
+        </div>
+    </div><br />
+    <div class="row">
+        <div class="col">
+            <b>@localizer["ForceEmploymentStatus"] </b>
+            <div class="rounddiv" style="background-color:@Model.DeployedStatus?.StausDisplayColour; text-align:left"> </div>
+        </div>
+        <div class="col">
+            <b>@localizer["CONPLANs"] </b><br />
+            @foreach (var item in Model.Conplans)
+            {
+                <label>@item.ConplanName</label>
+                <br />
+            }
+        </div>
+        <div class="col">
+            <b>@localizer["Operations"] </b><br />
+            @foreach (var item in Model.Operations)
+            {
+                <label> @item.OperationName</label>
+                <br />
+            }
+        </div>
+        <div class="col"><b>@localizer["eNRFNRI"] </b>@Html.DisplayFor(model => model.NatoActive)</div>
+        <div class="col"><b>@localizer["NFM"] </b>@Html.DisplayFor(model => model.NFMActive)</div>
+        <div hidden class="col"><b>@localizer["FwdToNato"] </b>@Html.DisplayFor(model => model.FwdNato)</div>
+        <div class="col"><b>@localizer["RDS"] </b>@Html.DisplayFor(model => model.Rds)</div>
+    </div><br />
+    <div class="row">
+        <div class="col">
+            <b>@localizer["ConcurrencyDetails"] </b>@Html.DisplayFor(model => model.Concurrency)
+        </div>
+        <div class="col">
+            <b>@localizer["ConcurrencyComments"] </b>
+            @if (Model.ConcurrencyCommnets != null & Model.ConcurrencyCommnets != "")
+            {
+                @Html.DisplayFor(model => model.ConcurrencyCommnets)
+            }
+            else
+            {
+                <label>@localizer["NA"]</label>
+            }
+        </div>
+    </div><br /><br />
+    <h5>@localizer["ReadinessStatus"]</h5>
+    <hr />
+    <div class="row">
+        <div class="col">
+            <b>@localizer["SMaRTReadinessStatus"] </b>
+            <div class="rounddiv" style="background-color:@Model.SrStatus?.StatusDisplayColour; text-align:left"> </div>
+        </div>
+        <div class="col">
+            <b>@localizer["CommandOverrideReadinessStatus"] </b>
+            @if (Model.CommandOverideStatus != null)
+            {
+                <div class="rounddiv" style="background-color:@Model.CommandOverideStatus.StausDisplayColour; text-align:left"></div>
+            }
+            else
+            {
+                <div class="rounddiv"></div>
+            }
+        </div>
+        <div class="col">
+            <b>@localizer["ValidityDTG"] </b>
+            @if (DateTime.Compare(Model.Validitydate.AddDays(30), DateTime.Now) > 0)
+            {
+                <span>@(Model.Validitydate.ToString("yyyy-MM-dd"))</span>
+            }
+            else
+            {
+                <span style="font-weight:bold">
+                    <font color="red">
+                        @(Model.Validitydate.ToString("yyyy-MM-dd"))
+                    </font>
+                </span>
+            }
+        </div>
+    </div><br />
+    <div class="row">
+        <div class="col">
+            <b>@localizer["CommandOverrideReadinessStatusRemarks"] </b>
+            @if (!String.IsNullOrEmpty(Model.CommandOverrideComments))
+            {
+                @Html.DisplayFor(model => model.CommandOverrideComments)
+            }
+            else
+            {
+                @localizer["NA"]
+            }
+        </div>
+    </div><br />
+    <div class="row">
+        <div class="col">
+            <b>@localizer["CommandOverrideReadinessAuthority"] </b>
+            @if (Model.CommandOverrideAuthority != null & Model.CommandOverrideAuthority != "")
+            {
+                @Html.DisplayFor(model => model.CommandOverrideAuthority)
+            }
+            else
+            {
+                @localizer["NA"]
+            }
+        </div>
+    </div>
+    <br /> <br />
+    @if (Model.NatoActive == true || Model.NFMActive == true)
+    {
+        @if (Model.NatoActive == true)
+        {
+            <h5>@localizer["eNRFNRINATOReadinessReportingInformation"]</h5>
+        }
+        else{
+            <h5>@localizer["NFMReadinessReportingInformation"]</h5>
+        }
+        <hr />
+        <h5>@localizer["Unit"]</h5>
+        <div class="nato-grouping">
+            <div class="row nato-row">
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["FunctionalCategory"]</span>
+                    @if (lang == "en")
+                    {
+                        @Html.DisplayFor(model => model.Category!.CategoryName)
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(model => model.Category!.CategoryNameFre)
+                    }
+                </div>
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["NATODesignation"]</span>
+                    @if (lang == "en")
+                    {
+                        @Html.DisplayFor(model => model.Designation!.DesignationName)
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(model => model.Designation!.DesignationNameFre)
+                    }
+                </div>
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["AssetsDeclared"]</span>
+                    @Html.DisplayFor(model => model.NatoAssetsDeclared)
+                </div>
+            </div>
+            <div class="row nato-row">
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["Service"]</span>
+                    @if (lang == "en")
+                    {
+                        @Html.DisplayFor(model => model.Service!.ServiceName)
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(model => model.Service!.ServiceNameFre)
+                    }
+                </div>
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["Echelon"]</span>
+                    @if (lang == "en")
+                    {
+                        @Html.DisplayFor(model => model.Echelon!.EchelonName)
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(model => model.Echelon!.EchelonNameFre)
+                    }
+                </div>
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["CapabilityCode"]</span>
+                    @if (lang == "en")
+                    {
+                        @Html.DisplayFor(model => model.Capability!.CapabilityName)
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(model => model.Capability!.CapabilityNameFre)
+                    }
+                </div>
+            </div>
+            <div class="row nato-row">
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["RequirementName"]</span>
+                    @Html.DisplayFor(model => model.NatoRequirementName)
+                </div>
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["NationalName"]</span>
+                    @Html.DisplayFor(model => model.NatoNationalName)
+                </div>
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["MajorEquipmentRemarks"]</span>
+                    @if (Model.NatoMajorEquipmentComments != null & Model.NatoMajorEquipmentComments != "")
+                    {
+                        @Html.DisplayFor(model => model.NatoMajorEquipmentComments)
+                    }
+                    else
+                    {
+                        @localizer["NA"]
+                    }
+                </div>
+            </div>
+            <div class="row nato-row">
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["Caveats"]</span>
+                    @Html.DisplayFor(model => model.NatoCavets)
+                </div>
+                <div class="col"></div>
+                <div class="col"></div>
+            </div>
+        </div>
+        <br />
+        <h5>@localizer["Readiness"]</h5>
+        <div class="nato-grouping">
+            <div class="row nato-row">
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["NoticeToEffect"]</span>
+                    @Html.DisplayFor(model => model.NatoNoticeToEffect)
+                </div>
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["FPH"]</span>
+                    @if (lang == "en")
+                    {
+                        @Html.DisplayFor(model => model.NatoFphyesNoBlankNavigation!.Value)
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(model => model.NatoFphyesNoBlankNavigation!.ValueFre)
+                    }
+                </div>
+            </div>
+            <div class="row nato-row">
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["GeneralRemarks"]</span>
+                    @Html.DisplayFor(model => model.NatoGeneralComments)
+                </div>
+            </div>
+        </div>
+        <br />
+        <h5>@localizer["Training"]</h5>
+        <div class="nato-grouping">
+            <div class="row nato-row">
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["AFSTraining"]</span>
+                    @Html.DisplayFor(model => model.NatoAfstrainingPercentageNavigation!.StatusDisplayValue)
+                </div>
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["EvalCompleted"]</span>
+                    @if (lang == "en")
+                    {
+                        @Html.DisplayFor(model => model.NatoEvalCompletedNavigation!.Value)
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(model => model.NatoEvalCompletedNavigation!.ValueFre)
+                    }
+                </div>
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["PlannedEvalDate"]</span>
+                    <label>
+                        @if (Model.NatoPlannedEvalDate != null)
+                        {
+                            Model.NatoPlannedEvalDate.Value.ToString("yyyy-MM-dd");
+                        }
+                    </label>
+                </div>
+            </div>
+            <div class="row nato-row">
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["CertProgramCoord"]</span>
+                    @if (lang == "en")
+                    {
+                        @Html.DisplayFor(model => model.NatoCertProgramCoordNavigation!.Value)
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(model => model.NatoCertProgramCoordNavigation!.ValueFre)
+                    }
+                </div>
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["CertCompleted"]</span>
+                    @if (lang == "en")
+                    {
+                        @Html.DisplayFor(model => model.NatoCertCompletedNavigation!.Value)
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(model => model.NatoCertCompletedNavigation!.ValueFre)
+                    }
+                </div>
+                <div class="col"></div>
+            </div>
+            <div class="row nato-row">
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["NationalTrainingRemarks"]</span>
+                    @Html.DisplayFor(model => model.NatoNationalTrainingRemarks)
+                </div>
+            </div>
+        </div>
+
+        <br />
+        <h5>@localizer["Projection"]</h5>
+        <div class="nato-grouping">
+            <div class="row nato-row">
+                <div class="col-3">
+                    <span style="font-weight:bold">@localizer["StratLiftCapacity"]</span>
+                    @if (lang == "en")
+                    {
+                        @Html.DisplayFor(model => model.NatoStratLiftCapacityNavigation!.StratLiftCapacityName)
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(model => model.NatoStratLiftCapacityNavigation!.StratLiftCapacityNameFre)
+                    }
+                </div>
+                <div class="col-9">
+                    <span style="font-weight:bold">@localizer["StratLiftCapacityRemarks"]</span>
+                    @if (Model.NatoStratLiftCapacityComments != null & Model.NatoStratLiftCapacityComments != "")
+                    {
+                        @Html.DisplayFor(model => model.NatoStratLiftCapacityComments)
+                    }
+                    else
+                    {
+                        @localizer["NA"]
+                    }
+                </div>
+            </div>
+            <div class="row nato-row">
+                <div class="col-3">
+                    <span style="font-weight:bold">@localizer["NationalDeploy"]</span>
+                    @if (lang == "en")
+                    {
+                        @Html.DisplayFor(model => model.NatoNationalDeployNavigation!.NationalDeployName)
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(model => model.NatoNationalDeployNavigation!.NationalDeployNameFre)
+                    }
+                </div>
+                <div class="col-9">
+                    <span style="font-weight:bold">@localizer["NationalDeployRemarks"]</span>
+                    @if (Model.NatoNationalDeployComments != null & Model.NatoNationalDeployComments != "")
+                    {
+                        @Html.DisplayFor(model => model.NatoNationalDeployComments)
+                    }
+                    else
+                    {
+                        @localizer["NA"]
+                    }
+                </div>
+            </div>
+        </div>
+        <br />
+        <h5>@localizer["Sustainability"]</h5>
+        <div class="nato-grouping">
+            <div class="row nato-row">
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["12Sdos"]</span>
+                    @if (lang == "en")
+                    {
+                        @Html.DisplayFor(model => model.Nato12SdosNavigation!.Value)
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(model => model.Nato12SdosNavigation!.ValueFre)
+                    }
+                </div>
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["18Sdos"]</span>
+                    @if (lang == "en")
+                    {
+                        @Html.DisplayFor(model => model.Nato18SdosNavigation!.Value)
+                    }
+                    else
+                    {
+                        @Html.DisplayFor(model => model.Nato18SdosNavigation!.ValueFre)
+                    }
+                </div>
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["CurrentSdos"]</span>
+                    @Html.DisplayFor(model => model.NatoCurrentSdos)
+                </div>
+                <div class="row nato-row">
+                    <div class="col">
+                        <span style="font-weight:bold">@localizer["NationalSupplyPlan"]</span>
+                        @if (lang == "en")
+                        {
+                            @Html.DisplayFor(model => model.NatoNatSupplyPlanNavigation!.Value)
+                        }
+                        else
+                        {
+                            @Html.DisplayFor(model => model.NatoNatSupplyPlanNavigation!.ValueFre)
+                        }
+                    </div>
+                    <div class="col">
+                        <span style="font-weight:bold">@localizer["NationalSupportElements"]</span>
+                        @if (lang == "en")
+                        {
+                            @Html.DisplayFor(model => model.NatoNatSupportElemNavigation!.Value)
+                        }
+                        else
+                        {
+                            @Html.DisplayFor(model => model.NatoNatSupportElemNavigation!.ValueFre)
+                        }
+                    </div>
+                    <div class="col"></div>
+                </div>
+            </div>
+        </div>
+
+        <br />
+        <h5>@localizer["CombatEffectivenessAssessment"]</h5>
+        <div class="nato-grouping">
+            <div class="row nato-row">
+                <div class="col">
+                    <span style="font-weight:bold">@localizer["NationalAssessmentRemarks"]</span>
+                    @Html.DisplayFor(model => model.NatoNationalAssesmentComments)
+                </div>
+            </div>
+        </div>
+    }
+    <br /><br />
+    <table style="width: 100%;">
+        <tr>
+            <td valign="top" class="pets-quarter">
+                <table cellpadding="5">
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="2">
+                            <h5>@localizer["Personnel"]</h5>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3" align="center">
+                            <span style="font-weight:bold">@localizer["PersonnelStatus"]</span> &nbsp;
+                            <div class="rounddiv" style="background-color:@Model.PersonnelStatus?.StatusDisplayColour; text-align:left"></div>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            <span style="font-weight:bold">@localizer["DesignatedStrengthDeclared"]</span> &nbsp;
+                            @Html.DisplayFor(model => model.PersonnelDesignatedStrength)
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            <span style="font-weight:bold">@localizer["ActualStrengthCurrent"]</span> &nbsp;
+                            @Html.DisplayFor(model => model.PersonnelActualStrength)
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            <h6>@localizer["FactorsNegativelyAffectingPersonnelReadiness"]</h6>
+                        </td>
+                    </tr>
+                    <tr style="height:30px; vertical-align:top">
+                        <td>
+                            @Html.DisplayFor(model => model.PersonnelLob)&nbsp;<span style="font-weight:bold">@localizer["LOB"]</span>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.PersonnelAps)&nbsp;<span style="font-weight:bold">@localizer["APS"]</span>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.PersonnelIt)&nbsp;<span style="font-weight:bold">@localizer["IT"]</span>
+                        </td>
+                    </tr>
+                    <tr style="height:30px; vertical-align:top">
+                        <td>
+                            @Html.DisplayFor(model => model.PersonnelMedical)&nbsp;<span style="font-weight:bold">@localizer["Medical"]</span>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.PersonnelLightDuties)&nbsp;<span style="font-weight:bold">@localizer["LtDuties"]</span>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.PersonnelTradeInsufficienciesReadinessFactor)&nbsp;<span style="font-weight:bold">@localizer["TradeInsufficiencies"]</span>
+                        </td>
+                    </tr>
+                    <tr style="height:30px; vertical-align:top">
+                        <td>
+                            @Html.DisplayFor(model => model.PersonnelDental)&nbsp;<span style="font-weight:bold">@localizer["Dental"]</span>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.PersonnelFitness)&nbsp;<span style="font-weight:bold">@localizer["Fitness"]</span>
+                        </td>
+                        <td>
+                            &nbsp;
+                        </td>
+                    </tr>
+                    <tr style="height:80px">
+                        <td colspan="3">
+                            <span style="font-weight:bold">@localizer["PersonnelReadinessStatusRemarks"]</span> &nbsp;
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        @if (Model.PersonnelComments != null & Model.PersonnelComments != "")
+                        {
+                            <td colspan="3">
+                                <p style="width: 30rem;">@Html.DisplayFor(model => model.PersonnelComments)</p>
+                            </td>
+                        }
+                        else
+                        {
+                            <td colspan="3">@localizer["NA"]</td>
+                        }
+                    </tr>
+                </table>
+            </td>
+            <td valign="top" class="pets-quarter">
+                <table cellpadding="5">
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            <h5>@localizer["Training"]</h5>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3" align="center">
+                            <span style="font-weight:bold">@localizer["TrainingStatus"]</span> &nbsp;
+                            <div class="rounddiv" style="background-color:@Model.TrainingStatus?.StatusDisplayColour; text-align:left"></div>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="2">
+                            <span style="font-weight:bold">@localizer["CollectiveTraining"]</span> &nbsp;
+                        </td>
+                        <td>
+                            <div class="rounddiv" style="background-color:@Model.TrainingCollectiveTrainingStatus?.StatusDisplayColour; text-align:left"></div>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="2">
+                            <span style="font-weight:bold">@localizer["IndividualTraining"]</span> &nbsp;
+                        </td>
+                        <td>
+                            <div class="rounddiv" style="background-color:@Model.TrainingIndividualTrainingStatus?.StatusDisplayColour; text-align:left"></div>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            <span style="font-weight:bold">@localizer["CREVALOPREDDeclaration"]</span> &nbsp;
+                            @if (lang == "en")
+                            {
+                                @Html.DisplayFor(model => model.TrainingCrevalNavigation!.CrevalName)
+                            }
+                            else
+                            {
+                                @Html.DisplayFor(model => model.TrainingCrevalNavigation!.CrevalNameFre)
+                            }
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            <span style="font-weight:bold">@localizer["ProjectedCREVALOPREDDeclarationDate"]</span> &nbsp;
+                            <label>
+                                @if (Model.TrainingProjectedCrevaldate != null)
+                                {
+                                    Model.TrainingProjectedCrevaldate.Value.ToString("yyyy-MM-dd");
+                                }
+                            </label>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            <span style="font-weight:bold">@localizer["CREVALDate"]</span> &nbsp;
+                            <label>
+                                @if (Model.TrainingCrevaldate != null)
+                                {
+                                    Model.TrainingCrevaldate.Value.ToString("yyyy-MM-dd");
+                                }
+                            </label>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            <span style="font-weight:bold">@localizer["SpecialtySkills"]</span> &nbsp;
+                            @if (lang == "en")
+                            {
+                                @Html.DisplayFor(model => model.TrainingSpecialtySkills!.SpecialtySkillName)
+                            }
+                            else
+                            {
+                                @Html.DisplayFor(model => model.TrainingSpecialtySkills!.SpecialtySkillNameFre)
+                            }
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            <h6>@localizer["FactorsNegativelyAffectingTrainingReadiness"]</h6>
+                        </td>
+                    </tr>
+                    <tr style="height:30px; vertical-align:top">
+                        <td>
+                            @Html.DisplayFor(model => model.TrainingAmmoReadinessFactor)&nbsp;<span style="font-weight:bold">@localizer["Ammo"]</span>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.TrainingWeaponsReadinessFactor) &nbsp;<span style="font-weight:bold">@localizer["Weapons"]</span>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.TrainingSparePartssReadinessFactor)&nbsp;<span style="font-weight:bold">@localizer["SpParts"]</span>
+                        </td>
+                    </tr>
+                    <tr style="height:30px; vertical-align:top">
+                        <td>
+                            @Html.DisplayFor(model => model.TrainingFuelReadinessFactor)&nbsp;<span style="font-weight:bold">@localizer["Fuel"]</span>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.TrainingRadiosReadinessFactor)&nbsp;<span style="font-weight:bold">@localizer["Radios"]</span>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.TrainingItreadinessFactor)&nbsp;<span style="font-weight:bold">@localizer["IT1"] </span>
+                        </td>
+                    </tr>
+                    <tr style="height:30px; vertical-align:top">
+                        <td>
+                            @Html.DisplayFor(model => model.TrainingRationsReadinessFactor)&nbsp;<span style="font-weight:bold">@localizer["Rations"]</span>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.TrainingEquipmentReadinessFactor)&nbsp;<span style="font-weight:bold">@localizer["Equipment"]</span>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.TrainingRangeAvailabilityReadinessFactor)&nbsp;<span style="font-weight:bold">@localizer["RangeAvailability"]</span>
+                        </td>
+                    </tr>
+                    <tr style="height:30px; vertical-align:top">
+                        <td>
+                            @Html.DisplayFor(model => model.TrainingCtreadinessFactor)&nbsp;<span style="font-weight:bold">@localizer["CT"]</span>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.TrainingSpecialQuals)&nbsp;<span style="font-weight:bold">@localizer["SpecialQuals"]</span>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.TrainingTrgFleets)&nbsp;<span style="font-weight:bold">@localizer["TrgFleetsEqptSets"]</span>
+                        </td>
+                    </tr>
+                    <tr style="height:80px">
+                        <td colspan="3">
+                            <span style="font-weight:bold">@localizer["TrainingReadinessStatusRemarks"]</span> &nbsp;
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        @if (Model.TrainingComments != null & Model.TrainingComments != "")
+                        {
+                            <td colspan="3">
+                                <p style="width: 30rem;">@Html.DisplayFor(model => model.TrainingComments)</p>
+                            </td>
+                        }
+                        else
+                        {
+                            <td colspan="3">@localizer["NA"]</td>
+                        }
+                    </tr>
+                </table>
+            </td>
+        </tr>
+        <tr>
+            <td valign="top" class="pets-quarter">
+                <table cellpadding="5">
+                    <tr>
+                        <td colspan="3">
+                            <h5>@localizer["Equipment"]</h5>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3" align="center">
+                            <span style="font-weight:bold"> @localizer["EquipmentStatus"]</span> &nbsp;
+                            <div class="rounddiv" style="background-color:@Model.EquipmentStatus!.StatusDisplayColour; text-align:left"></div>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="2">
+                            <span style="font-weight:bold">@localizer["CombatVehicleVesselAircraftServiceabilityRate"]</span> &nbsp;
+                        </td>
+                        <td>
+                            <div class="rounddiv" style="background-color:@Model.EquipmentCombatVehicleStatus!.StatusDisplayColour; text-align:left"></div>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="2">
+                            <span style="font-weight:bold">@localizer["SupportVehicleVesselAircraftServiceabilityRate"]</span> &nbsp;
+                        </td>
+                        <td>
+                            <div class="rounddiv" style="background-color:@Model.EquipmentSupportVehicleStatus!.StatusDisplayColour; text-align:left"></div>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="2">
+                            <span style="font-weight:bold">@localizer["WeaponsServiceabilityRate"]</span> &nbsp;
+                        </td>
+                        <td>
+                            <div class="rounddiv" style="background-color:@Model.EquipmentWeaponsServiceRateStatus!.StatusDisplayColour; text-align:left"></div>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="2">
+                            <span style="font-weight:bold">@localizer["CommunicationsEquipmentServiceabilityRate"]</span> &nbsp;
+                        </td>
+                        <td>
+                            <div class="rounddiv" style="background-color:@Model.EquipmentCommunicationsEquipmentStatus!.StatusDisplayColour; text-align:left"></div>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="2">
+                            <span style="font-weight:bold">@localizer["SpecializedEquipmentServiceabilityRate"]</span> &nbsp;
+                        </td>
+                        <td>
+                            <div class="rounddiv" style="background-color:@Model.EquipmentSpecialEquipmentStatus?.StatusDisplayColour; text-align:left"></div>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            <h6>@localizer["FactorsNegativelyAffectingEquipmentReadiness"]</h6>
+                        </td>
+                    </tr>
+                    <tr style="height:30px; vertical-align:top">
+                        <td>
+                            @Html.DisplayFor(model => model.EquipmentVehicalsReadinessFactor)&nbsp;<span style="font-weight:bold">@localizer["Vehicles"]</span>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.EquipmentSpecialEquimentReadinessFactor)&nbsp;<span style="font-weight:bold">@localizer["SpEquipment"]</span>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.EquipmentWeaponsReadinessFactor)&nbsp;<span style="font-weight:bold">@localizer["Weapons1"]</span>
+                        </td>
+                    </tr>
+                    <tr style="height:30px; vertical-align:top">
+                        <td>
+                            @Html.DisplayFor(model => model.EquipmentTechniciansReadinessFactor)&nbsp;<span style="font-weight:bold">@localizer["Technicians"]</span>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.EquipmentCommunicationsReadinessFactor)&nbsp;<span style="font-weight:bold">@localizer["Communications"]</span>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.EquipmentSensorsReadinessFactor)&nbsp;<span style="font-weight:bold">@localizer["Sensors"]</span>
+                            </td>
+                    </tr>
+                    <tr style="height:30px; vertical-align:top">
+                        <td>
+                            @Html.DisplayFor(model => model.EquipmentLifeEntensionDelays)&nbsp;<span style="font-weight:bold">@localizer["LifeExtensionDelays"]</span>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.EquipmentProtectionSuites)&nbsp;<span style="font-weight:bold">@localizer["ProtectionSuites"]</span>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.EquipmentOther)&nbsp;<span style="font-weight:bold">@localizer["Other"]</span>
+                        </td>
+                    </tr>
+                    <tr style="height:80px">
+                        <td colspan="3">
+                            <span style="font-weight:bold">@localizer["EquipmentReadinessStatusRemarks"]</span> &nbsp;
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            @if (!String.IsNullOrEmpty(Model.EquipmentComments))
+                            {
+                                <p style="width: 30rem;">@Html.DisplayFor(model => model.EquipmentComments)</p>
+                            }
+                            else
+                            {
+                                @localizer["NA"]
+                            }
+                        </td>
+                    </tr>
+                </table>
+            </td>
+            <td valign="top" class="pets-quarter">
+                <table cellpadding="5">
+                    <tr>
+                        <td colspan="3">
+                            <h5>@localizer["Sustainment"]</h5>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3" align="center">
+                            <span style="font-weight:bold">@localizer["SustainmentStatus"]</span> &nbsp;
+                            <div class="rounddiv" style="background-color:@Model.SustainmentStatus?.StatusDisplayColour; text-align:left"></div>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="2">
+                            <span style="font-weight:bold">@localizer["Class1CombatRations"]</span> &nbsp;
+                        </td>
+                        <td>
+                            <div class="rounddiv" style="background-color:@Model.SustainmentCombatRationsStatus?.StatusDisplayColour; text-align:left"></div>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="2">
+                            <span style="font-weight:bold">@localizer["Class2Personalequipmentanduniforms"]</span> &nbsp;
+                        </td>
+                        <td>
+                            <div class="rounddiv" style="background-color:@Model.SustainmentPersonalEquipmentStatus?.StatusDisplayColour; text-align:left"></div>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="2">
+                            <span style="font-weight:bold">@localizer["Class3PetroleumOilsLubricants"]</span> &nbsp;
+                        </td>
+                        <td>
+                            <div class="rounddiv" style="background-color:@Model.SustainmentPetrolStatus?.StatusDisplayColour; text-align:left"></div>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="2">
+                            <span style="font-weight:bold">@localizer["Class5Ammunition"]</span> &nbsp;
+                        </td>
+                        <td>
+                            <div class="rounddiv" style="background-color:@Model.SustainmentAmmunitionStatus?.StatusDisplayColour; text-align:left"></div>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="2">
+                            <span style="font-weight:bold">@localizer["Class7SpareParts"]</span> &nbsp;
+                        </td>
+                        <td>
+                            <div class="rounddiv" style="background-color:@Model.SustainmentSparesStatus?.StatusDisplayColour; text-align:left"></div>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="2">
+                            <span style="font-weight:bold">@localizer["Class8MedSupplies"]</span> &nbsp;
+                        </td>
+                        <td>
+                            <div class="rounddiv" style="background-color:@Model.SustainmentOtherStatus?.StatusDisplayColour; text-align:left"></div>
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        <td colspan="3">
+                            <h6>@localizer["FactorsNegativelyAffectingSustainmentReadiness"]</h6>
+                        </td>
+                    </tr>
+                    <tr style="height:30px; vertical-align:top">
+                        <td>
+                            @Html.DisplayFor(model => model.SustainmentRationsReadinessFactor)&nbsp;<span style="font-weight:bold">@localizer["LowInventoryStock"]</span>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.SustainmentFuelReadinessFactor)&nbsp;<span style="font-weight:bold">@localizer["Fuel"]</span>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.SustainmentUniformsReadinessFactor)&nbsp;<span style="font-weight:bold">@localizer["InsufficientStorageFacilities"]</span>
+                        </td>
+                    </tr>
+                    <tr style="height:30px; vertical-align:top">
+                        <td>
+                            @Html.DisplayFor(model => model.SustainmentAmmunitionReadinessFactor)&nbsp;<span style="font-weight:bold">@localizer["InsufficientLift"]</span>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.SustainmentPpereadinessFactor)&nbsp;<span style="font-weight:bold">@localizer["PPE"]</span>
+                        </td>
+                        <td>
+                            @Html.DisplayFor(model => model.SustainmentSparePartsReadinessFactor)&nbsp;<span style="font-weight:bold">@localizer["IndustryDelays"]</span>
+                        </td>
+                    </tr>
+                    <tr style="height:30px; vertical-align:top">
+                        <td>
+                            @Html.DisplayFor(model => model.SustainmentOtherReadinessFactor)&nbsp;<span style="font-weight:bold">@localizer["Other"]</span>
+                        </td>
+                        <td>&nbsp;</td>
+                        <td>&nbsp;</td>
+                    </tr>
+                    <tr style="height:80px">
+                        <td colspan="3">
+                            <span style="font-weight:bold">@localizer["SustainmentReadinessStatusRemarks"]</span> &nbsp;
+                        </td>
+                    </tr>
+                    <tr style="height:50px; vertical-align:top">
+                        @if (Model.SustainmentComments != null & Model.SustainmentComments != "")
+                        {
+                            <td colspan="3">
+                                <p style="width: 30rem;">@Html.DisplayFor(model => model.SustainmentComments)</p>
+                            </td>
+                        }
+                        else
+                        {
+                            <td colspan="3">@localizer["NA"]</td>
+                        }
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    <br />
+    <table>
+        <tr>
+            <td>
+                <span style="font-weight:bold">@localizer["LastEditedBy"]</span> &nbsp; @Html.DisplayFor(model => model.LastEditUserNavigation!.UserName)
+            </td>
+        </tr>
+    </table>
+    <br /><br />
+</div>
+<div>
+    @if (UserCanEdit != null && UserCanEdit == true)
+    {
+        <a asp-action="Edit"
+           asp-route-id="@Model?.Id"
+           asp-route-sortOrder="@ViewData["sortOrder"]"
+           asp-route-pageNumber="@ViewData["pageNumber"]"
+           asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+           asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+           asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+           asp-route-selectedOperation="@ViewData["selectedOperation"]"
+           asp-route-selectedNato="@ViewData["selectedNato"]"
+           asp-route-selectedStatus="@ViewData["selectedStatus"]"
+           asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]">
+            @localizer["Edit"]
+        </a> <label>|</label>
+    }
+    <a asp-action="Index"
+       asp-route-sortOrder="@ViewData["sortOrder"]"
+       asp-route-pageNumber="@ViewData["pageNumber"]"
+       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+       asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+       asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+       asp-route-selectedOperation="@ViewData["selectedOperation"]"
+       asp-route-selectedNato="@ViewData["selectedNato"]"
+       asp-route-selectedStatus="@ViewData["selectedStatus"]"
+       asp-route-selectedOverallStatus="@ViewData["selectedOverallStatus"]">
+        @localizer["BackToList"]
+    </a>
+</div>
+
+<div id='kpiModal' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='kpiModalContent'></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    <script src="~/js/datacardkpimodal.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            let x = new Date($('#validityDateSpan').text());
+            x = x.setDate(x.getDate() + 30);
+            let y = new Date();
+            if (x < y) {
+                $(validityDateSpan).css("background-color", "#EA4C46");
+            }
+        });
+    </script>
+}

@@ -1,0 +1,74 @@
+﻿@model SMARTV3.Models.User
+
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+@{
+    ViewData["Title"] = localizer["DeleteUser"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h4>@localizer["DeleteUser"]</h4>
+<br />
+<h3>@localizer["Confirm"]</h3>
+<div>
+    <hr />
+    <dl class="row">
+        <dt class = "col-sm-2">
+            @localizer["UserName"]
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.UserName)
+        </dd>
+        <dt class = "col-sm-2">
+            @localizer["FirstName"] 
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.FirstName)
+        </dd>
+        <dt class = "col-sm-2">
+            @localizer["LastName"]
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.LastName)
+        </dd>
+        <dt class = "col-sm-2">
+            @localizer["Title"]
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Title)
+        </dd>
+        <dt class = "col-sm-2">
+            @localizer["Email"]
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Email)
+        </dd>
+        <dt class = "col-sm-2">
+            @localizer["Enabled"]
+        </dt>
+        <dd class = "col-sm-10">
+            @Html.DisplayFor(model => model.Enabled)
+        </dd>
+    </dl>
+    
+    <form asp-action="DeleteUser">
+        <input type="hidden" name="sortOrder" value="@ViewData["sortOrder"]" />
+        <input type="hidden" name="selectedOrganization" value="@ViewData["selectedOrganization"]" />
+        <input type="hidden" name="showDisabledUsers" value="@ViewData["showDisabledUsers"]" />
+        <input type="hidden" name="selectedPageSize" value="@ViewData["selectedPageSize"]" />
+        <input type="hidden" name="pageNumber" value="@ViewData["pageNumber"]" />
+        <input type="hidden" asp-for="Id" />
+        <input type="submit" value="@localizer["Delete"]" class="btn btn-danger" /> 
+        &nbsp;|&nbsp;
+        <a asp-controller="Admin" 
+            asp-action="ManageUsers"
+           asp-route-sortOrder="@ViewData["sortOrder"]"
+           asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+           asp-route-showDisabledUsers="@ViewData["showDisabledUsers"]"
+           asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+           asp-route-pageNumber="@ViewData["pageNumber"]">
+            @localizer["BackToList"]
+        </a>
+    </form>
+</div>

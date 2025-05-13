@@ -1,0 +1,17 @@
+﻿#modalArchiveReason {
+    margin: 2ch;
+    width: 29em;
+}
+
+#modalSave {
+    margin-bottom: 2ch;
+}
+
+#saveDiv {
+    text-align: center;
+}
+
+#archiveHistory {
+    width: 20rem;
+    display: inline-block;
+}

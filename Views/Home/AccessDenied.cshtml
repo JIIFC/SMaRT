@@ -1,0 +1,15 @@
+﻿@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+@{
+    ViewData["Title"] = localizer["AccessDenied"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h3 style="text-align: center; margin: 2vh;">@localizer["AccessDenied"]</h3>
+<br />
+
+<p style="text-align: center;">@localizer["AccessDeniedMessage"]</p>
+<br />
+
+<input type="button" value="@localizer["GoToHomePage"]" onclick="window.location.href='/Home/Index';" class="form-control" style="width: 10em; margin: auto; display: block;" />

@@ -1,0 +1,32 @@
+﻿@{
+    ViewData["Title"] = localizer["AddDataCardHistory"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+<h4>@localizer["AddDataCardHistory"]</h4>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+
+        @if (ViewBag.Date != "")
+        {
+            <span>@localizer["PageMessage"] </span>
+            <br />
+
+            <br />
+            <span style="font-weight:bold">@ViewBag.Date</span>
+        }
+        else
+        {
+            <span> @ViewBag.Message</span>
+        }
+
+    </div>
+</div>
+<br />
+<div>
+    <a asp-action="ManageHistory">@localizer["BackToList"]</a>
+</div>

@@ -1,0 +1,97 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup Label="Globals">
+    <SccProjectName>SAK</SccProjectName>
+    <SccProvider>SAK</SccProvider>
+    <SccAuxPath>SAK</SccAuxPath>
+    <SccLocalPath>SAK</SccLocalPath>
+    <UserSecretsId>3141b364-6900-4077-94b4-b8249ea63823</UserSecretsId>
+  </PropertyGroup>
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Remove="%24tf\**" />
+    <Content Remove="%24tf\**" />
+    <EmbeddedResource Remove="%24tf\**" />
+    <None Remove="%24tf\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="SMARTV3.csproj.vspscc" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.102.0" />
+    <PackageReference Include="JT.AspNetBaseRoleProvider" Version="1.0.4" />
+    <PackageReference Include="MailKit" Version="4.1.0" />
+    <PackageReference Include="MessagePackAnalyzer" Version="2.5.124">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.AspNetCore.Diagnostics.EntityFrameworkCore" Version="6.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="6.0.9" />
+    <PackageReference Include="Microsoft.AspNetCore.Mvc.NewtonsoftJson" Version="6.0.13" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="6.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="6.0.9">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="6.0.9" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.9">
+      <PrivateAssets>all</PrivateAssets>
+      <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+    </PackageReference>
+    <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="6.0.13" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="System.Data.SqlClient" Version="4.8.5" />
+    <PackageReference Include="System.DirectoryServices" Version="7.0.1" />
+    <PackageReference Include="System.DirectoryServices.AccountManagement" Version="7.0.0" />
+    <PackageReference Include="System.DirectoryServices.Protocols" Version="7.0.1" />
+    <PackageReference Include="System.Text.Json" Version="7.0.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="wwwroot\images\200px-CJOC-logo.png" />
+    <None Include="wwwroot\images\Add.png" />
+    <None Include="wwwroot\images\AddUser.png" />
+    <None Include="wwwroot\images\banner.jpg" />
+    <None Include="wwwroot\images\banner.png" />
+    <None Include="wwwroot\images\Canadian_Armed_Forces-Logo.jpg" />
+    <None Include="wwwroot\images\Canadian_Armed_Forces-Logo.png" />
+    <None Include="wwwroot\images\Delete.png" />
+    <None Include="wwwroot\images\Details.png" />
+    <None Include="wwwroot\images\DisableUser.png" />
+    <None Include="wwwroot\images\Edit.png" />
+    <None Include="wwwroot\images\More.png" />
+    <None Include="wwwroot\images\Remove.png" />
+    <None Include="wwwroot\images\Save.png" />
+    <None Include="wwwroot\images\sjs-logo.png" />
+    <None Include="wwwroot\js\amCharts\charts.js" />
+    <None Include="wwwroot\js\amCharts\charts.js.map" />
+    <None Include="wwwroot\js\amCharts\core.js" />
+    <None Include="wwwroot\js\amCharts\core.js.map" />
+    <None Include="wwwroot\js\amCharts\themes\amcharts.js" />
+    <None Include="wwwroot\js\amCharts\themes\amcharts.js.map" />
+    <None Include="wwwroot\js\amCharts\themes\animated.js" />
+    <None Include="wwwroot\js\amCharts\themes\animated.js.map" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Resources\Controllers\" />
+    <Folder Include="Resources\Views\ChangeLogs\" />
+    <Folder Include="Resources\Views\Home\" />
+    <Folder Include="Resources\Views\Shared\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <EmbeddedResource Update="Resources\Views\Admin\AfsTrainingPercentage\ManageAfsTrainingPercentages.en.resx">
+      <Generator></Generator>
+    </EmbeddedResource>
+  </ItemGroup>
+
+</Project>

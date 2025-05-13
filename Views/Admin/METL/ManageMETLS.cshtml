@@ -1,0 +1,51 @@
+﻿@model IEnumerable<SMARTV3.Models.Metl>
+
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+@{
+    ViewData["Title"] = localizer["ManageMetls"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h4>@localizer["ManageMetls"]</h4>
+
+<hr />
+<p>
+    <a asp-action="AddMetl">@localizer["CreateNew"]</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @localizer["MetlCode"]
+            </th>
+            <th>
+                @localizer["MetlName"]
+            </th>
+            <th>
+                @localizer["Archived"]
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MetCode)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.MetName)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.Archived)
+                </td>
+                <td>
+                    <a asp-action="EditMetl" asp-route-id="@item.MetId"><img src='@Url.Content("~/images/Edit.png")' height="16" width="16" title="@localizer["Edit"]" /></a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

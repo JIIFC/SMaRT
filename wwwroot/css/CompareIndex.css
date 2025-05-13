@@ -1,0 +1,59 @@
+﻿.delete {
+    cursor: pointer;
+    height: 1.2rem;
+}
+
+ul.felm-list {
+    list-style-type: none;
+    padding-inline-start: 0;
+}
+
+.secondary-FPs {
+    display: inline-flex;
+    overflow: auto;
+    white-space: nowrap;
+    width: 40rem;
+}
+
+.col.package-name {
+    padding-bottom: 1rem;
+}
+
+.felm-item {
+    background: lightgrey;
+    padding: 0.5rem;
+}
+
+    .felm-item:nth-child(odd) {
+        background: white;
+        padding: 0.5rem;
+    }
+
+div.force-package {
+    display: inline-block;
+    width: 38rem;
+    overflow-y: auto;
+    max-height: 50rem;
+    margin: 1rem;
+    border: solid;
+    border-color: grey;
+    /*border-radius: 1rem;*/
+    padding: 1rem;
+}
+
+.table-header {
+    padding-left: 1rem !important;
+}
+
+.table-chiclet {
+    text-align: center;
+    padding: 0.5rem;
+}
+
+.chiclet-table {
+    width: 100%;
+}
+
+td.element-name {
+    white-space: normal
+}

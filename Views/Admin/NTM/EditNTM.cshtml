@@ -1,0 +1,70 @@
+﻿@model SMARTV3.Models.NoticeToMove
+
+@using Microsoft.AspNetCore.Mvc.Localization
+
+@inject IViewLocalizer localizer
+
+@{
+    string formName = "EditNTM";
+    ViewData["Title"] = localizer[formName];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+}
+
+<h4>@localizer[formName]</h4>
+<head>
+
+</head>
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="@formName" name="@formName" id="@formName">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <input type="hidden" asp-for="Id" />
+            <div class="form-group">
+                <label class="control-label">@localizer["NTMName"]</label>
+                <input asp-for="NoticeToMoveName" class="form-control" />
+                <span asp-validation-for="NoticeToMoveName" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["NTMNameFre"]</label>
+                <input asp-for="NoticeToMoveNameFre" class="form-control" />
+                <span asp-validation-for="NoticeToMoveNameFre" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Archived" /> @localizer["Archived"]
+                </label>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["SortOrder"]</label>
+                <input asp-for="Ordered" class="form-control" />
+                <span asp-validation-for="Ordered" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <input class="btn btn-primary" value="@localizer["Save"]" type="submit"></input>
+            </div>
+        </form>
+    </div>
+</div>
+<br />
+<div>
+    <a asp-action="ManageNTM">@localizer["BackToList"]</a>
+</div>
+<br />
+
+<div id='archiveModal' class='modal'>
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div id='archiveModalContent'></div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+
+}

@@ -1,0 +1,81 @@
+﻿.checkbox-scroll-list {
+    outline-style: solid;
+    outline-color: lightgray;
+    outline-width: 2px;
+    width: 15rem;
+    height: 40vh;
+    overflow: auto;
+}
+
+.checkbox-list-item {
+    padding-top: 1ch;
+    padding-right: 1ch;
+    padding-bottom: 1ch;
+}
+
+.forceElement-list {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    margin-right: 10px;
+    background: #eee;
+    width: 20rem;
+    font-size: 0.85em;
+    height: 40vh;
+    overflow: overlay;
+}
+
+.forceElement-list li {
+    margin: 5px;
+    padding: 8px;
+    font-size: 1.2em;
+    /*width: 19.2rem;*/
+    border: 1px solid #bbb;
+    background-color: white;
+    cursor: grab;
+}
+
+.forceElement-list li:active {
+    cursor: grabbing;
+}
+
+.forceElement-list li.placeholder {
+    height: 2em;
+    width: 19rem;
+}
+
+.forceElement-list li.ui-sortable-helper {
+    opacity: 0.5;
+}
+
+.placeholder {
+    border: 1px solid orange;
+    background-color: #fffffd;
+}
+
+.vl {
+    height: 100%;
+    margin-left: 2rem;
+    border-left: 2px solid rgb(173, 181, 189);
+}
+
+.button-col {
+    width: 1rem;
+}
+
+#drag-available-elements {
+    padding: 2rem;
+    height: 7rem;
+    display: flex;
+    color: grey;
+    align-items: self-end;
+}
+
+li.emptyMessage {
+    display: none;
+}
+
+.link-button {
+    display: inline;
+    cursor: pointer;
+}

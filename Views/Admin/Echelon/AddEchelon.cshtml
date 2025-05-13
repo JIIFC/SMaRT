@@ -1,0 +1,51 @@
+﻿@model SMARTV3.Models.Echelon
+
+@{
+    ViewData["Title"] = localizer["AddEchelon"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+<h4>@localizer["AddEchelon"]</h4>
+
+<hr />
+<div class="row">
+    <div class="col-md-4">
+        <form asp-action="AddEchelon">
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label class="control-label">@localizer["EchelonName"]</label>
+                <input asp-for="EchelonName" class="form-control" />
+                <span asp-validation-for="EchelonName" class="text-danger"></span>
+            </div>
+            <br>
+            <div class="form-group">
+                <label class="control-label">@localizer["EchelonNameFre"]</label>
+                <input asp-for="EchelonNameFre" class="form-control" />
+                <span asp-validation-for="EchelonNameFre" class="text-danger"></span>
+            </div>
+            <br>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input class="form-check-input" asp-for="Archived" /> @localizer["Archived"] 
+                </label>
+            </div>
+            <br>
+            <div class="form-group">
+                <label class="control-label">@localizer["SortOrder"]</label>
+                <input asp-for="Ordered" class="form-control" />
+                <span asp-validation-for="Ordered" class="text-danger"></span>
+            </div>
+            <br>
+            <div class="form-group">
+                <input type="submit" value="@localizer["Create"]" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+</div>
+<br>
+<div>
+    <a asp-action="ManageEchelons">@localizer["BackToList"]</a>
+</div>
+

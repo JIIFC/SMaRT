@@ -1,0 +1,49 @@
+﻿@model IEnumerable<SMARTV3.Models.HistoryMigration>
+
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+@{
+    ViewData["Title"] = localizer["ManageHistory"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<span style="font-weight:bold">@localizer["Warning"]</span>@localizer["WarningNote"]
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@localizer["Year"]</th>
+            <th>@localizer["Month"]</th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>
+                    @Html.DisplayFor(modelItem => item.HistoryYear)
+                </td>
+                <td>
+                    @Html.DisplayFor(modelItem => item.HistoryMonth)
+                </td>
+                <td>
+                    <a asp-action="DeleteHistory" asp-route-id="@item.HistoryYear" asp-route-id2="@item.HistoryMonth">
+                        <img src='@Url.Content("~/images/Delete.png")' height="16" width="16" title="@localizer["Delete"]" />
+                    </a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+<br />
+<br />
+
+<h3>@localizer["CreateDataCardHistory"]</h3>
+<hr />
+<br />
+<span style="font-weight:bold">@localizer["Note"]</span>@localizer["NoteMessage"]
+<br />
+<a asp-action="AddHistory">@localizer["CreateNewHistory"]</a>

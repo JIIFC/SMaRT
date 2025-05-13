@@ -1,0 +1,169 @@
+﻿@model SMARTV3.Models.ForceElement
+
+@{
+    ViewData["Title"] = localizer["AddForceElement"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+<h4>@localizer["AddForceElement"]</h4>
+
+<hr />
+<div class="row">
+    <div class="col-md-5">
+        <form asp-action="AddForceElement">
+            <input id="parentMetlList" name="parentMetlList" value="@ViewData["FelmMetlList"]" hidden />
+            <input type="hidden" name="organizationFilter" value="@ViewData["organizationFilter"]" />
+            <input type="hidden" name="ElementIdFilter" value="@ViewData["ElementIdFilter"]" />
+            <input type="hidden" name="ElementNameFilter" value="@ViewData["ElementNameFilter"]" />
+            <input type="hidden" name="selectedPageSize" value="@ViewData["selectedPageSize"]" />
+            <input type="hidden" name="pageNumber" value="@ViewData["pageNumber"]" />
+            <input type="hidden" name="sortOrder" value="@ViewData["sortOrder"]" />
+            <input type="hidden" name="showDisabledFelms" value="@ViewData["showDisabledFelms"]" />
+            <input type="hidden" name="showAspirationalFelms" value="@ViewData["showAspirationalFelms"]" />
+            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            <div class="form-group">
+                <label class="control-label">@localizer["PageNote"]<div class="rounddiv" style="background-color:red"></div></label>
+            </div>
+            <div class="form-group">
+                <label class="control-label">@localizer["ElementId"]</label>
+                <input asp-for="ElementId" maxlength="10" class="form-control" />
+                <span asp-validation-for="ElementId" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["ElementName"]</label>
+                <input asp-for="ElementName" class="form-control" />
+                <span asp-validation-for="ElementName" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["ElementNameFre"]</label>
+                <input asp-for="ElementNameFre" class="form-control" />
+                <span asp-validation-for="ElementNameFre" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["Shortname"]</label>
+                <input asp-for="Shortname" class="form-control" />
+                <span asp-validation-for="Shortname" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["ShortnameFR"]</label>
+                <input asp-for="ShortnameFR" class="form-control" />
+                <span asp-validation-for="ShortnameFR" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["OrganizationForceGenerator"]</label>
+                <select asp-for="OrganizationId" class="form-select" asp-items="ViewBag.OrganizationId"></select>
+                <span asp-validation-for="OrganizationId" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["Weighting"]</label>
+                <select asp-for="WeightingId" class="form-select" asp-items="ViewBag.WeightingId"></select>
+                <span asp-validation-for="WeightingId" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["NoticeToMove"]</label>
+                <select name="NoticeToMoveId" id="NoticeToMoveId" class="form-select" asp-items="ViewBag.NoticeToMoveId"></select>
+            </div>
+            <br />
+            <div id="ntmDetailsDiv">
+                <div class="form-group">
+                    <label class="control-label">@localizer["NTMDetails"]</label>
+                    <input id="Ntmdetails" name="Ntmdetails" value="@ViewData["Ntmdetails"]" class="form-control" />
+                </div>
+                <br />
+            </div>
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input asp-for="Aspirational" class="form-check-input" /> @localizer["AspirationalForceElement"]
+                </label>
+            </div>
+            <br />
+            <div class="form-group">
+                <label class="control-label">@localizer["SortOrder"]</label>
+                <input asp-for="Ordered" class="form-control" />
+                <span asp-validation-for="Ordered" class="text-danger"></span>
+            </div>
+            <br />
+            <div class="form-group form-check">
+                <label class="form-check-label">
+                    <input asp-for="Archived" class="form-check-input" /> @localizer["Archived"]
+                </label>
+            </div>
+            <br />
+            <div class="form-group">
+                <input type="submit" value="@localizer["Create"]" class="btn btn-primary" />
+            </div>
+        </form>
+    </div>
+    <div class="col-md-4">
+        ADD METL
+        </br>
+        <div class="row">
+            <div class="col-md-6 form-group">
+                <label for="validFrom">@localizer["validFrom"]</label>
+                @Html.TextBox("validFrom", ViewBag.validFrom, "", htmlAttributes: new { @class = "datefield form-select", type = "datetime-local" })
+            </div>
+            <div class="col-md-6 form-group">
+                <label for="validTo">@localizer["validTo"]</label>
+                @Html.TextBox("validTo", ViewBag.validTo, "", htmlAttributes: new { @class = "datefield form-select", type = "datetime-local" })
+            </div>
+        </div>
+        <div class="form-group">
+            <label for="selectedMetl">@localizer["METL"]</label>
+            @Html.DropDownList("metlList", ViewBag.metId, "", htmlAttributes: new { @class = "form-select" })
+        </div>
+        <div class="col align-self-end col-md-2">
+            <input type="image" src="~/images/Add.png" id="addMetl" />
+        </div>
+        <br />
+        <div class="preview" style="padding-top: 1rem;">
+        </div>
+    </div>
+</div>
+<br />
+<div>
+    <a asp-action="ManageForceElements"
+       asp-route-pageNumber="@ViewData["pageNumber"]"
+       asp-route-sortOrder="@ViewData["sortOrder"]"
+       asp-route-selectedPageSize="@ViewData["selectedPageSize"]"
+       asp-route-organizationFilter="@ViewData["organizationFilter"]"
+       asp-route-ElementIdFilter="@ViewData["ElementIdFilter"]"
+       asp-route-ElementNameFilter="@ViewData["ElementNameFilter"]"
+       asp-route-ShowDisabledFelms="@ViewData["ShowDisabledFelms"]"
+       asp-route-ShowAspirationalFelms="@ViewData["ShowAspirationalFelms"]">
+       @localizer["BackToList"]
+    </a>
+</div>
+
+@section Scripts{
+    <script type="text/javascript" src="~/js/metlSelect.js"></script>
+    <script type="text/javascript">
+        const addmetl = document.getElementById('addMetl');
+        $(document).ready(function() {
+            /*showHideNtmDetails();*/
+            addmetl.addEventListener('click', function (event) {
+                event.preventDefault(); addMetltoJsonFileList(document.getElementById('metlList').value, document.getElementById('metlList').options[document.getElementById('metlList').selectedIndex].text, document.getElementById('validFrom').value, document.getElementById('validTo').value);
+            });
+        });
+
+      /*  $("#NoticeToMoveId").change(function () { showHideNtmDetails(); });
+
+        function showHideNtmDetails() {
+            if ($('#NoticeToMoveId').val() == @ViewData["NtmOtherID"]) {
+                $('#ntmDetailsDiv').show();
+            } else {
+                $('#ntmDetailsDiv').hide();
+                $('#Ntmdetails').val("");
+            }
+        }
+        */
+    </script>
+}

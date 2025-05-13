@@ -1,0 +1,189 @@
+﻿@model SMARTV3.Models.ForcePackage
+
+@using static Constants
+@using System.Text.Json;
+@using System.DirectoryServices.AccountManagement;
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+@{
+    ViewData["Title"] = localizer["DuplicateForcePackage"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<head>
+    <link rel="stylesheet" href="~/css/ForcePackage.css" asp-append-version="true" />
+</head>
+
+<form asp-action="DuplicateForcePackage" name="DuplicateForcePackage" id="DuplicateForcePackage">
+    <div class="row">
+        <div class="col">
+            <h3 style="display: inline;">@localizer["DuplicateForcePackage"]</h3>
+        </div>
+    </div>
+    <br />
+    <div class="row">
+        <div class="col">
+            <div class="form-group">
+                <span class="error">* &nbsp;</span><label for="ForcePackageName">@localizer["ForcePackageName"]</label>
+                @Html.TextBoxFor(m => m.ForcePackageName, htmlAttributes: new { @class = "form-control" })
+                <span id="ForcePackageNameValidation" class="text-danger" style="display: none;">@localizer["ValueRequired"].Value</span>
+            </div>
+        </div>
+        <div class="col">
+            <div class="form-group">
+                <span class="error">* &nbsp;</span><label for="ForcePackagePurpose">@localizer["Purpose"]</label>
+                @Html.DropDownList("ForcePackagePurpose", ViewBag.purposeList, "", htmlAttributes: new { @class = "form-select" })
+                <span id="ForcePackagePurposeValidation" class="text-danger" style="display: none;">@localizer["ValueRequired"].Value</span>
+            </div>
+        </div>
+    </div><br />
+    <div class="row">
+        <div class="col">
+            <div class="form-group">
+                <label for="ForcePackageDescription">@localizer["ForcePackageDescription"]</label>
+                @Html.TextAreaFor(m => m.ForcePackageDescription, htmlAttributes: new { @class = "form-control" })
+            </div>
+        </div>
+    </div><br />
+    <div class="row">
+        <div class="col">
+            <label>@localizer["IdentifiedOperations"]</label>
+            <div class="checkbox-scroll-list">
+                @{
+                    List<Operation> operationList = (List<Operation>)ViewBag.operationListForCheckboxes;
+                    int operationIndex = 0;
+                }
+                @foreach (Operation operation in operationList)
+                {
+                    <div class="form-group form-check checkbox-list-item">
+                        <label class="form-check-label">
+                            @Html.CheckBox("operation" + operation.Id, htmlAttributes: new { @class = "operation-checkbox" })
+                            @operation.OperationName
+                        </label>
+                    </div>
+                    if (operationIndex != operationList.Count - 1)
+                    {
+                        <hr style="margin: auto;">
+                    }
+                    operationIndex++;
+                }
+            </div>
+        </div>
+        <div class="col">
+            <label>@localizer["IdentifiedConplans"]</label>
+            <div class="checkbox-scroll-list">
+                @{
+                    List<Conplan> conplanList = (List<Conplan>)ViewBag.conplanListForCheckboxes;
+                    int conplanIndex = 0;
+                }
+                @foreach (Conplan conplan in conplanList)
+                {
+                    <div class="form-group form-check checkbox-list-item">
+                        <label class="form-check-label">
+                            @Html.CheckBox("conplan" + conplan.Id, htmlAttributes: new { @class = "conplan-checkbox" })
+                            @conplan.ConplanName
+                        </label>
+                    </div>
+                    if (conplanIndex != conplanList.Count - 1)
+                    {
+                        <hr style="margin: auto;">
+                    }
+                    conplanIndex++;
+                }
+            </div>
+        </div>
+        <div class="col-6"></div>
+    </div><br /><br />
+    <div class="row">
+        <div class="col">
+            <a asp-action="Edit"
+               asp-route-id="@ViewData["forcePackageToDuplicateId"]"
+               asp-route-indexPageNumber="@ViewData["indexPageNumber"]"
+               asp-route-indexSortOrder="@ViewData["indexSortOrder"]"
+               asp-route-indexPageSize="@ViewData["indexPageSize"]"
+               asp-route-packageOwnersOrganization="@ViewData["packageOwnersOrganization"]"
+               asp-route-selectedPurpose="@ViewData["selectedPurpose"]"
+               asp-route-identifiedOperation="@ViewData["identifiedOperation"]"
+               asp-route-identifiedConplan="@ViewData["identifiedConplan"]"
+               asp-route-onlyShowMyForcePackages="@ViewData["onlyShowMyForcePackages"]"
+               asp-route-selectedOrganization="@ViewData["selectedOrganization"]"
+               asp-route-selectedConPlan="@ViewData["selectedConPlan"]"
+               asp-route-selectedOperation="@ViewData["selectedOperation"]"
+               asp-route-readinessStatus="@ViewData["readinessStatus"]"
+               asp-route-forcePackageName="@ViewData["forcePackageName"]"
+               asp-route-forcePackagePurpose="@ViewData["forcePackagePurpose"]"
+               asp-route-forcePackageDescription="@ViewData["forcePackageDescription"]"
+               asp-route-checkedOperations="@ViewData["checkedOperations"]"
+               asp-route-checkedConplans="@ViewData["checkedConplans"]"
+               asp-route-selectedForceElementIds="@ViewData["selectedForceElementIds"]"
+               asp-route-selectedDummyForceElementIds="@ViewData["selectedDummyForceElementIds"]"
+               class="btn btn-secondary">
+               @localizer["Cancel"]
+              </a>
+        </div>
+        <div class="col" style="text-align: center;">
+            <div onclick="submit()" class="btn btn-primary">
+                @localizer["Duplicate"]
+            </div>
+        </div>
+        <div class="col">
+        </div>
+    </div>
+
+</form>
+
+@section Scripts{
+    <script src="~/js/forcepackage.js"></script>
+    <script type="text/javascript">
+        $(document).ready(function () {
+            setCheckedboxes();
+        });
+
+        function submit() {
+            var checkedOperations = getCheckboxesOfType("operation");
+            var checkedConplans = getCheckboxesOfType("conplan");
+
+            var postData = {
+                ForcePackageToDuplicateId: '@ViewData["forcePackageToDuplicateId"]',
+                ForcePackageName: $("#ForcePackageName").val(),
+                ForcePackagePurpose: $("#ForcePackagePurpose").val(),
+                ForcePackageDescription: $("#ForcePackageDescription").val(),
+                CheckedOperations: checkedOperations,
+                CheckedConplans: checkedConplans
+            };
+
+            $.ajax({
+                type: 'POST',
+                url: '@Url.Action("DuplicateForcePackage", "ForcePackage")',
+                data: postData,
+                headers: { "RequestVerificationToken": $('input[name="__RequestVerificationToken"]').val() },
+                success: function (response) {
+                    let url = '/ForcePackage/Index?indexSortOrder=@ViewData["indexSortOrder"]&indexPageSize=@ViewData["indexPageSize"]&packageOwnersOrganization=@ViewData["packageOwnersOrganization"]&indexPageNumber=@ViewData["indexPageNumber"]'
+                        + '&selectedPurpose=@ViewData["selectedPurpose"]&identifiedOperation=@ViewData["identifiedOperation"]&identifiedConplan=@ViewData["identifiedConplan"]&onlyShowMyForcePackages=@ViewData["onlyShowMyForcePackages"]';
+                    window.location.href = url;
+                },
+                error: function (data){
+                    console.log(data.responseText);
+                    setMissingValueErrors();
+                },
+                traditional: true
+            });
+        }
+
+        function setCheckedboxes() {
+            if ('@Model.Operations.ToList()' != null) {
+                var operationList = @Html.Raw(JsonSerializer.Serialize(Model.Operations.ToList(), new JsonSerializerOptions() {ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles}));
+                for (let i = 0; i < operationList.length; i++) {
+                    $("#operation" + operationList[i].Id).prop('checked', true);
+                }
+            }
+            if ('@Model.Conplans.ToList()' != null) {
+                var conplanList = @Html.Raw(JsonSerializer.Serialize(Model.Conplans.ToList(), new JsonSerializerOptions() {ReferenceHandler = System.Text.Json.Serialization.ReferenceHandler.IgnoreCycles}));
+                for (let i = 0; i < conplanList.length; i++) {
+                    $("#conplan" + conplanList[i].Id).prop('checked', true);
+                }
+            }
+        }
+    </script>
+}
