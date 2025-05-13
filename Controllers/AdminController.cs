@@ -34,7 +34,7 @@ namespace SMARTV3.Controllers
         {
             _context = context;
             isDevelopment = Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") == EnvironmentName.Development;
-            AD = new(ContextType.Domain, isDevelopment ? DevLdapUrl : ProdLdapUrl);
+            //AD = new(ContextType.Domain, isDevelopment ? DevLdapUrl : ProdLdapUrl);
         }
 
         // Sets viewdata for stuff that gets set a lot
