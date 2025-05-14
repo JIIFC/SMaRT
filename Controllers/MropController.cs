@@ -41,9 +41,12 @@ namespace SMARTV3.Controllers
             return View();
         }
 
-        [CustomAuthorize(Roles = Admin)]
-        public IActionResult CreateOutputTask()
-        {
+       public IActionResult CreateOutputTask()
+       {
+            var outputTasks = _context.OutputTasks
+                              .ToList();
+
+            ViewBag.outputTaskId = new SelectList(outputTasks, "Id", "OutputName");
             ViewBag.capabilityId = new SelectList(_context.Capabilities.Where(d => d.Archived == false), "Id", "CapabilityName");
             ViewBag.ntmId = new SelectList(_context.NoticeToMoves.Where(d => d.Archived == false), "Id", "NoticeToMoveName");
             return View();
@@ -53,13 +56,13 @@ namespace SMARTV3.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult CreateOutputTask(OutputTask? outputTask)
         {
-            
-            if (ModelState.IsValid && outputTask != null)
-            {
-                _context.Add(outputTask);
-                _context.SaveChanges();
-            }
-            return RedirectToAction("Index");
+    
+             if (ModelState.IsValid && outputTask != null)
+                {
+                    _context.Add(outputTask);
+                    _context.SaveChanges();
+                }
+                return RedirectToAction("Index");
         }
 
         [CustomAuthorize(Roles = Admin)]
