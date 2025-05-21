@@ -36,13 +36,19 @@ namespace SMARTV3.Controllers
                 .GroupJoin(_context.OutputForceElements, OT => OT.Id, OFE => OFE.OutputTaskId, (OT, OFE) => new { OT, OFE })
                 .SelectMany(x => x.OFE.DefaultIfEmpty(), (x, OFE) => new { category = x.OT.OutputName, start = (OFE.AssignmentStart == null ? default :OFE.AssignmentStart), end = (OFE.AssignmentEnd == null ? default : OFE.AssignmentEnd) })
                 );
-                //.GroupJoin(_context.ForceElements, GD => GD.OFE.FelmId, FElm => FElm.Id, (GD, FElm) => new { GD, FElm })
-                //.Select(o => new { category = o.GD.OT.OutputName, start = o.GD.OFE.AssignmentStart, end = o.GD.OFE.AssignmentEnd, felm = o.FElm.ElementName, id = o.GD.OFE.Id, otId = o.GD.OT.Id, color = o.FElm.DataCards.FirstOrDefault().SrStatus.StatusDisplayColour.ToString().ToLower() }));
+
+            List<OutputTask> outputTasks = _context.OutputTasks.ToList();
+            List<string> OTs = outputTasks.Select(o => o.OutputName).ToList();
+            ViewBag.OTs = OTs;
+
+            //.GroupJoin(_context.ForceElements, GD => GD.OFE.FelmId, FElm => FElm.Id, (GD, FElm) => new { GD, FElm })
+            //.Select(o => new { category = o.GD.OT.OutputName, start = o.GD.OFE.AssignmentStart, end = o.GD.OFE.AssignmentEnd, felm = o.FElm.ElementName, id = o.GD.OFE.Id, otId = o.GD.OT.Id, color = o.FElm.DataCards.FirstOrDefault().SrStatus.StatusDisplayColour.ToString().ToLower() }));
             return View();
         }
 
-       public IActionResult CreateOutputTask()
-       {
+        [CustomAuthorize(Roles = Admin)]
+        public IActionResult CreateOutputTask()
+        {
             var outputTasks = _context.OutputTasks
                               .ToList();
 
@@ -56,13 +62,13 @@ namespace SMARTV3.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult CreateOutputTask(OutputTask? outputTask)
         {
-    
-             if (ModelState.IsValid && outputTask != null)
-                {
-                    _context.Add(outputTask);
-                    _context.SaveChanges();
-                }
-                return RedirectToAction("Index");
+
+            if (ModelState.IsValid && outputTask != null)
+            {
+                _context.Add(outputTask);
+                _context.SaveChanges();
+            }
+            return RedirectToAction("Index");
         }
 
         [CustomAuthorize(Roles = Admin)]
