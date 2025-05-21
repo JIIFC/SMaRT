@@ -38,8 +38,8 @@ namespace SMARTV3.Controllers
                 );
 
             List<OutputTask> outputTasks = _context.OutputTasks.ToList();
-            List<string> OTs = outputTasks.Select(o => o.OutputName).ToList();
-            ViewBag.OTs = OTs;
+            var OTs = outputTasks.Select(o => new { category = o.OutputName, otId = o.Id }).ToList();
+            ViewBag.OTs = JsonConvert.SerializeObject(OTs);
 
             //.GroupJoin(_context.ForceElements, GD => GD.OFE.FelmId, FElm => FElm.Id, (GD, FElm) => new { GD, FElm })
             //.Select(o => new { category = o.GD.OT.OutputName, start = o.GD.OFE.AssignmentStart, end = o.GD.OFE.AssignmentEnd, felm = o.FElm.ElementName, id = o.GD.OFE.Id, otId = o.GD.OT.Id, color = o.FElm.DataCards.FirstOrDefault().SrStatus.StatusDisplayColour.ToString().ToLower() }));
