@@ -12,6 +12,7 @@ using static SMARTV3.Security.UserRoleProvider;
 using System.Data.Common;
 using System.Text.Json;
 using Newtonsoft.Json;
+using Org.BouncyCastle.Asn1.Esf;
 
 namespace SMARTV3.Controllers
 {
@@ -149,5 +150,40 @@ namespace SMARTV3.Controllers
             }
             return RedirectToAction("Index");
         }
+
+        [HttpPost]
+        public IActionResult UpdateFelm(string GanttJsonData)
+        {
+            if (string.IsNullOrWhiteSpace(GanttJsonData))
+            {
+                return RedirectToAction("Error");
+            }
+
+            List<FelmUpdate> updates;
+            try
+            {
+                updates = JsonConvert.DeserializeObject<List<FelmUpdate>>(GanttJsonData);
+            }
+            catch (Exception ex)
+            {
+                return RedirectToAction("Error");
+            }
+                foreach (var task in updates)
+                {
+                   _context.OutputForceElements
+                        .Where(x => x.Id == task.Id)
+                        .ToList()
+                        .ForEach(x =>
+                        {
+                            x.AssignmentStart = task.Start;
+                            x.AssignmentEnd = task.End;
+                        });
+            }
+
+                _context.SaveChanges();
+            
+            return RedirectToAction("Index"); 
+        }
     }
+    
 }
