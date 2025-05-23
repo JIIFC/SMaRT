@@ -22,6 +22,7 @@
 
     <div class="secretbannerdiv">@localizer["SecretFiveEyesOnly"]</div>
     <br /> <br />
+  
 
 <h5>@localizer["MROP"]</h5>
 
@@ -81,17 +82,16 @@
                 }
             }
         }
+        var chart;
 
         am4core.addLicense('@Constants.licensekey');
         am4core.ready(function () {
             am4core.useTheme(am4themes_animated);
-            var chart = am4core.create("chartdiv", am4charts.XYChart);
+            chart = am4core.create("chartdiv", am4charts.XYChart);
             chart.hiddenState.properties.opacity = 0;
 
             chart.paddingRight = 30;
             chart.dateFormatter.inputDateFormat = "yyyy-MM-dd";
-
-
 
             var colorSet = new am4core.ColorSet();
             colorSet.saturation = 0.4;
@@ -114,10 +114,13 @@
             dateAxis.renderer.tooltipLocation = 0;
 
             var series1 = chart.series.push(new am4charts.ColumnSeries());
-            series1.tooltip.label.interactionsEnabled = true;
-            series1.tooltip.keepTargetHover = true;
             series1.columns.template.width = am4core.percent(80);
-            series1.columns.template.tooltipHTML = '<b>{felm}: {openDateX} - {dateX}</b><br><a href="Mrop/EditAssignedFelm/{id}">Edit</a>' //"{felm}: {openDateX} - {dateX}";
+
+            series1.columns.template.interactionsEnabled = true;
+            series1.columns.template.cursorOverStyle = am4core.MouseCursorStyle.pointer;
+
+            var hs = series1.columns.template.states.create("hover");
+            hs.properties.fillOpacity = 0.7;
 
             series1.dataFields.openDateX = "start";
             series1.dataFields.dateX = "end";
@@ -125,6 +128,82 @@
             series1.columns.template.propertyFields.fill = "color";
             series1.columns.template.strokeOpacity = 1;
             series1.columns.template.fillOpacity = .75;
+
+            series1.columns.template.draggable = true;
+
+            let dragStartX = 0;
+
+            series1.columns.template.events.on("dragstart", function (ev) {
+                dragStartX = ev.target.pixelX;  
+            });
+
+            series1.columns.template.events.on("dragstop", function(ev) {
+                var dataItem = ev.target.dataItem;
+                var dragEndX = ev.target.pixelX;
+                var chartData = series1.chart.data;
+                var deltaPixel = dragEndX - dragStartX;
+
+                var dateAxis = chart.xAxes.getIndex(0);
+
+                var dateMin= dateAxis.min;
+                var dateMax = dateAxis.max;
+                var axisPixel = dateAxis.pixelWidth;
+
+                var time = (dateMax - dateMin) * (deltaPixel / axisPixel);  
+
+                let context = dataItem.dataContext;
+                let index = chart.data.indexOf(context);
+
+                let originalstart = new Date(dataItem.dataContext.start);
+                let originalend = new Date(dataItem.dataContext.end);
+
+                let Dstart = new Date(originalstart.getTime() + time);
+                let Dend = new Date(originalend.getTime() + time);
+
+                 if(typeof Dstart != "string"){
+                    Dstart = Dstart.toISOString();
+                }
+                if(typeof Dend != "string"){
+                    Dend = Dend.toISOString();
+                }
+
+                Dstart = Dstart.split(".")[0];
+                Dend = Dend.split(".")[0];
+
+                chartData[index].start = Dstart;
+                chartData[index].end = Dend;
+
+                chart.invalidateRawData();
+
+                dragStartX = ev.target.pixelX;
+            });
+
+            let currentPopup = null;
+
+            series1.columns.template.events.on("hit", function(ev) {
+                  if (currentPopup) {
+                    currentPopup.close();
+                  }
+
+                let dataItem = ev.target.dataItem;
+                let felm = dataItem.dataContext.felm;
+                let openDateX = dataItem.dataContext.start;
+                if(typeof openDateX != "string"){
+                    openDateX = openDateX.toISOString();
+                }
+                let dateX = dataItem.dataContext.end;
+                  if(typeof dateX != "string"){
+                    dateX = dateX.toISOString();
+                }
+                let id = dataItem.dataContext.id;
+                let cat = dataItem.dataContext.category;
+       
+                openDateX = openDateX.split("T")[0];
+                dateX = dateX.split("T")[0];
+
+                let popup = (`<b>${cat}:<br>${felm}: ${openDateX} - ${dateX}</b><br><a href="/Mrop/EditAssignedFelm/${id}">Edit</a>`)
+                currentPopup = chart.openPopup(popup);
+            }, this);
 
             var valueLabel = series1.bullets.push(new am4charts.LabelBullet());
             valueLabel.label.text = "{felm}";
@@ -139,12 +218,34 @@
             range.grid.stroke = am4core.color("red");
             range.grid.strokeWidth = 2;
             range.grid.strokeOpacity = 1;
-
+    
     }); // end am4core.ready()
+
+    function UpdateFelm() {
+        const updatedData = chart.data.map(update => {
+            return {
+                id: update.id,
+                start: new Date(update.start).toISOString(),
+                end: new Date(update.end).toISOString()
+            };
+        });
+
+    
+        document.getElementById("GanttJsonData").value = JSON.stringify(updatedData);
+
+    
+        document.getElementById("hiddenUpdateForm").submit();
+    }
 
     function datediff(first, second) {        
     return Math.round((second - first) / (1000 * 60 * 60 * 24));
 }
         
     </Script>
+
+    <form id="hiddenUpdateForm" method="post" action="/Mrop/UpdateFelm">
+        <input type="hidden" name="GanttJsonData" id="GanttJsonData" />
+    </form>
+
+    <button type="button" onclick="UpdateFelm()">Update</button>
 }
