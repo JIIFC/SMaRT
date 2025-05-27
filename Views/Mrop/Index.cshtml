@@ -17,6 +17,7 @@
   padding: 5vh;
   min-height: 500px;
 }
+
 .button{
   background-color: white;
   border: 2px solid black;
@@ -36,6 +37,7 @@
   background-color: #33CC33;
   color: white;
 }
+
 </style>
 
     <div class="secretbannerdiv">@localizer["SecretFiveEyesOnly"]</div>
@@ -125,7 +127,7 @@
 
             var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
             dateAxis.dateFormatter.dateFormat = "yyyy-MM-dd";
-            dateAxis.renderer.minGridDistance = 70;
+            dateAxis.renderer.minGridDistance = 100;
             dateAxis.baseInterval = { count: 30, timeUnit: "minute" };
        
             dateAxis.strictMinMax = true;
@@ -199,9 +201,9 @@
             let currentPopup = null;
 
             series1.columns.template.events.on("hit", function(ev) {
-                  if (currentPopup) {
-                    currentPopup.close();
-                  }
+                if (currentPopup) {
+                  currentPopup.close();
+                }
 
                 let dataItem = ev.target.dataItem;
                 let felm = dataItem.dataContext.felm;
@@ -219,8 +221,9 @@
                 openDateX = openDateX.split("T")[0];
                 dateX = dateX.split("T")[0];
 
-                let popup = (`<b>${cat}:<br>${felm}: ${openDateX} - ${dateX}</b><br><a href="/Mrop/EditAssignedFelm/${id}">Edit</a>`)
-                currentPopup = chart.openPopup(popup);
+                let popup = chart.openPopup(`<b>${cat}:<br>${felm}: ${openDateX} - ${dateX}</b><br><a href="/Mrop/EditAssignedFelm/${id}">Edit</a>`)
+                currentPopup = popup;
+              
             }, this);
 
             var valueLabel = series1.bullets.push(new am4charts.LabelBullet());
@@ -236,6 +239,73 @@
             range.grid.stroke = am4core.color("red");
             range.grid.strokeWidth = 2;
             range.grid.strokeOpacity = 1;
+
+            //EXTENDING THE BARS
+
+            
+            
+            let extend = series1.columns.template.createChild(am4core.Circle);
+            extend.radius = 3;
+            extend.fill = am4core.color("#555");
+            extend.stroke = am4core.color("#fff");
+
+            extend.cursorOverStyle = am4core.MouseCursorStyle.horizontalResize;
+            extend.isMeasured = false;
+
+            extend.tooltipText = "Adjust Force Element Timeframe";
+            extend.draggable = true;
+
+            extend.horizontalCenter = "right";
+            extend.verticalCenter = "middle";
+
+            extend.adapter.add("dx", function(dx, target) {
+                return target.parent.pixelWidth;
+            });
+
+            extend.adapter.add("dy", function(dy, target) {
+                return target.parent.pixelHeight / 2;
+            });
+
+            let extendStartX = 0;
+
+            extend.events.on("dragstart", function (ev) {
+                extendStartX = ev.target.pixelX;
+                ev.target.parent.draggable = false;
+            });
+
+            extend.events.on("dragstop", function (ev) {
+
+                var dataItem = ev.target.parent.dataItem;
+                var dragEndX = ev.target.pixelX;
+                var deltaPixel = dragEndX - extendStartX;
+
+                var dateAxis = chart.xAxes.getIndex(0);
+
+                var dateMin= dateAxis.min;
+                var dateMax = dateAxis.max;
+                var axisPixel = dateAxis.pixelWidth;
+
+                var time = (dateMax - dateMin) * (deltaPixel / axisPixel);  
+
+                let context = dataItem.dataContext;
+                let index = chart.data.indexOf(context);
+
+                let originalstart = new Date(context.start);
+                let originalend = new Date(context.end);
+
+                let extendEnd = new Date(originalend.getTime() + time);
+
+                      
+                context.start = originalstart.toISOString();
+                context.end = extendEnd.toISOString();
+
+  
+                chart.invalidateRawData();
+
+ 
+              
+                
+            });
     
     }); // end am4core.ready()
 
@@ -265,5 +335,5 @@
         <input type="hidden" name="GanttJsonData" id="GanttJsonData" />
     </form>
 
-    <button type="button" class="button" onclick="UpdateFelm()">Update</button>
+    <button type="button" class="button"  onclick="UpdateFelm()">Update</button>
 }
