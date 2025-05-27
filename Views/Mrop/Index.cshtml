@@ -10,11 +10,29 @@
 <style>
 #chartdiv {
     width: 100%;
-    height: 80vh;
-    min-height: 500px;
+    height: 90vh;
+    min-height: 600px;
     padding: 0;
 }
 
+.ampopup-title {
+    font-weight: bold;
+    font-size: 120%;
+    border-bottom: 2px solid rgba(0, 0, 0, 1);
+}
+
+.ampopup-content {
+    background-color: rgba(255, 255, 255, 0.8);
+    overflow: auto;
+    border: 2px solid rgba(0, 0, 0, 1);
+}
+
+.ampopup-close {
+    top: 0.7em;
+    right: 0.7em;
+    width: 1.5em;
+    height: 1.5em;
+}
 </style>
 
     <div class="secretbannerdiv">
@@ -74,41 +92,40 @@
             if (startpoint > 1) startpoint = 0;
         }
 
-        // Group items by TaskOutput (category) and resolve overlaps with track index
-        let expandedData = [];
-        let expandedCategories = [];
+        // Assign track (vertical position) for overlapping ForceElements
+        function assignOverlapTracks(data) {
+            const trackMap = {};
 
-        categories.forEach(category => {
-            let groupItems = data.filter(d => d.category === category.category);
-            let tracks = [];
+            data.forEach(item => {
+                const category = item.category;
+                const start = new Date(item.start).getTime();
+                const end = new Date(item.end).getTime();
 
-            groupItems.forEach(item => {
+                if (!trackMap[category]) trackMap[category] = [];
+
                 let placed = false;
-                for (let i = 0; i < tracks.length; i++) {
-                    if (new Date(tracks[i][tracks[i].length - 1].end) <= new Date(item.start)) {
-                        tracks[i].push(item);
+
+                for (let i = 0; i < trackMap[category].length; i++) {
+                    const track = trackMap[category][i];
+                    const lastInTrack = track[track.length - 1];
+                    if (new Date(lastInTrack.end).getTime() <= start) {
+                        track.push(item);
                         item.track = i;
                         placed = true;
                         break;
                     }
                 }
+
                 if (!placed) {
-                    item.track = tracks.length;
-                    tracks.push([item]);
+                    item.track = trackMap[category].length;
+                    trackMap[category].push([item]);
                 }
             });
 
-            // Create virtual rows per track
-            tracks.forEach((track, idx) => {
-                let catLabel = idx === 0 ? category.category : "";
-                let virtualCat = `${category.category}_track${idx}`;
-                expandedCategories.push({ category: virtualCat, label: catLabel, otId: category.otId });
-                track.forEach(item => {
-                    item.category = virtualCat;
-                    expandedData.push(item);
-                });
-            });
-        });
+            return data;
+        }
+
+        data = assignOverlapTracks(data);
 
         am4core.ready(function () {
             am4core.useTheme(am4themes_animated);
@@ -125,7 +142,7 @@
             chart.mouseWheelBehavior = "zoomX";
             chart.chartContainer.wheelable = true;
 
-            chart.data = expandedData;
+            chart.data = data;
 
             // Y Axis (Category)
             var categoryAxis = chart.yAxes.push(new am4charts.CategoryAxis());
@@ -133,24 +150,27 @@
             categoryAxis.renderer.grid.template.location = 0;
             categoryAxis.renderer.inversed = true;
             categoryAxis.renderer.minGridDistance = 5;
-            categoryAxis.renderer.cellHeight = 25;
+            categoryAxis.renderer.cellHeight = 80; // Increase height for stacked bars
+            categoryAxis.renderer.labels.template.fill = am4core.color("#007bff"); // Bootstrap blue
+            categoryAxis.renderer.labels.template.fontWeight = "bold";
+            categoryAxis.renderer.labels.template.cursorOverStyle = am4core.MouseCursorStyle.pointer;
+            categoryAxis.renderer.labels.template.textDecoration = "underline";
+            categoryAxis.renderer.labels.template.text = "[underline]{category}[/]";
 
-            // Customize label visibility: only show if label is non-empty
-            categoryAxis.renderer.labels.template.adapter.add("text", function(text, target) {
-                let catData = expandedCategories.find(c => c.category === target.dataItem?.category);
-                return catData?.label || "";
+            categoryAxis.renderer.labels.template.adapter.add("text", function (text, target) {
+                let catData = categories.find(c => c.category === target.dataItem?.category);
+                return catData?.category || "";
             });
 
-            // Navigate to TaskOutput on click (if applicable)
             categoryAxis.renderer.labels.template.events.on("hit", function (ev) {
                 let labelCat = ev.target.dataItem.category;
-                let item = expandedCategories.find(c => c.category === labelCat);
+                let item = categories.find(c => c.category === labelCat);
                 if (item?.otId) {
                     window.location.href = `/Mrop/EditOutputTask/${item.otId}`;
                 }
             });
 
-            categoryAxis.data = expandedCategories;
+            categoryAxis.data = categories;
 
             // X Axis (Time)
             var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
@@ -169,18 +189,43 @@
             series.dataFields.dateX = "end";
             series.dataFields.categoryY = "category";
             series.columns.template.propertyFields.fill = "color";
-            series.columns.template.tooltipHTML = `
-                <div style="font-size:14px; max-width: 300px;">
-                    <strong>{felm}</strong><br/>
-                    From: <em>{openDateX}</em><br/>
-                    To: <em>{dateX}</em><br/>
-                    <a href='/Mrop/EditAssignedFelm/{id}' target='_blank'>Edit</a>
-                </div>`;
-            series.tooltip.pointerOrientation = "down";
-            series.tooltip.label.interactionsEnabled = true;
-            series.tooltip.keepTargetHover = true;
 
-            // Ensure tooltips don't get clipped
+            // Offset overlapping bars by track index
+            series.columns.template.adapter.add("dy", function (dy, target) {
+                const track = target.dataItem.dataContext.track || 0;
+                return track * 30; // Vertical offset per overlap
+            });
+
+            // Tooltip
+            series.tooltip.pointerOrientation = "vertical"; // Top-bottom orientation
+            series.columns.template.tooltipY = am4core.percent(0); // Force tooltip above bar
+            series.tooltip.label.zIndex = 1000; // Make sure tooltip is on top
+
+            let currentPopup = null;
+            series.columns.template.events.on("hit", function(ev) {
+                if (currentPopup) currentPopup.close();
+
+                let dataItem = ev.target.dataItem;
+                let context = dataItem.dataContext;
+
+                let openDateX = typeof context.start === "string" ? context.start : new Date(context.start).toISOString().split("T")[0];
+                let dateX = typeof context.end === "string" ? context.end : new Date(context.end).toISOString().split("T")[0];
+
+                let popup = (`
+                    <div style="font-size:14px; max-width: 500px; min-width: 300px;">
+                        <strong>${context.felm}</strong><br/>
+                        From: <em>${openDateX}</em><br/>
+                        To: <em>${dateX}</em><br/>
+                        <a style="margin-top: 20px; text-decoration: none;" href='/Mrop/EditAssignedFelm/${context.id}' target='_blank'><img style="vertical-align: baseline;" src='@Url.Content("~/images/Edit.png")' height='20' width='20' /> Edit</a>
+                    </div>
+                `);
+
+                currentPopup = chart.openPopup(popup);
+                currentPopup.showCurtain = true;
+                currentPopup.closable = true;
+                currentPopup.title = context.category;
+            });
+
             chart.tooltipContainer.layout = "absolute";
             chart.tooltipContainer.zIndex = 1000;
 
@@ -189,9 +234,17 @@
             labelBullet.label.text = "{felm}";
             labelBullet.label.fontSize = 13;
             labelBullet.label.fontWeight = "bold";
-            labelBullet.label.truncate = true;
+            labelBullet.label.truncate = true; // Show full label when zoomed
+            labelBullet.label.hideOversized = false; // Prevent hiding on zoom
             labelBullet.label.horizontalCenter = "middle";
             labelBullet.label.isMeasured = true;
+            labelBullet.label.interactionsEnabled = false; // Allow clicks to pass through
+
+            labelBullet.dy = 0; // default
+            labelBullet.adapter.add("dy", function (dy, target) {
+                const track = target.dataItem.dataContext.track || 0;
+                return track * 30; // Same offset as bar
+            });
 
             // Navigate on bar click
             series.columns.template.events.on("click", function (ev) {

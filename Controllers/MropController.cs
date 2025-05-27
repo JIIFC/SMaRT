@@ -44,7 +44,9 @@ namespace SMARTV3.Controllers
                 felm = o.FElm.ElementName,
                 id = o.GD.OFE.Id,
                 otId = o.GD.OT.Id,
-                color = o.FElm.DataCards.FirstOrDefault().SrStatus.StatusDisplayColour.ToString().ToLower() ?? "#cccccc"
+                color = o.FElm.DataCards.Any() && o.FElm.DataCards.FirstOrDefault().SrStatus != null
+                    ? o.FElm.DataCards.FirstOrDefault().SrStatus.StatusDisplayColour.ToLower()
+                    : "#cccccc"
             }).ToList();
 
             ViewBag.gantData = JsonConvert.SerializeObject(gantData);
