@@ -117,31 +117,7 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="Admin" xml:space="preserve">
-    <value>Admin</value>
-  </data>
-  <data name="AnnexB" xml:space="preserve">
-    <value>Annex B</value>
-  </data>
-  <data name="ChangeLogs" xml:space="preserve">
-    <value>Change Logs</value>
-  </data>
-  <data name="DataCards" xml:space="preserve">
-    <value>Data Cards</value>
-  </data>
-  <data name="ForcePackages" xml:space="preserve">
-    <value>Force Packages</value>
-  </data>
-  <data name="GenerateReports" xml:space="preserve">
-    <value>Generate Reports</value>
-  </data>
-  <data name="Home" xml:space="preserve">
-    <value>Home</value>
-  </data>
-  <data name="ManageUsers" xml:space="preserve">
-    <value>Manage Users</value>
-  </data>
-  <data name="Reports" xml:space="preserve">
-    <value>Reports</value>
+  <data name="SecretFiveEyesOnly" xml:space="preserve">
+    <value>SECRET DIFFUSION AU GROUPE DES CINQ SEULEMENT</value>
   </data>
 </root>

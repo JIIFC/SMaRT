@@ -27,17 +27,35 @@ namespace SMARTV3.Controllers
         }
         public IActionResult Index()
         {
-            ViewData["gantData"] = JsonConvert.SerializeObject(_context.OutputTasks.OrderBy(x => x.OutputName)
-                .Join(_context.OutputForceElements, OT => OT.Id, OFE => OFE.OutputTaskId, (OT,OFE)=> new { OT, OFE })
-                .Join(_context.ForceElements , GD => GD.OFE.FelmId, FElm =>FElm.Id,(GD,FElm) => new {GD, FElm })
-                .Select(o=> new {category = o.GD.OT.OutputName, start = o.GD.OFE.AssignmentStart, end = o.GD.OFE.AssignmentEnd, felm = o.FElm.ElementName,id = o.GD.OFE.Id, otId = o.GD.OT.Id, color = o.FElm.DataCards.FirstOrDefault().SrStatus.StatusDisplayColour.ToString().ToLower() }));
+            //ViewBag.gantData = JsonConvert.SerializeObject(_context.OutputTasks.OrderBy(x => x.OutputName)
+            //    .Join(_context.OutputForceElements, OT => OT.Id, OFE => OFE.OutputTaskId, (OT, OFE) => new { OT, OFE })
+            //    .Join(_context.ForceElements, GD => GD.OFE.FelmId, FElm => FElm.Id, (GD, FElm) => new { GD, FElm })
+            //    .Select(o => new { category = o.GD.OT.OutputName, start = o.GD.OFE.AssignmentStart, end = o.GD.OFE.AssignmentEnd, felm = o.FElm.ElementName, id = o.GD.OFE.Id, otId = o.GD.OT.Id, color = o.FElm.DataCards.FirstOrDefault().SrStatus.StatusDisplayColour.ToString().ToLower() }));
 
-            var test = JsonConvert.SerializeObject(_context.OutputTasks.OrderBy(x => x.OutputName)
-                .GroupJoin(_context.OutputForceElements, OT => OT.Id, OFE => OFE.OutputTaskId, (OT, OFE) => new { OT, OFE })
-                .SelectMany(x => x.OFE.DefaultIfEmpty(), (x, OFE) => new { category = x.OT.OutputName, start = (OFE.AssignmentStart == null ? default :OFE.AssignmentStart), end = (OFE.AssignmentEnd == null ? default : OFE.AssignmentEnd) })
-                );
-                //.GroupJoin(_context.ForceElements, GD => GD.OFE.FelmId, FElm => FElm.Id, (GD, FElm) => new { GD, FElm })
-                //.Select(o => new { category = o.GD.OT.OutputName, start = o.GD.OFE.AssignmentStart, end = o.GD.OFE.AssignmentEnd, felm = o.FElm.ElementName, id = o.GD.OFE.Id, otId = o.GD.OT.Id, color = o.FElm.DataCards.FirstOrDefault().SrStatus.StatusDisplayColour.ToString().ToLower() }));
+            var gantData = _context.OutputTasks
+            .OrderBy(x => x.OutputName)
+            .Join(_context.OutputForceElements, OT => OT.Id, OFE => OFE.OutputTaskId, (OT, OFE) => new { OT, OFE })
+            .Join(_context.ForceElements, GD => GD.OFE.FelmId, FElm => FElm.Id, (GD, FElm) => new { GD, FElm })
+            .Select(o => new
+            {
+                category = o.GD.OT.OutputName,
+                start = o.GD.OFE.AssignmentStart != null ? o.GD.OFE.AssignmentStart.ToString("yyyy-MM-dd") : null,
+                end = o.GD.OFE.AssignmentEnd != null ? o.GD.OFE.AssignmentEnd.ToString("yyyy-MM-dd") : null,
+                felm = o.FElm.ElementName,
+                id = o.GD.OFE.Id,
+                otId = o.GD.OT.Id,
+                color = o.FElm.DataCards.FirstOrDefault().SrStatus.StatusDisplayColour.ToString().ToLower() ?? "#cccccc"
+            }).ToList();
+
+            ViewBag.gantData = JsonConvert.SerializeObject(gantData);
+
+            ViewBag.gantCategories = JsonConvert.SerializeObject(
+                _context.OutputTasks.Select(t => new {
+                    category = t.OutputName,
+                    otId = t.Id
+                }).ToList()
+            );
+
             return View();
         }
 

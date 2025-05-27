@@ -1,0 +1,80 @@
+﻿@using static Constants
+@using Microsoft.AspNetCore.Mvc.Localization
+@inject IViewLocalizer localizer
+
+@{
+    ViewData["Title"] = localizer["Mrop"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<style>
+#chartdiv {
+  width: 100%;
+  height: 80vh;
+  min-height: 500px;
+  border: 1px solid red;
+}
+
+</style>
+
+<div class="secretbannerdiv">
+    @localizer["SecretFiveEyesOnly"]
+</div>
+<br /> <br />
+
+<h5>@localizer["MROP"]</h5>
+
+<p>
+    <div class="row justify-content-between">
+        <div class="col-auto mr-auto">
+             <label for="CreateOutputTask">@localizer["CreateOutputTask"]</label><br />
+            <a asp-action="CreateOutputTask">
+                <img src='@Url.Content("~/images/Add.png")' height="40" width="40" title="@localizer["CreateOutputTask"]" />
+            </a>
+        </div>
+        <div class="col-auto">
+            <label for="AssignFelm">@localizer["AssignForceElement"]</label><br />
+            <a asp-action="AssignFelm">
+                <img src='@Url.Content("~/images/Add.png")' height="40" width="40" title="@localizer["AssignForceElement"]" />
+            </a>
+        </div>
+    </div>
+</p>
+
+<div id="chartdiv"></div>
+
+@section Scripts {
+    
+    <script type="text/javascript">
+        var json = '@ViewBag.gantData';
+        json = json.replaceAll("&quot;", "\"");
+        console.log(json);
+        var data = JSON.parse(json);
+        var max = null;
+        var min = null;
+        for (var i = 0; i < data.length; i++) {
+          var current = data[i];
+          if (max === null || current.end > max.end) {
+            max = current;
+          }
+          if (min === null || current.start < min.start) {
+            min = current;
+          }
+        }
+        var startpoint = 0;
+        if(min !== null && max !== null){
+            var daysTotal = Math.floor((Date.parse(max.end) - Date.parse(min.start)) / 86400000);
+            if (daysTotal != 0) {
+                var towWeeksAgo = new Date();
+                towWeeksAgo.setDate(towWeeksAgo.getDate() - 14);
+                var daysCurrent = Math.floor((towWeeksAgo - Date.parse(min.start)) / 86400000);
+                var startpoint = daysCurrent / daysTotal;
+                if (startpoint > 1) {
+                    startpoint = 0;
+                }
+            }
+        }
+
+        var myChart = echarts.init(document.getElementById('chartdiv'), 'dark');
+    </script>
+}
