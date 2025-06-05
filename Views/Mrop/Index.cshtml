@@ -1,0 +1,227 @@
+﻿﻿@using static Constants
+@using Microsoft.AspNetCore.Mvc.Localization
+@using System.Text.Json
+@model SMARTV3.Models.OutputForceElement;
+@inject IViewLocalizer localizer
+@{
+    ViewData["Title"] = localizer["Mrop"];
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <title>Project Gantt Chart</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/css/bootstrap.min.css" rel="stylesheet" />
+    <!-- Frappe Gantt CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/frappe-gantt/dist/frappe-gantt.css" rel="stylesheet" />
+    <style>
+        body {
+            padding-top: 20px;
+        }
+        .gantt .labels {
+            width: 200px;
+        }
+        #custom-popup {
+            position: absolute;
+            background: white;
+            border: 1px solid #ccc;
+            padding: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+            z-index: 9999;
+        }
+    </style>
+</head>
+<body>
+    
+    <form id="antiforgeryForm" style="display:none">
+        @Html.AntiForgeryToken()
+    </form>
+
+    <div class="secretbannerdiv">
+        @localizer["SecretFiveEyesOnly"]
+    </div>
+    <br />
+    <br />
+
+    <h5>@localizer["MROP"]</h5>
+
+    <p>
+        <div class="row justify-content-between">
+            <div class="col-auto mr-auto">
+                <label for="CreateOutputTask">@localizer["CreateOutputTask"]</label><br />
+                <a asp-action="CreateOutputTask">
+                    <img src='@Url.Content("~/images/Add.png")' height="40" width="40" title="@localizer["CreateOutputTask"]" />
+                </a>
+            </div>
+            <div class="col-auto" style="position: relative">
+                <label for="AssignFelm">@localizer["AssignForceElement"]</label><br />
+                <a asp-action="AssignFelm" style="display: block; text-align: right;">
+                    <img src='@Url.Content("~/images/Add.png")' height="40" width="40" title="@localizer["AssignForceElement"]" />
+                </a>
+            </div>
+        </div>
+    </p>
+    <div class="container">
+        <div class="row">
+            <div class="col">
+                <div class="card">
+                    <div class="card-header d-flex align-items-center">
+                        <!-- Zoom buttons -->
+                        <div class="btn-group">
+                            <button id="zoom_in" type="button" class="btn btn-sm btn-secondary">+</button>
+                            <button id="zoom_out" type="button" class="btn btn-sm btn-secondary">−</button>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        <!-- Gantt chart container -->
+                        <div id="gantt"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.6/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/frappe-gantt/dist/frappe-gantt.umd.js"></script>
+    <script>
+
+        //Setup to truncate bar labels
+        function truncateBarLabels() {
+            requestAnimationFrame(() => {
+                document.querySelectorAll('.bar-wrapper').forEach(wrapper => {
+                    const label = wrapper.querySelector('.bar-label');
+                    const bar = wrapper.querySelector('.bar');
+
+                    if (!label || !bar) return;
+
+                    const barWidth = bar.getBBox().width;
+                    const textWidth = label.getBBox().width;
+
+                    if (textWidth > barWidth - 10) {
+                        const fullText = label.textContent;
+                        let truncated = fullText;
+                        while (truncated.length > 3 && label.getBBox().width > barWidth - 10) {
+                            truncated = truncated.slice(0, -1);
+                            label.textContent = truncated + '…';
+                        }
+                    }
+                });
+            });
+        }
+        let tasks = @Html.Raw(ViewBag.gantData ?? "[]");
+        // Map each task to have the required fields 
+        tasks = tasks.map(t => ({
+            id: t.id,
+            name: t.felm,
+            start: t.start,
+            end: t.end,
+            // Set the unneeded fields of frappe to default
+            progress: t.progress || 0,
+            dependencies: t.dependencies || ""
+        }));
+
+        //Remove the base frappe popup
+        Gantt.prototype.show_popup = function() {};
+        
+        // Initialize Gantt chart
+        const gantt = new Gantt("#gantt", tasks, {
+            on_date_change: function(task, start, end) {
+                const token = document.querySelector('input[name="__RequestVerificationToken"]').value;
+
+                //Updating the database with the new dates
+                fetch('@Url.Action("UpdateFelm", "Mrop")', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': token
+                    },
+                    body: JSON.stringify([
+                        {
+                            id: task.id,
+                            start: start.toISOString().slice(0, 10),
+                            end: end.toISOString().slice(0, 10)
+                        }
+                    ])
+                })
+                .then(response => {
+                    if (!response.ok) throw new Error("Update failed");
+                    return response.text();
+                })
+                .then(() => {
+                    //Set a timeout to give time for the table to render
+                    setTimeout(truncateBarLabels, 100);
+                })
+                .then(console.log)
+                .catch(console.error);
+            },
+
+            on_click: function(task) {
+                //Popup content
+                const popupHtml = `
+                    <div style="font-size:14px; max-width: 500px; min-width: 300px;">
+                        <strong>${task.name}</strong><br/>
+                        From: <em>${task.start}</em><br/>
+                        To: <em>${task.end}</em><br/>
+                        <a style="margin-top: 20px; text-decoration: none;" href='/Mrop/EditAssignedFelm/${task.id}' target='_blank'>
+                            <img style="vertical-align: baseline;" src='@Url.Content("~/images/Edit.png")' height='20' width='20' /> Edit
+                        </a>
+                    </div>
+                `;
+
+                //Create Popup
+                const existing = document.getElementById("custom-popup");
+                if (existing) existing.remove();
+
+                const div = document.createElement("div");
+                div.id = "custom-popup";
+                div.innerHTML = popupHtml;
+                document.body.appendChild(div);
+
+                // Position the popup near mouse 
+                document.addEventListener("mousemove", function handler(e) {
+                    div.style.top = (e.pageY + 10) + "px";
+                    div.style.left = (e.pageX + 10) + "px";
+                    document.removeEventListener("mousemove", handler);
+                });
+
+                // Close on click elsewhere
+                setTimeout(() => {
+                    document.addEventListener("click", function handler2() {
+                        div.remove();
+                        document.removeEventListener("click", handler2);
+                    });
+                }, 100);
+            },
+
+            on_view_change: function(mode) {
+                //If the view changes update the truncation
+                setTimeout(truncateBarLabels, 100);
+            }
+
+        });
+
+        //Update the truncation after render
+        setTimeout(truncateBarLabels, 100);
+
+        // Zoom button functionality: change view mode
+        // The modes below are the default view modes that come with frappe
+        const modes = ["Quarter Day","Half Day","Day","Week","Month","Year"];
+        let modeIndex = modes.indexOf("Week");
+        document.getElementById("zoom_in").addEventListener("click", () => {
+            if (modeIndex > 0) {
+                modeIndex--;
+                gantt.change_view_mode(modes[modeIndex]);
+            }
+        });
+        document.getElementById("zoom_out").addEventListener("click", () => {
+            if (modeIndex < modes.length - 1) {
+                modeIndex++;
+                gantt.change_view_mode(modes[modeIndex]);
+            }
+        });
+    </script>
+</body>
+</html>
