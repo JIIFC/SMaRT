@@ -1,0 +1,96 @@
+﻿#timeline {
+    width: 100%;
+    border-radius: 10px !important;
+    border: none;
+    box-shadow: 0 0 12px rgba(0, 0, 0, 0.1);
+    background: white;
+}
+
+.vis-timeline {
+    border-radius: 10px !important;
+}
+
+.vis-item {
+    border-radius: 5px !important;
+    font-size: 0.9rem;
+    font-weight: 500;
+    box-shadow: 1px 1px 5px rgba(0,0,0, 0.2);
+    min-width: 25px !important;
+}
+
+.vis-labelset .vis-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    color: #444;
+    text-align: center;
+    align-content: center;
+}
+
+.vis-time-axis .vis-text {
+    font-size: 0.85rem;
+    fill: #555;
+}
+
+.vis-current-time {
+    background-color: #007bff;
+}
+
+.vis-item.vis-selected {
+    border-color: #909dff;
+    background-color: #7400ff !important;
+    color: #fff;
+}
+
+.vis-inner > a {
+    text-decoration: none;
+}
+
+.modal-content {
+    border-radius: 10px;
+}
+
+.modal-header {
+    border-bottom: none;
+}
+
+.modal-title {
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+#Chart {
+    position: relative;
+    border-radius: 10px !important;
+}
+
+.ChartLoader {
+    z-index: 100;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 600px;
+    background: #e9ecef;
+    border-radius: 10px;
+    text-align: center;
+    align-content: center;
+    border: 1px solid #ccc;
+}
+
+.LegendStatus {
+    user-select: none;
+    border-radius: 5px;
+    font-weight: 500;
+    font-size: 1.2rem;
+    text-align: center;
+    border: 2px solid #1e1e1e;
+}
+
+.filterCategory {
+    height: 5px;
+    width: 5px;
+    margin: 5px;
+    padding: 5px;
+    background-color: red;
+    content: '';
+}

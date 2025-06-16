@@ -7,34 +7,6 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<style>
-#chartdiv {
-    width: 100%;
-    height: 90vh;
-    min-height: 600px;
-    padding: 0;
-}
-
-.ampopup-title {
-    font-weight: bold;
-    font-size: 120%;
-    border-bottom: 2px solid rgba(0, 0, 0, 1);
-}
-
-.ampopup-content {
-    background-color: rgba(255, 255, 255, 0.8);
-    overflow: auto;
-    border: 2px solid rgba(0, 0, 0, 1);
-}
-
-.ampopup-close {
-    top: 0.7em;
-    right: 0.7em;
-    width: 1.5em;
-    height: 1.5em;
-}
-</style>
-
     <div class="secretbannerdiv">
         @localizer["SecretFiveEyesOnly"]
     </div>
@@ -42,230 +14,312 @@
 
 <h5>@localizer["MROP"]</h5>
 
-<p>
-    <div class="row justify-content-between">
-        <div class="col-auto mr-auto">
-             <label for="CreateOutputTask">@localizer["CreateOutputTask"]</label><br />
-            <a asp-action="CreateOutputTask">
-                <img src='@Url.Content("~/images/Add.png")' height="40" width="40" title="@localizer["CreateOutputTask"]" />
-            </a>
-        </div>
-        <div class="col-auto">
-            <label for="AssignFelm">@localizer["AssignForceElement"]</label><br />
-            <a asp-action="AssignFelm">
-                <img src='@Url.Content("~/images/Add.png")' height="40" width="40" title="@localizer["AssignForceElement"]" />
-            </a>
+<div class="row justify-content-between mb-4">
+    <div class="col-auto">
+        <a class="btn btn-md btn-secondary" asp-action="CreateOutputTask">
+            <img style="filter: invert(1);" src='@Url.Content("~/images/Add.png")' height="25" width="25" alt="@localizer["CreateOutputTask"]" />
+            <span style="font-weight:500; font-size: 1rem;">@localizer["CreateOutputTask"]</span>
+        </a>
+    </div>
+    <div class="col-auto">
+        <a class="btn btn-md btn-secondary" asp-action="AssignFelm">
+            <img style="filter: invert(1);" src='@Url.Content("~/images/Add.png")' height="25" width="25" alt="@localizer["AssignForceElement"]" />
+            <span style="font-weight:500; font-size: 1rem;">@localizer["AssignForceElement"]</span>
+        </a>
+    </div>
+</div>
+
+<!-- Filters & Search -->
+<div class="row mb-4">
+    <div class="col">
+        <label for="categoryFilter"><strong>Filter by Category:</strong></label>
+        <select id="categoryFilter" class="form-control d-inline-block" style="width: 250px;">
+            <option value="all">All</option>
+        </select>
+    </div>
+    <div class="col">
+        <label for="searchBox" style="margin-left: 20px;"><strong>Search by Name:</strong></label>
+        <input type="text" id="searchBox" class="form-control d-inline-block" style="width: 250px;" placeholder="e.g. Air Task Force" />
+    </div>
+    <div class="col">
+        <label for="dateRange" style="margin-left: 20px;"><strong>Date Range:</strong></label>
+        <input type="text" id="dateRange" class="form-control d-inline-block" style="width: 250px;" readonly />
+    </div>
+</div>
+
+<div class="filterCategory">
+
+</div>
+
+<!-- Legend / Readiness -->
+<div class="text-center mb-4">
+    <h3>SMaRT Status</h3>
+    <div class="row">
+        <div class="col mx-1 p-1 LegendStatus" style="background-color: lime; color: #1e1e1e;">Ready</div>
+        <div class="col mx-1 p-1 LegendStatus" style="background-color: yellow; color: #1e1e1e;">Ready with Limits</div>
+        <div class="col mx-1 p-1 LegendStatus" style="background-color: orange; color: #1e1e1e;">Combat Ineffective</div>
+        <div class="col mx-1 p-1 LegendStatus" style="background-color: red; color: #fff;">Not Ready</div>
+    </div>
+</div>
+
+<!-- Toolbar Buttons -->
+<div class="btn-toolbar mb-2" role="toolbar" aria-label="Toolbar with export and view options">
+    <div class="btn-group me-2" role="group">
+        @* <button class="btn btn-outline-secondary" onclick="exportToCSV()">Export CSV</button> *@
+        <button class="btn btn-outline-secondary" onclick="exportToPNG()">Export PNG</button>
+        @* <button class="btn btn-outline-secondary" onclick="exportToPDF()">Export PDF</button> *@
+    </div>
+
+    <div class="btn-group me-2" role="group">
+        <button class="btn btn-outline-primary" onclick="ZoomTo('Week')">Week</button>
+        <button class="btn btn-outline-primary" onclick="ZoomTo('Month')">Month</button>
+        <button class="btn btn-outline-primary" onclick="ZoomTo('Year')">Year</button>
+    </div>
+</div>
+
+<!-- Timeline container -->
+<div id="Chart">
+    <div class="ChartLoader text-primary">
+        <div class="spinner-border"></div>
+    </div>
+
+    <div id="timeline"></div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="infoModal" tabindex="-1" aria-labelledby="infoModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content shadow-sm">
+            <div class="modal-header bg-primary text-white">
+                <h5 class="modal-title" id="infoModalLabel">Force Element Details</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <dl class="row" id="modalContent">
+                    <!-- filled dynamically -->
+                </dl>
+            </div>
         </div>
     </div>
-</p>
-
-<div id="chartdiv"></div>
+</div>
 
 @section Scripts {
-    <script src="~/js/amCharts/core.js"></script>
-    <script src="~/js/amCharts/charts.js"></script>
-    <script src="~/js/amCharts/themes/animated.js"></script>
+    <!-- MROP Chart -->
+    <link rel="stylesheet" href="~/css/MROPChart.css" asp-append-version="true" />
+    <!-- Vis.js Chart TODO: Download to local files -->
+    <script src="https://unpkg.com/vis-timeline@latest/standalone/umd/vis-timeline-graph2d.min.js"></script>
+    <link href="https://unpkg.com/vis-timeline@latest/styles/vis-timeline-graph2d.min.css" rel="stylesheet" />
+    <!-- Export JS TODO: Download to local files -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+    <!-- Date Range Picker TODO: Download to local files -->
+    <script src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
     <script>
-        // Parse data from ViewBag
-        var json = '@ViewBag.gantData'.replaceAll("&quot;", '"');
-        var data = JSON.parse(json);
+        $(document).ready(function() {
+            setTimeout(function() {
+                $(".ChartLoader").addClass("visually-hidden");
+            }, 1500);
+        });
 
-        var categoryJson = '@ViewBag.gantCategories'.replaceAll("&quot;", '"');
-        var categories = JSON.parse(categoryJson);
+        let timeline;
+        let CategoriesData = [];
+        let FELMData = [];
 
-        // Determine chart min/max dates for zooming
+        // Parsing data from ViewBag
+        var felmJson = '@ViewBag.gantData'.replaceAll("&quot;", '"');
+        FELMData = JSON.parse(felmJson);
+        var categoriesJson = '@ViewBag.gantCategories'.replaceAll("&quot;", '"');
+        CategoriesData = JSON.parse(categoriesJson);
+
+        // Loading the data in the timeline
+        const container = document.getElementById('timeline');
+
+        // Set category column
+        const groups = new vis.DataSet(CategoriesData.map(cat => ({
+            id: cat.otId,
+            content: `<a href="/Mrop/EditOutputTask/${cat.otId}">${cat.category}</a>`
+        })));
+
+        // Gets category color 
+        function getColorForGroup(groupId) {
+            const el = FELMData.find(f => f.otId === groupId);
+            return el ? el.color : '#ccc';
+        }
+
+        // Set felm data in chart
+        function getItems(data) {
+            return data.map(item => ({
+                id: item.id,
+                group: item.otId,
+                content: item.felm.length > 40 ? item.felm.slice(0, 40) + "..." : item.felm,
+                start: item.start,
+                end: item.end,
+                title: `${item.felm}`,
+                style: `background-color:${item.color}; color:white;`,
+                fullText: item.felm,
+            }));
+        }
+
+        // Setting chart options and data
+        const originalItems = getItems(FELMData);
+        const items = new vis.DataSet(originalItems);
+
+        const options = {
+            stack: true,
+            groupOrder: 'content',
+            margin: { item: 10, axis: 5 },
+            orientation: 'top',
+            zoomMin: 1000 * 60 * 60 * 24 * 7,
+            zoomMax: 1000 * 60 * 60 * 24 * 365 * 3,
+        };
+
+        // Initializing chart
+        timeline = new vis.Timeline(container, items, groups, options);
+
+        // Category filter
+        const filterSelect = document.getElementById("categoryFilter");
+        filterSelect.innerHTML = `<option value="all">All</option>`;
+        CategoriesData.forEach(cat => {
+            const color = getColorForGroup(cat.otId);
+            const option = document.createElement("option");
+            option.value = cat.otId;
+            option.innerHTML = `&#x25A0; ${cat.category}`;
+            option.style.color = color;
+            option.style.fontWeight = 500;
+            filterSelect.appendChild(option);
+        });
+
+        filterSelect.addEventListener("change", applyFilters);
+        document.getElementById("searchBox").addEventListener("input", applyFilters);
+
+        // Date Range
         let minDate = null, maxDate = null;
-        data.forEach(entry => {
-            if (!minDate || entry.start < minDate) minDate = entry.start;
-            if (!maxDate || entry.end > maxDate) maxDate = entry.end;
+        let currentDate = new Date();
+
+        $('#dateRange').daterangepicker({
+            "autoUpdateInput": false,
+            "showDropdowns": true,
+            "showWeekNumbers": true,
+            "linkedCalendars": false,
+            "opens": "center",
+            "drops": "auto",
+            //"minYear": (moment().subtract(5, "years").year())
+            //currentDate.getFullYear() - 5
         });
 
-        // Calculate zoom start point (~2 weeks ago)
-        let startpoint = 0;
-        if (minDate && maxDate) {
-            const daysTotal = Math.floor((Date.parse(maxDate) - Date.parse(minDate)) / 86400000);
-            const towWeeksAgo = new Date();
-            towWeeksAgo.setDate(towWeeksAgo.getDate() - 14);
-            const daysCurrent = Math.floor((towWeeksAgo - Date.parse(minDate)) / 86400000);
-            startpoint = daysCurrent / daysTotal;
-            if (startpoint > 1) startpoint = 0;
-        }
-
-        // Assign track (vertical position) for overlapping ForceElements
-        function assignOverlapTracks(data) {
-            const trackMap = {};
-
-            data.forEach(item => {
-                const category = item.category;
-                const start = new Date(item.start).getTime();
-                const end = new Date(item.end).getTime();
-
-                if (!trackMap[category]) trackMap[category] = [];
-
-                let placed = false;
-
-                for (let i = 0; i < trackMap[category].length; i++) {
-                    const track = trackMap[category][i];
-                    const lastInTrack = track[track.length - 1];
-                    if (new Date(lastInTrack.end).getTime() <= start) {
-                        track.push(item);
-                        item.track = i;
-                        placed = true;
-                        break;
-                    }
-                }
-
-                if (!placed) {
-                    item.track = trackMap[category].length;
-                    trackMap[category].push([item]);
-                }
-            });
-
-            return data;
-        }
-
-        data = assignOverlapTracks(data);
-
-        am4core.ready(function () {
-            am4core.useTheme(am4themes_animated);
-            am4core.addLicense('@Constants.licensekey');
-
-            var chart = am4core.create("chartdiv", am4charts.XYChart);
-            chart.hiddenState.properties.opacity = 0;
-            chart.paddingRight = 30;
-            chart.dateFormatter.inputDateFormat = "yyyy-MM-dd";
-
-            chart.cursor = new am4charts.XYCursor();
-            chart.cursor.lineY.disabled = false;
-            chart.cursor.behavior = "zoomX";
-            chart.mouseWheelBehavior = "zoomX";
-            chart.chartContainer.wheelable = true;
-
-            chart.data = data;
-
-            // Y Axis (Category)
-            var categoryAxis = chart.yAxes.push(new am4charts.CategoryAxis());
-            categoryAxis.dataFields.category = "category";
-            categoryAxis.renderer.grid.template.location = 0;
-            categoryAxis.renderer.inversed = true;
-            categoryAxis.renderer.minGridDistance = 5;
-            categoryAxis.renderer.cellHeight = 80; // Increase height for stacked bars
-            categoryAxis.renderer.labels.template.fill = am4core.color("#007bff"); // Bootstrap blue
-            categoryAxis.renderer.labels.template.fontWeight = "bold";
-            categoryAxis.renderer.labels.template.cursorOverStyle = am4core.MouseCursorStyle.pointer;
-            categoryAxis.renderer.labels.template.textDecoration = "underline";
-            categoryAxis.renderer.labels.template.text = "[underline]{category}[/]";
-
-            categoryAxis.renderer.labels.template.adapter.add("text", function (text, target) {
-                let catData = categories.find(c => c.category === target.dataItem?.category);
-                return catData?.category || "";
-            });
-
-            categoryAxis.renderer.labels.template.events.on("hit", function (ev) {
-                let labelCat = ev.target.dataItem.category;
-                let item = categories.find(c => c.category === labelCat);
-                if (item?.otId) {
-                    window.location.href = `/Mrop/EditOutputTask/${item.otId}`;
-                }
-            });
-
-            categoryAxis.data = categories;
-
-            // X Axis (Time)
-            var dateAxis = chart.xAxes.push(new am4charts.DateAxis());
-            dateAxis.baseInterval = { count: 1, timeUnit: "day" };
-            dateAxis.strictMinMax = true;
-            dateAxis.renderer.tooltipLocation = 0;
-            dateAxis.renderer.minZoomCount = 25;
-            dateAxis.mouseWheelZoomEnabled = true;
-            dateAxis.mouseWheelScrollEnabled = true;
-
-            // Series (Bars)
-            var series = chart.series.push(new am4charts.ColumnSeries());
-            series.columns.template.height = am4core.percent(25);
-            series.clustered = false;
-            series.dataFields.openDateX = "start";
-            series.dataFields.dateX = "end";
-            series.dataFields.categoryY = "category";
-            series.columns.template.propertyFields.fill = "color";
-
-            // Offset overlapping bars by track index
-            series.columns.template.adapter.add("dy", function (dy, target) {
-                const track = target.dataItem.dataContext.track || 0;
-                return track * 30; // Vertical offset per overlap
-            });
-
-            // Tooltip
-            series.tooltip.pointerOrientation = "vertical"; // Top-bottom orientation
-            series.columns.template.tooltipY = am4core.percent(0); // Force tooltip above bar
-            series.tooltip.label.zIndex = 1000; // Make sure tooltip is on top
-
-            let currentPopup = null;
-            series.columns.template.events.on("hit", function(ev) {
-                if (currentPopup) currentPopup.close();
-
-                let dataItem = ev.target.dataItem;
-                let context = dataItem.dataContext;
-
-                let openDateX = typeof context.start === "string" ? context.start : new Date(context.start).toISOString().split("T")[0];
-                let dateX = typeof context.end === "string" ? context.end : new Date(context.end).toISOString().split("T")[0];
-
-                let popup = (`
-                    <div style="font-size:14px; max-width: 500px; min-width: 300px;">
-                        <strong>${context.felm}</strong><br/>
-                        From: <em>${openDateX}</em><br/>
-                        To: <em>${dateX}</em><br/>
-                        <a style="margin-top: 20px; text-decoration: none;" href='/Mrop/EditAssignedFelm/${context.id}' target='_blank'><img style="vertical-align: baseline;" src='@Url.Content("~/images/Edit.png")' height='20' width='20' /> Edit</a>
-                    </div>
-                `);
-
-                currentPopup = chart.openPopup(popup);
-                currentPopup.showCurtain = true;
-                currentPopup.closable = true;
-                currentPopup.title = context.category;
-            });
-
-            chart.tooltipContainer.layout = "absolute";
-            chart.tooltipContainer.zIndex = 1000;
-
-            // Label on bars
-            var labelBullet = series.bullets.push(new am4charts.LabelBullet());
-            labelBullet.label.text = "{felm}";
-            labelBullet.label.fontSize = 13;
-            labelBullet.label.fontWeight = "bold";
-            labelBullet.label.truncate = true; // Show full label when zoomed
-            labelBullet.label.hideOversized = false; // Prevent hiding on zoom
-            labelBullet.label.horizontalCenter = "middle";
-            labelBullet.label.isMeasured = true;
-            labelBullet.label.interactionsEnabled = false; // Allow clicks to pass through
-
-            labelBullet.dy = 0; // default
-            labelBullet.adapter.add("dy", function (dy, target) {
-                const track = target.dataItem.dataContext.track || 0;
-                return track * 30; // Same offset as bar
-            });
-
-            // Navigate on bar click
-            series.columns.template.events.on("click", function (ev) {
-                const context = ev.target.dataItem.dataContext;
-                if (context.otId) {
-                    window.location.href = `/Mrop/EditOutputTask/${context.otId}`;
-                }
-            });
-
-            // Scrollbar
-            chart.scrollbarX = new am4core.Scrollbar();
-            chart.scrollbarX.start = startpoint;
-
-            // Today marker
-            var todayRange = dateAxis.axisRanges.create();
-            todayRange.date = new Date();
-            todayRange.grid.stroke = am4core.color("grey");
-            todayRange.grid.strokeWidth = 2;
-            todayRange.label.text = "Today";
-            todayRange.label.fill = am4core.color("grey");
-            todayRange.label.verticalCenter = "bottom";
+        $('#dateRange').on('apply.daterangepicker', function (ev, picker) {
+            minDate = picker.startDate;
+            maxDate = picker.endDate;
+            applyFilters(minDate, maxDate);
+            $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+            console.log(moment().toDate());
         });
+
+        $('#dateRange').on('cancel.daterangepicker', function () {
+            minDate = maxDate = null;
+            $(this).val('');
+            applyFilters();
+        });
+
+        // Applying filters to the chart
+        function applyFilters() {
+            const selectedCat = filterSelect.value;
+            const searchTerm = document.getElementById("searchBox").value.toLowerCase();
+
+            const filtered = originalItems.filter(item => {
+                const matchCat = selectedCat === "all" || item.group == selectedCat;
+                const matchText = item.fullText.toLowerCase().includes(searchTerm);
+
+                const formattedMinDate = minDate ? moment(minDate).format('YYYY-MM-DD') : null;
+                const formattedMaxDate = maxDate ? moment(maxDate).format('YYYY-MM-DD') : null;
+
+                const matchDate = (!formattedMinDate || moment(item.start, 'YYYY-MM-DD').isSameOrAfter(formattedMinDate)) &&
+                                    (!formattedMaxDate || moment(item.end, 'YYYY-MM-DD').isSameOrBefore(formattedMaxDate));
+                
+                return matchCat && matchText && matchDate;
+            });
+            timeline.setItems(filtered);
+        }
+
+        // Modal click handler (Popup menu)
+        timeline.on('select', function (props) {
+            const selectedId = props.items[0];
+            const item = FELMData.find(i => i.id === selectedId);
+            if (item) {
+                document.getElementById('infoModalLabel').textContent = item.felm;
+                document.getElementById('modalContent').innerHTML = `
+                    <dt class="col-sm-4">Category:</dt><dd class="col-sm-8">${item.category}</dd>
+                    <dt class="col-sm-4">Start:</dt><dd class="col-sm-8">${item.start}</dd>
+                    <dt class="col-sm-4">End:</dt><dd class="col-sm-8">${item.end}</dd>
+                    <dt class="col-sm-4">Color:</dt><dd class="col-sm-8">
+                        <span style="background:${item.color};padding:2px 8px;color:white;border-radius:4px;">
+                            ${item.color}
+                        </span>
+                    </dd>
+                `;
+                const modal = new bootstrap.Modal(document.getElementById('infoModal'));
+                modal.show();
+            }
+        });
+
+        // Zoom Presets and function
+        const zoomPresets = {
+            "Week": [moment().subtract(1, 'days').toDate(), moment().add(7, 'days').toDate()],
+            "Month": [moment().subtract(1, 'months').toDate(), moment().add(2, 'months').toDate()],
+            "Year": [moment().subtract(6, 'months').toDate(), moment().add(1, 'years').toDate()],
+        };
+
+        function ZoomTo(range) {
+            const [start, end] = zoomPresets[range];
+            timeline.setWindow(start, end, {animation: true });
+        }
+
+        // Export functions
+        function exportToCSV() {
+            const rows = [["ID", "Category", "Force Element", "Start", "End"]];
+            FELMData.forEach(item => {
+                rows.push([item.id, item.category, item.felm, item.start, item.end]);
+            });
+
+            const csv = rows.map(row => row.map(v => `"${v}"`).join(",")).join("\n");
+            const blob = new Blob([csv], { type: "text/csv" });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.download = "timeline_export.csv";
+            link.click();
+        }
+
+        function exportToPNG() {
+            html2canvas(document.getElementById("timeline"), { scale: 2 }).then(canvas => {
+                const link = document.createElement("a");
+                link.download = "timeline.png";
+                link.href = canvas.toDataURL("image/png"); // Explicitly set PNG format
+                document.body.appendChild(link); // Ensure it's added to the DOM
+                link.click();
+                document.body.removeChild(link); // Cleanup after download
+            });
+        }
+
+        function exportToPDF() {
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF({
+                orientation: "landscape",
+                unit: "px",
+                format: "a4" // Standard A4 size
+            });
+
+            html2canvas(document.querySelector("#timeline"), { scale: 2 }).then(canvas => {
+                const imgData = canvas.toDataURL("image/png");
+                const imgWidth = doc.internal.pageSize.getWidth();
+                const imgHeight = (canvas.height * imgWidth) / canvas.width; // Maintain aspect ratio
+
+                doc.addImage(imgData, "PNG", 10, 10, imgWidth - 20, imgHeight); // Adjusted scaling
+                doc.save("timeline.pdf");
+            });
+        }
     </script>
 }
