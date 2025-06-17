@@ -1,4 +1,6 @@
-﻿@using static Constants
+﻿@model Tuple<SMARTV3.Models.OutputTask, SMARTV3.Models.OutputForceElement>
+
+@using static Constants
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer localizer
 
@@ -7,13 +9,14 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-    <div class="secretbannerdiv">
-        @localizer["SecretFiveEyesOnly"]
-    </div>
-    <br /> <br />
+<div class="secretbannerdiv">
+    @localizer["SecretFiveEyesOnly"]
+</div>
+<br /> <br />
 
 <h5>@localizer["MROP"]</h5>
 
+<!-- Create and Assign buttons-->
 <div class="row justify-content-between mb-4">
     <div class="col-auto">
         <a class="btn btn-md btn-secondary" asp-action="CreateOutputTask">
@@ -30,25 +33,46 @@
 </div>
 
 <!-- Filters & Search -->
-<div class="row mb-4">
-    <div class="col">
-        <label for="categoryFilter"><strong>Filter by Category:</strong></label>
-        <select id="categoryFilter" class="form-control d-inline-block" style="width: 250px;">
-            <option value="all">All</option>
-        </select>
+<div class="row mb-3 text-center">
+    <div class="col">        
+        <div class="row">
+            <div class="col px-0">
+                <label class="form-label" for="categoryFilter"><strong>Filter by Category:</strong></label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col px-0">
+                <select id="categoryFilter" class="form-control d-inline-block" style="width: 250px;">
+                    <option value="all">All</option>
+                </select>
+            </div>
+        </div>
     </div>
     <div class="col">
-        <label for="searchBox" style="margin-left: 20px;"><strong>Search by Name:</strong></label>
-        <input type="text" id="searchBox" class="form-control d-inline-block" style="width: 250px;" placeholder="e.g. Air Task Force" />
+        <div class="row">
+            <div class="col px-0">
+                <label class="form-label" for="searchBox"><strong>Search by Name:</strong></label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col px-0">
+                <input type="text" id="searchBox" class="form-control d-inline-block" style="width: 250px;" placeholder="e.g. Air Task Force" />
+            </div>
+        </div>
     </div>
     <div class="col">
-        <label for="dateRange" style="margin-left: 20px;"><strong>Date Range:</strong></label>
-        <input type="text" id="dateRange" class="form-control d-inline-block" style="width: 250px;" readonly />
+        <div class="row">
+            <div class="col px-0">
+                <label class="form-label" for="dateRange"><strong>Date Range:</strong></label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col px-0">
+                <input type="text" id="dateRange" class="form-control d-inline-block" style="width: 250px;" readonly />
+                <button type="button" id="btnClearDateRange" class="btn btn-sm btn-primary visually-hidden">Clear</button>
+            </div>
+        </div>
     </div>
-</div>
-
-<div class="filterCategory">
-
 </div>
 
 <!-- Legend / Readiness -->
@@ -196,19 +220,47 @@
         filterSelect.addEventListener("change", applyFilters);
         document.getElementById("searchBox").addEventListener("input", applyFilters);
 
+        // // Modal Date Range
+        // let modalStartMinDate = null, modalStartMaxDate = null;
+        // let modalEndMinDate = null, modalEndMaxDate = null;
+
+        // $('#modalStartDateRange').daterangepicker({
+        //     "singleDatePicker": true,
+        //     "showDropdowns": true,
+        //     "showWeekNumbers": true,
+        //     "linkedCalendars": false,
+        //     "opens": "center",
+        //     "drops": "auto",
+        //     "cancelButtonClasses": "btn-secondary",
+        //     "autoUpdateInput":true,
+        //     "autoApply":true,
+        // });
+
+        // $('#modalEndDateRange').daterangepicker({
+        //     "singleDatePicker": true,
+        //     "showDropdowns": true,
+        //     "showWeekNumbers": true,
+        //     "linkedCalendars": false,
+        //     "opens": "center",
+        //     "drops": "auto",
+        //     "cancelButtonClasses": "btn-secondary",
+        //     "autoUpdateInput":true,
+        //     "autoApply":true,
+        // });
+
         // Date Range
         let minDate = null, maxDate = null;
-        let currentDate = new Date();
 
         $('#dateRange').daterangepicker({
+            "cancelButtonClasses": "btn-secondary",
             "autoUpdateInput": false,
             "showDropdowns": true,
             "showWeekNumbers": true,
             "linkedCalendars": false,
             "opens": "center",
             "drops": "auto",
-            //"minYear": (moment().subtract(5, "years").year())
-            //currentDate.getFullYear() - 5
+            "minYear": moment().year() - 5,
+            "maxYear": moment().year() + 5
         });
 
         $('#dateRange').on('apply.daterangepicker', function (ev, picker) {
@@ -217,12 +269,21 @@
             applyFilters(minDate, maxDate);
             $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
             console.log(moment().toDate());
+            $('#btnClearDateRange').removeClass("visually-hidden");
         });
 
         $('#dateRange').on('cancel.daterangepicker', function () {
             minDate = maxDate = null;
             $(this).val('');
             applyFilters();
+            $('#btnClearDateRange').addClass("visually-hidden");
+        });
+
+        $("#btnClearDateRange").on("click", function() {
+            minDate = maxDate = null;
+            $("#dateRange").val('');
+            applyFilters();
+            $('#btnClearDateRange').addClass("visually-hidden");
         });
 
         // Applying filters to the chart
@@ -249,17 +310,72 @@
         timeline.on('select', function (props) {
             const selectedId = props.items[0];
             const item = FELMData.find(i => i.id === selectedId);
+            let SmartStatusDesc = null;
+            let SmartStatusFontColor = "#1e1e1e";
+            
+            try {
+                switch (item.color) {
+                    case "lime":
+                        SmartStatusDesc = "Ready";
+                        break;
+                    case "yellow":
+                        SmartStatusDesc = "ready with Limits";
+                        break;
+                    case "orange":
+                        SmartStatusDesc = "Combat Ineffective";
+                        break;
+                    case "red":
+                        SmartStatusDesc = "Not Ready";
+                        SmartStatusFontColor = "#fff";
+                        break;
+                    default:
+                        break;
+                }
+            }
+            catch (e) {
+                console.log("This Force Element does not have a SMaRT Status : " + e);
+            }
+
             if (item) {
                 document.getElementById('infoModalLabel').textContent = item.felm;
                 document.getElementById('modalContent').innerHTML = `
-                    <dt class="col-sm-4">Category:</dt><dd class="col-sm-8">${item.category}</dd>
-                    <dt class="col-sm-4">Start:</dt><dd class="col-sm-8">${item.start}</dd>
-                    <dt class="col-sm-4">End:</dt><dd class="col-sm-8">${item.end}</dd>
-                    <dt class="col-sm-4">Color:</dt><dd class="col-sm-8">
-                        <span style="background:${item.color};padding:2px 8px;color:white;border-radius:4px;">
-                            ${item.color}
-                        </span>
-                    </dd>
+                    <div class="row justify-content-lg-start my-2">
+                        <div class="col-3">
+                            <label class="col-form-label"><strong>Category:</strong></label>
+                        </div>
+                        <div class="col-auto">
+                            <input type="text" class="form-control" style="width: 250px;" value="${item.category}" readonly />
+                        </div>
+                    </div>
+                    <div class="row justify-content-lg-start my-2">
+                        <div class="col-3">
+                            <label class="col-form-label"><strong>Start:</strong></label>
+                        </div>
+                        <div class="col-auto">
+                            <input type="datetime" class="form-control" style="width: 250px;" value="${item.start}" readonly />
+                        </div>
+                    </div>
+                    <div class="row justify-content-lg-start my-2">
+                        <div class="col-3">
+                            <label class="col-form-label"><strong>End:</strong></label>
+                        </div>
+                        <div class="col-auto">
+                            <input type="datetime" class="form-control" style="width: 250px;" value="${item.end}" readonly />
+                        </div>
+                    </div>
+                    <div class="row justify-content-lg-start my-2">
+                        <div class="col-3">
+                            <label class="col-form-label"><strong>SMaRT Status:</strong></label>
+                        </div>
+                        <div class="col-auto">
+                            <div class="col mx-0 p-0 LegendStatusModal" style="background-color: ${item.color}; color: ${SmartStatusFontColor};">${SmartStatusDesc}</div>
+                        </div>
+                    </div>
+                    <div class="row justify-content-lg-start mt-3">
+                        <div class="col-auto btn-group" role="group" aria-label="Edit Force Element">
+                            <a class="btn btn-primary" href="Mrop/EditAssignedFelm/${item.id}">Edit Force Element</a>
+                        </div>
+                    </div>
                 `;
                 const modal = new bootstrap.Modal(document.getElementById('infoModal'));
                 modal.show();
