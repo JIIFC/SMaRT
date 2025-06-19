@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 
@@ -12,6 +12,7 @@ using static SMARTV3.Security.UserRoleProvider;
 using System.Data.Common;
 using System.Text.Json;
 using Newtonsoft.Json;
+using System.Globalization;
 
 namespace SMARTV3.Controllers
 {
@@ -163,30 +164,30 @@ namespace SMARTV3.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult UpdateFelm([FromBody] List<FelmUpdate> tasks)
+        public IActionResult UpdateFelm([FromBody] FelmUpdate update)
         {
-            if (tasks == null || tasks.Count == 0)
-                return BadRequest("No data received.");
+            if (update == null)
+                return BadRequest("Invalid data.");
 
-            foreach (var task in tasks)
-            {
-                Console.WriteLine($"Updating ID: {task.Id}, Start: {task.Start}, End: {task.End}");
+            DateTime startDate;
+            DateTime endDate;
 
-                var record = _context.OutputForceElements.FirstOrDefault(x => x.Id == task.Id);
-                if (record != null)
-                {
-                    record.AssignmentStart = DateTime.Parse(task.Start);
-                    record.AssignmentEnd = DateTime.Parse(task.End);
-                }
-            }
+            bool isStartValid = DateTime.TryParseExact(update.Start, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out startDate);
+            bool isEndValid = DateTime.TryParseExact(update.End, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out endDate);
+
+            if (!isStartValid || !isEndValid)
+                return BadRequest("Invalid date format.");
+
+            var felmEntity = _context.OutputForceElements.Find(update.Id);
+            if (felmEntity == null)
+                return NotFound();
+
+            felmEntity.AssignmentStart = startDate;
+            felmEntity.AssignmentEnd = endDate;
 
             _context.SaveChanges();
-            return Ok();
+
+            return Json(new { success = true });
         }
-
-
-
-
-
     }
 }
