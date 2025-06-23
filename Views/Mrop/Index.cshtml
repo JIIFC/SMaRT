@@ -16,21 +16,21 @@
 
 <h5>@localizer["MROP"]</h5>
 
-<!-- Create and Assign buttons-->
+@* <!-- Create and Assign buttons-->
 <div class="row justify-content-between mb-4">
     <div class="col-auto">
-        <a class="btn btn-md btn-secondary" asp-action="CreateOutputTask">
-            <img style="filter: invert(1);" src='@Url.Content("~/images/Add.png")' height="25" width="25" alt="@localizer["CreateOutputTask"]" />
+        <a class="btn btn-md btn-outline-secondary" asp-action="CreateOutputTask">
+            <img src='@Url.Content("~/images/Add.png")' height="25" width="25" alt="@localizer["CreateOutputTask"]" />
             <span style="font-weight:500; font-size: 1rem;">@localizer["CreateOutputTask"]</span>
         </a>
     </div>
     <div class="col-auto">
-        <a class="btn btn-md btn-secondary" asp-action="AssignFelm">
-            <img style="filter: invert(1);" src='@Url.Content("~/images/Add.png")' height="25" width="25" alt="@localizer["AssignForceElement"]" />
+        <a class="btn btn-md btn-outline-secondary" asp-action="AssignFelm">
+            <img src='@Url.Content("~/images/Add.png")' height="25" width="25" alt="@localizer["AssignForceElement"]" />
             <span style="font-weight:500; font-size: 1rem;">@localizer["AssignForceElement"]</span>
         </a>
     </div>
-</div>
+</div> *@
 
 <!-- Filters & Search -->
 <div class="row mb-3 text-center">
@@ -108,7 +108,7 @@
 </div>
 
 <!-- Toolbar Buttons -->
-<div class="btn-toolbar mb-2" role="toolbar" aria-label="Toolbar with export and view options">
+<div class="btn-toolbar mb-2 position-relative" role="toolbar" aria-label="Toolbar with export and view options">
     <div class="btn-group me-2" role="group">
         @* <button class="btn btn-outline-secondary" onclick="exportToCSV()">Export CSV</button> *@
         <button class="btn btn-outline-secondary" onclick="exportToPNG()" title="Export to PNG the current view">Export PNG</button>
@@ -119,6 +119,17 @@
         <button class="btn btn-outline-primary" onclick="ZoomTo('Week')" title="View Weekly">Week</button>
         <button class="btn btn-outline-primary" onclick="ZoomTo('Month')" title="View Monthly">Month</button>
         <button class="btn btn-outline-primary" onclick="ZoomTo('Year')" title="View Yearly">Year</button>
+    </div>
+
+    <div class="btn-group me-2 position-absolute" role="group" style="right: 0;">
+        <a class="btn btn-md btn-outline-secondary" asp-action="CreateOutputTask">
+            <img src='@Url.Content("~/images/Add.png")' height="25" width="25" alt="@localizer["CreateOutputTask"]" />
+            <span style="font-weight:500; font-size: 1rem;">@localizer["CreateOutputTask"]</span>
+        </a>
+        <a class="btn btn-md btn-outline-secondary" asp-action="AssignFelm">
+            <img src='@Url.Content("~/images/Add.png")' height="25" width="25" alt="@localizer["AssignForceElement"]" />
+            <span style="font-weight:500; font-size: 1rem;">@localizer["AssignForceElement"]</span>
+        </a>
     </div>
 </div>
 
@@ -185,10 +196,6 @@
             setTimeout(function() {
                 $(".ChartLoader").addClass("visually-hidden");
             }, 1500);
-
-            setTimeout(function() {
-                $(".ChartLoader").addClass("visually-hidden");
-            }, 1500);
         });
 
         let timeline;
@@ -224,8 +231,8 @@
                 id: item.id,
                 group: item.otId,
                 content: item.felm.length > 40 ? item.felm.slice(0, 40) + "..." : item.felm,
-                start: item.start,
-                end: item.end,
+                start: new Date(item.start + "T00:00:00"),
+                end: new Date(item.end + "T23:59:59"),
                 title: `${item.felm}`,
                 style: `background-color:${item.color}; color:white;`,
                 fullText: item.felm,
@@ -395,75 +402,125 @@
             const item = FELMData.find(i => i.id === selectedId);
             let SmartStatusDesc = null;
             let SmartStatusFontColor = "#1e1e1e";
-            
-            try {
-                switch (item.color) {
-                    case "lime":
-                        SmartStatusDesc = "Ready";
-                        break;
-                    case "yellow":
-                        SmartStatusDesc = "ready with Limits";
-                        break;
-                    case "orange":
-                        SmartStatusDesc = "Combat Ineffective";
-                        break;
-                    case "red":
-                        SmartStatusDesc = "Not Ready";
-                        SmartStatusFontColor = "#fff";
-                        break;
-                    default:
-                        break;
-                }
-            }
-            catch (e) {
-                console.log("This Force Element does not have a SMaRT Status : " + e);
+            if (!item) return;
+
+            function formatDateForInput(dateStr) {
+                if (!dateStr) return '';
+                const d = new Date(dateStr + "T00:00:00");
+                if (isNaN(d)) return '';
+                const month = (d.getMonth() + 1).toString().padStart(2, '0');
+                const day = d.getDate().toString().padStart(2, '0');
+                return `${d.getFullYear()}-${month}-${day}`;
             }
 
-            if (item) {
-                document.getElementById('infoModalLabel').textContent = item.felm;
-                document.getElementById('modalContent').innerHTML = `
-                    <div class="row justify-content-lg-start my-2">
-                        <div class="col-3">
-                            <label class="col-form-label"><strong>Category:</strong></label>
-                        </div>
-                        <div class="col-auto">
-                            <input type="text" class="form-control" style="width: 250px;" value="${item.category}" readonly />
-                        </div>
-                    </div>
-                    <div class="row justify-content-lg-start my-2">
-                        <div class="col-3">
-                            <label class="col-form-label"><strong>Start:</strong></label>
-                        </div>
-                        <div class="col-auto">
-                            <input type="datetime" class="form-control" style="width: 250px;" value="${item.start}" readonly />
-                        </div>
-                    </div>
-                    <div class="row justify-content-lg-start my-2">
-                        <div class="col-3">
-                            <label class="col-form-label"><strong>End:</strong></label>
-                        </div>
-                        <div class="col-auto">
-                            <input type="datetime" class="form-control" style="width: 250px;" value="${item.end}" readonly />
-                        </div>
-                    </div>
-                    <div class="row justify-content-lg-start my-2">
-                        <div class="col-3">
-                            <label class="col-form-label"><strong>SMaRT Status:</strong></label>
-                        </div>
-                        <div class="col-auto">
-                            <div class="col mx-0 p-0 LegendStatusModal" style="background-color: ${item.color}; color: ${SmartStatusFontColor};">${SmartStatusDesc}</div>
-                        </div>
-                    </div>
-                    <div class="row justify-content-lg-start mt-3">
-                        <div class="col-auto btn-group" role="group" aria-label="Edit Force Element">
-                            <a class="btn btn-primary" href="Mrop/EditAssignedFelm/${item.id}">Edit Force Element</a>
-                        </div>
-                    </div>
-                `;
-                const modal = new bootstrap.Modal(document.getElementById('infoModal'));
-                modal.show();
+            const startDateVal = formatDateForInput(item.start);
+            const endDateVal = formatDateForInput(item.end);
+
+            switch (item.color) {
+                case "lime": SmartStatusDesc = "Ready"; break;
+                case "yellow": SmartStatusDesc = "ready with Limits"; break;
+                case "orange": SmartStatusDesc = "Combat Ineffective"; break;
+                case "red": SmartStatusDesc = "Not Ready"; SmartStatusFontColor = "#fff"; break;
+                default: break;
             }
+
+            const modalElement = document.getElementById('infoModal');
+            modalElement.dataset.currentItemId = item.id;
+
+            document.getElementById('infoModalLabel').textContent = item.felm;
+            document.getElementById('modalContent').innerHTML = `
+                <div class="row justify-content-lg-start my-2">
+                    <div class="col-3">
+                        <label class="col-form-label"><strong>Category:</strong></label>
+                    </div>
+                    <div class="col-auto">
+                        <input type="text" class="form-control" style="width: 250px;" value="${item.category}" readonly />
+                    </div>
+                </div>
+                <div class="row justify-content-lg-start my-2">
+                    <div class="col-3">
+                        <label class="col-form-label"><strong>Start:</strong></label>
+                    </div>
+                    <div class="col-auto">
+                        <input type="date" id="modalStartDate" name="startDate" class="form-control" style="width: 250px;" value="${startDateVal}"/>
+                    </div>
+                </div>
+                <div class="row justify-content-lg-start my-2">
+                    <div class="col-3">
+                        <label class="col-form-label"><strong>End:</strong></label>
+                    </div>
+                    <div class="col-auto">
+                        <input type="date" id="modalEndDate" name="endDate" class="form-control" style="width: 250px;" value="${endDateVal}"/>
+                    </div>
+                </div>
+                <div class="row justify-content-lg-start my-2">
+                    <div class="col-3">
+                        <label class="col-form-label"><strong>SMaRT Status:</strong></label>
+                    </div>
+                    <div class="col-auto">
+                        <div class="col mx-0 p-0 LegendStatusModal" style="background-color: ${item.color}; color: ${SmartStatusFontColor};">${SmartStatusDesc}</div>
+                    </div>
+                </div>
+                <div class="row justify-content-lg-start mt-3">
+                    <div class="col-auto">
+                        <button id="SaveBtn" type="button" class="btn btn-primary">Save Changes</button>
+                    </div>
+                </div>
+            `;
+
+            const modal = new bootstrap.Modal(modalElement);
+            modal.show();
+
+            // Remove previous listeners to avoid duplicates
+            const oldBtn = document.getElementById('SaveBtn');
+            if (oldBtn) {
+                oldBtn.onclick = null;
+            }
+
+            // Attach update Force Element to the save button
+            document.getElementById('SaveBtn').onclick = function () {
+                const startVal = document.getElementById('modalStartDate').value;
+                const endVal = document.getElementById('modalEndDate').value;
+                const id = modalElement.dataset.currentItemId;
+
+                if (!id) {
+                    console.error('No item selected for update');
+                    return;
+                }
+
+                // Validate dates before sending
+                if (!startVal || !endVal) {
+                    alert("Please enter valid start and end dates.");
+                    return;
+                }
+
+                UpdateFelm({ id, start: startVal, end: endVal });
+                modal.hide();
+            };
         });
+
+        // Update force element function
+        function UpdateFelm(item) {
+            fetch('/Mrop/UpdateFelm', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                },
+                body: JSON.stringify(item)
+            })
+            .then(response => {
+                if (!response.ok) throw new Error("Failed to save");
+                return response.json();
+            })
+            .catch(error => {
+                console.error("Update failed", error);
+            })
+            .then(data => {
+                console.log("Update successful", data);
+                location.reload();
+            });
+        }
 
         // Zoom Presets and function
         const zoomPresets = {

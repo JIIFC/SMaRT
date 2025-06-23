@@ -1,17 +1,16 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-
+using Newtonsoft.Json;
 using SMARTV3.Helpers;
 using SMARTV3.Models;
 using SMARTV3.Security;
-
+using System.Data.Common;
+using System.Globalization;
+using System.Text.Json;
 using static Constants;
 using static SMARTV3.Helpers.PaginationHelper;
 using static SMARTV3.Security.UserRoleProvider;
-using System.Data.Common;
-using System.Text.Json;
-using Newtonsoft.Json;
 
 namespace SMARTV3.Controllers
 {
@@ -159,6 +158,34 @@ namespace SMARTV3.Controllers
                 _context.SaveChanges();
             }
             return RedirectToAction("Index");
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult UpdateFelm([FromBody] FelmUpdate update)
+        {
+            if (update == null)
+                return BadRequest("Invalid data.");
+
+            DateTime startDate;
+            DateTime endDate;
+
+            bool isStartValid = DateTime.TryParseExact(update.Start, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out startDate);
+            bool isEndValid = DateTime.TryParseExact(update.End, "yyyy-MM-dd", CultureInfo.InvariantCulture, DateTimeStyles.None, out endDate);
+
+            if (!isStartValid || !isEndValid)
+                return BadRequest("Invalid date format.");
+
+            var felmEntity = _context.OutputForceElements.Find(update.Id);
+            if (felmEntity == null)
+                return NotFound();
+
+            felmEntity.AssignmentStart = startDate;
+            felmEntity.AssignmentEnd = endDate;
+
+            _context.SaveChanges();
+
+            return Json(new { success = true });
         }
     }
 }
