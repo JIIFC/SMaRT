@@ -77,7 +77,7 @@
         </div>
         <div class="row">
             <div class="col px-0">
-                <input type="text" id="dateRange" class="form-control d-inline-block" style="width: 250px;" readonly />
+                <input type="text" id="dateRange" name="dateRange" class="form-control d-inline-block" style="width: 250px;" readonly />
                 <button type="button" id="btnClearDateRange" class="btn btn-sm btn-primary visually-hidden">Clear</button>
             </div>
         </div>
@@ -180,16 +180,16 @@
 
     <script>
         $(document).ready(function() {
-            $('#dateRange').daterangepicker({
+            $('input[name="dateRange"]').daterangepicker({
                 autoUpdateInput: false,
                 locale: { cancelLabel: 'Clear' }
             });
 
-            $('#dateRange').on('apply.daterangepicker', function(ev, picker) {
+            $('input[name="dateRange"]').on('apply.daterangepicker', function(ev, picker) {
                 $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
             });
 
-            $('#dateRange').on('cancel.daterangepicker', function() {
+            $('input[name="dateRange"]').on('cancel.daterangepicker', function() {
                 $(this).val('');
             });
 
@@ -296,39 +296,46 @@
         // Date Range
         let minDate = null, maxDate = null;
 
-        $('#dateRange').daterangepicker({
-            "cancelButtonClasses": "btn-secondary",
-            "autoUpdateInput": false,
-            "showDropdowns": true,
-            "showWeekNumbers": true,
-            "linkedCalendars": false,
-            "opens": "center",
-            "drops": "auto",
-            "minYear": moment().year() - 5,
-            "maxYear": moment().year() + 5
+        $(function () {
+            $('input[name="dateRange"]').daterangepicker({
+                cancelButtonClasses: "btn-secondary",
+                autoUpdateInput: false,
+                showDropdowns: true,
+                showWeekNumbers: true,
+                linkedCalendars: false,
+                opens: "center",
+                drops: "down",
+                minYear: moment().year() - 5,
+                maxYear: moment().year() + 5
+            });
         });
 
-        $('#dateRange').on('apply.daterangepicker', function (ev, picker) {
-            minDate = picker.startDate;
-            maxDate = picker.endDate;
-            applyFilters(minDate, maxDate);
-            $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
-            console.log(moment().toDate());
-            $('#btnClearDateRange').removeClass("visually-hidden");
+        $(function () {
+            $('input[name="dateRange"]').on('apply.daterangepicker', function (ev, picker) {
+                minDate = picker.startDate;
+                maxDate = picker.endDate;
+                applyFilters(minDate, maxDate);
+                $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+                $('#btnClearDateRange').removeClass("visually-hidden");
+            });
         });
 
-        $('#dateRange').on('cancel.daterangepicker', function () {
-            minDate = maxDate = null;
-            $(this).val('');
-            applyFilters();
-            $('#btnClearDateRange').addClass("visually-hidden");
+        $(function () {
+            $('input[name="dateRange"]').on('cancel.daterangepicker', function () {
+                minDate = maxDate = null;
+                $(this).val('');
+                applyFilters();
+                $('#btnClearDateRange').addClass("visually-hidden");
+            });
         });
 
-        $("#btnClearDateRange").on("click", function() {
-            minDate = maxDate = null;
-            $("#dateRange").val('');
-            applyFilters();
-            $('#btnClearDateRange').addClass("visually-hidden");
+        $(function () {
+            $("#btnClearDateRange").on("click", function() {
+                minDate = maxDate = null;
+                $('input[name="dateRange"]').val('');
+                applyFilters();
+                $('#btnClearDateRange').addClass("visually-hidden");
+            });
         });
 
         // Applying filters to the chart
