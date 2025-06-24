@@ -1,4 +1,4 @@
-﻿@model SMARTV3.Models.OutputTask
+@model SMARTV3.Models.OutputTask
 
 @{
     ViewData["Title"] = localizer["EditOutputTask"];
@@ -8,7 +8,7 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer localizer
 
-<h5>@localizer["EditOutputTask"]</h5>
+<h5>@localizer["Edit Output Task"]</h5>
 
 <hr />
 <div class="row">
@@ -16,19 +16,19 @@
         <form asp-action="EditOutputTask">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label class="control-label">@localizer["OutputName"]</label>
+                <label class="control-label">@localizer["Output Name"]</label>
                 <input asp-for="OutputName" class="form-control" />
                 <span asp-validation-for="OutputName" class="text-danger"></span>
             </div>
             <br />
             <div class="form-group">
-                <label class="control-label">@localizer["OutputDesc"]</label>
+                <label class="control-label">@localizer["Output Description"]</label>
                 <input asp-for="OutputDesc" class="form-control" />
                 <span asp-validation-for="OutputDesc" class="text-danger"></span>
             </div>
             <br />
             <div class="form-group">
-                <label class="control-label">@localizer["Capabiiity"]</label>
+                <label class="control-label">@localizer["Capability"]</label>
                 <select asp-for="CapabilityId" class="form-select" asp-items="ViewBag.capabilityId"></select>
                 <span asp-validation-for="CapabilityId" class="text-danger"></span>
             </div>
@@ -40,11 +40,11 @@
             </div>
             <br />
             <div class="form-group">
-                <label for="OutputStart">@localizer["OutputStart"]</label>
+                <label for="OutputStart">@localizer["Output Start Date"]</label>
                 <input id="OutputStart" name="OutputStart" value="@Model.OutputStart?.ToString("yyyy-MM-dd")" type="date" class="form-control" />
             </div>
             <div class="form-group">
-                <label for="OutputEnd">@localizer["OutputEnd"]</label>
+                <label for="OutputEnd">@localizer["Output End Date"]</label>
                 <input id="OutputEnd" name="OutputEnd" value="@Model.OutputEnd?.ToString("yyyy-MM-dd")" type="date" class="form-control" />
             </div>
             <div class="form-group">
