@@ -13,7 +13,8 @@
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="CreateOutputTask">
+        <form asp-action="CreateOutputTask" method="post">
+            @Html.AntiForgeryToken()
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
                 <label class="control-label">@localizer["Output Name"]</label>
