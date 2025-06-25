@@ -45,15 +45,17 @@
                 @* <select id="categoryFilter" class="form-control d-inline-block" style="width: 250px;">
                     <option value="all">All</option>
                 </select> *@
-
-                <select id="categoryFilter" class="form-control" multiple
+                
+                <select id="categoryFilter" class="d-inline-block" style="width: 250px;" multiple
                         data-live-search="true"
                         data-live-search-placeholder="Looking for?"
                         data-selected-text-format="count > 2"
                         data-style="border border-dark-subtle"
                         data-actions-box="true"
-                        data-dropup-auto="false">
+                        data-dropup-auto="false"
+                        autocomplete="off">
                 </select>
+                <button type="button" id="btnClearSelectedCat" class="btn btn-sm btn-primary visually-hidden">Clear</button>
             </div>
         </div>
     </div>
@@ -66,6 +68,7 @@
         <div class="row">
             <div class="col px-0">
                 <input type="text" id="searchBox" class="form-control d-inline-block" style="width: 250px;" placeholder="e.g. Air Task Force" />
+                <button type="button" id="btnClearSearchBox" class="btn btn-sm btn-primary visually-hidden">Clear</button>
             </div>
         </div>
     </div>
@@ -271,9 +274,38 @@
         // Category Select Initialization
         $('#categoryFilter').selectpicker();
         filterSelect.addEventListener("change", applyFilters);
+        // Category Clear Btn
+        $("#categoryFilter").on("change", function () {
+            if (!($(this).val().length === 0)) {
+                $("#btnClearSelectedCat").removeClass("visually-hidden");
+            }
+            else {
+                $("#btnClearSelectedCat").addClass("visually-hidden");
+            }
+        });
+        // Category Clear Btn click function
+        $("#btnClearSelectedCat").on("click", function () {
+            $("#categoryFilter").selectpicker("deselectAll");
+            applyFilters();
+        });
 
         // Search by Force Element
         document.getElementById("searchBox").addEventListener("input", applyFilters);
+        // SearchBox Clear Btn
+        $("#searchBox").on("input", function () {
+            if ($(this).val()) {
+                $("#btnClearSearchBox").removeClass("visually-hidden");
+            }
+            else {
+                $("#btnClearSearchBox").addClass("visually-hidden");
+            }
+        });
+        // SearchBox Clear Btn click function
+        $("#btnClearSearchBox").on("click", function () {
+            $("#searchBox").val('');
+            $("#btnClearSearchBox").addClass("visually-hidden");
+            applyFilters();
+        });
 
         // SMaRT Status filter
         $("#smart-status-1").on("change", function () {
@@ -359,14 +391,13 @@
 
             // Search by Force Element
             const searchTerm = document.getElementById("searchBox").value.toLowerCase();
-
             // Filter by Category
             const selectedCat = Array.from(filterSelect.selectedOptions).map(option => option.value);
 
             // Filtering items
             const filtered = originalItems.filter(item => {
                 // Category
-                const matchCat = selectedCat.length === 0 || selectedCat.map(Number).includes(item.group);
+                const matchCat = selectedCat.length === 0 || selectedCat.includes(item.group.toString());
 
                 // Searchbox
                 const matchText = item.fullText.toLowerCase().includes(searchTerm);
@@ -387,14 +418,36 @@
             });
 
             groups.clear();
-            const includedGroupIds = [...new Set(filtered.map(f => f.group))];
 
-            // Add only matching groups back to the dataset
-            InMemoryGroups.forEach(group => {
-                if (includedGroupIds.includes(group.id)) {
+            const isCategoryFilterActive = selectedCat.length > 0;
+            const isSearchActive = searchTerm.trim() !== "";
+            const isDateRangeActive = minDate !== null || maxDate !== null;
+            const isStatusActive = SMARTStatusFilter.length > 0;
+            const isAnyFilterActive = isCategoryFilterActive || isSearchActive || isDateRangeActive || isStatusActive;
+
+            // Case 1: Category filter applied → show selected categories (even if no FELMs)
+            if (isCategoryFilterActive) {
+                InMemoryGroups.forEach(group => {
+                    if (selectedCat.includes(group.id.toString())) {
+                        groups.add(group);
+                    }
+                });
+            }
+            // Case 2: Other filters active → show groups that have matching FELMs
+            else if (isAnyFilterActive) {
+                const includedGroupIds = [...new Set(filtered.map(f => f.group.toString()))];
+                InMemoryGroups.forEach(group => {
+                    if (includedGroupIds.includes(group.id.toString())) {
+                        groups.add(group);
+                    }
+                });
+            }
+            // Case 3: No filters → show all categories (even if they have no FELMs)
+            else {
+                InMemoryGroups.forEach(group => {
                     groups.add(group);
-                }
-            });
+                });
+            }
 
             // Set filters
             timeline.setData({
@@ -524,7 +577,7 @@
                 console.error("Update failed", error);
             })
             .then(data => {
-                console.log("Update successful", data);
+                console.info("Update successful", data);
                 location.reload();
             });
         }
