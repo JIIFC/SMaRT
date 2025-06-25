@@ -8,7 +8,7 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer localizer
 
-<h5>@localizer["Edit Output Task"]</h5>
+<h5>@localizer["EditOutputTask"]</h5>
 
 <hr />
 <div class="row">
@@ -16,13 +16,13 @@
         <form asp-action="EditOutputTask">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label class="control-label">@localizer["Output Name"]</label>
+                <label class="control-label">@localizer["OutputName"]</label>
                 <input asp-for="OutputName" class="form-control" />
                 <span asp-validation-for="OutputName" class="text-danger"></span>
             </div>
             <br />
             <div class="form-group">
-                <label class="control-label">@localizer["Output Description"]</label>
+                <label class="control-label">@localizer["OutputDescription"]</label>
                 <input asp-for="OutputDesc" class="form-control" />
                 <span asp-validation-for="OutputDesc" class="text-danger"></span>
             </div>
@@ -40,11 +40,11 @@
             </div>
             <br />
             <div class="form-group">
-                <label for="OutputStart">@localizer["Output Start Date"]</label>
+                <label for="OutputStart">@localizer["OutputStartDate"]</label>
                 <input id="OutputStart" name="OutputStart" value="@Model.OutputStart?.ToString("yyyy-MM-dd")" type="date" class="form-control" />
             </div>
             <div class="form-group">
-                <label for="OutputEnd">@localizer["Output End Date"]</label>
+                <label for="OutputEnd">@localizer["OutputEndDate"]</label>
                 <input id="OutputEnd" name="OutputEnd" value="@Model.OutputEnd?.ToString("yyyy-MM-dd")" type="date" class="form-control" />
             </div>
             <div class="form-group">
