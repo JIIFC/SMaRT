@@ -1,4 +1,4 @@
-@model SMARTV3.Models.OutputForceElement;
+﻿@model SMARTV3.Models.OutputForceElement;
 
 
 @{
@@ -9,7 +9,7 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer localizer
 
-<h5>@localizer["Assign Force Element"]</h5>
+<h5>@localizer["AssignForceElement"]</h5>
 
 <hr />
 <div class="row">
@@ -17,23 +17,23 @@
         <form asp-action="AssignFelm">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label class="control-label">@localizer["Output Task"]</label>
+                <label class="control-label">@localizer["OutputTask"]</label>
                 <select asp-for="OutputTaskId" class="form-select" asp-items="ViewBag.outputTaskId"></select>
                 <span asp-validation-for="OutputTaskId" class="text-danger"></span>
             </div>
             <br />
             <div class="form-group">
-                <label class="control-label">@localizer["Force Element"]</label>
+                <label class="control-label">@localizer["ForceElement"]</label>
                 <select asp-for="FelmId" class="form-select" asp-items="ViewBag.felmId"></select>
                 <span asp-validation-for="FelmId" class="text-danger"></span>
             </div>
             <br />
             <div class="form-group">
-                <label for="AssignmentStart">@localizer["Assignment Start Date"]</label>
+                <label for="AssignmentStart">@localizer["AssignmentStart"]</label>
                 @Html.TextBox("assignmentStart", ViewBag.assignmentStart, "", htmlAttributes: new { @class = "datefield form-select", type = "date" })
             </div>
             <div class="form-group">
-                <label for="AssignmentEnd">@localizer["Assignment End Date"]</label>
+                <label for="AssignmentEnd">@localizer["AssignmentEnd"]</label>
                 @Html.TextBox("assignmentEnd", ViewBag.assignmentEnd, "", htmlAttributes: new { @class = "datefield form-select", type = "date" })
             </div>
             <br />
