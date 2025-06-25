@@ -8,22 +8,21 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer localizer
 
-<h5>@localizer["Create Output Task"]</h5>
+<h5>@localizer["CreateOutputTask"]</h5>
 
 <hr />
 <div class="row">
     <div class="col-md-4">
-        <form asp-action="CreateOutputTask" method="post">
-            @Html.AntiForgeryToken()
+        <form asp-action="CreateOutputTask">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label class="control-label">@localizer["Output Name"]</label>
+                <label class="control-label">@localizer["OutputName"]</label>
                 <input asp-for="OutputName" class="form-control" />
                 <span asp-validation-for="OutputName" class="text-danger"></span>
             </div>
             <br />
             <div class="form-group">
-                <label class="control-label">@localizer["Output Description"]</label>
+                <label class="control-label">@localizer["OutputDescription"]</label>
                 <input asp-for="OutputDesc" class="form-control" />
                 <span asp-validation-for="OutputDesc" class="text-danger"></span>
             </div>
@@ -41,13 +40,13 @@
             </div>
             <br />
             <div class="form-group">
-                <label asp-for="OutputStart">@localizer["Output Start Date"]</label>
+                <label asp-for="OutputStart">@localizer["OutputStartDate"]</label>
                 <input asp-for="OutputStart" class="form-control" type="date" />
                 <span asp-validation-for="OutputStart" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <label asp-for="OutputEnd">@localizer["Output End Date"]</label>
+                <label asp-for="OutputEnd">@localizer["OutputEndDate"]</label>
                 <input asp-for="OutputEnd" class="form-control" type="date" />
                 <span asp-validation-for="OutputEnd" class="text-danger"></span>
             </div>
