@@ -1,4 +1,4 @@
-@model SMARTV3.Models.OutputForceElement;
+﻿@model SMARTV3.Models.OutputForceElement;
 
 
 @{
@@ -9,7 +9,7 @@
 @using Microsoft.AspNetCore.Mvc.Localization
 @inject IViewLocalizer localizer
 
-<h5>@localizer["Edit Assigned Force Element"]</h5>
+<h5>@localizer["EditAssignedForceElement"]</h5>
 
 <hr />
 <div class="row">
@@ -17,23 +17,23 @@
         <form asp-action="EditAssignedFelm">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
             <div class="form-group">
-                <label class="control-label">@localizer["Output Task"]</label>
+                <label class="control-label">@localizer["OutputTask"]</label>
                 <select asp-for="OutputTaskId" class="form-select" asp-items="ViewBag.outputTaskId"></select>
                 <span asp-validation-for="OutputTaskId" class="text-danger"></span>
             </div>
             <br />
             <div class="form-group">
-                <label class="control-label">@localizer["Force Element"]</label>
+                <label class="control-label">@localizer["ForceElement"]</label>
                 <select asp-for="FelmId" class="form-select" asp-items="ViewBag.felmId"></select>
                 <span asp-validation-for="FelmId" class="text-danger"></span>
             </div>
             <br />
             <div class="form-group">
-                <label for="AssignmentStart">@localizer["Assignment Start"]</label>
+                <label for="AssignmentStart">@localizer["AssignmentStart"]</label>
                 <input id="AssignmentStart" name="AssignmentStart" value="@Model.AssignmentStart.ToString("yyyy-MM-dd")" type="date" class="form-control" />
             </div>
             <div class="form-group">
-                <label for="AssignmentEnd">@localizer["Assignment End"]</label>
+                <label for="AssignmentEnd">@localizer["AssignmentEnd"]</label>
                 <input id="AssignmentEnd" name="AssignmentEnd" value="@Model.AssignmentEnd.ToString("yyyy-MM-dd")" type="date" class="form-control" />                
             </div>
             <br />
