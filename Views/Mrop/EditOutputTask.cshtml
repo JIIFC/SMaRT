@@ -35,7 +35,7 @@
             <br />
             <div class="form-group">
                 <label class="control-label">@localizer["Priority"]</label>
-                <input asp-for="Priority" class="form-control" type="number" min="0" max="10" step="0.1"/>
+                <input id="PriorityInput" asp-for="Priority" class="form-control" type="number" min="0" max="10" step="0.1"/>
                 <span asp-validation-for="Priority" class="text-danger"></span>
             </div>
             <br />
@@ -63,3 +63,17 @@
 <div>
     <a asp-action="Index">@localizer["Back"]</a>
 </div>
+
+@section Scripts {
+    <script>
+        $(document).ready(function() {
+            $("#PriorityInput").on("input", function() {
+                if ($(this).val() > 10) {
+                    $(this).val(function(index, value) {
+                        return value.slice(0, -1);
+                    });
+                }
+            });
+        });
+    </script>
+}
