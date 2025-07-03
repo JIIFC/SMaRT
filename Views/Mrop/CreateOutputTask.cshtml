@@ -1,4 +1,4 @@
-﻿@model SMARTV3.Models.OutputTask
+@model SMARTV3.Models.OutputTask
 
 @{
     ViewData["Title"] = localizer["CreateOutputTask"];
@@ -22,30 +22,33 @@
             </div>
             <br />
             <div class="form-group">
-                <label class="control-label">@localizer["OutputDesc"]</label>
+                <label class="control-label">@localizer["OutputDescription"]</label>
                 <input asp-for="OutputDesc" class="form-control" />
                 <span asp-validation-for="OutputDesc" class="text-danger"></span>
             </div>
             <br />
             <div class="form-group">
-                <label class="control-label">@localizer["Capabiiity"]</label>
+                <label class="control-label">@localizer["Capability"]</label>
                 <select asp-for="CapabilityId" class="form-select" asp-items="ViewBag.capabilityId"></select>
                 <span asp-validation-for="CapabilityId" class="text-danger"></span>
             </div>
             <br />
             <div class="form-group">
                 <label class="control-label">@localizer["Priority"]</label>
-                <input asp-for="Priority" class="form-control" />
+                <input id="PriorityInput" asp-for="Priority" class="form-control" type="number" min="0" max="10" step="0.1"/>
                 <span asp-validation-for="Priority" class="text-danger"></span>
             </div>
             <br />
             <div class="form-group">
-                <label for="OutputStart">@localizer["OutputStart"]</label>
-                @Html.TextBox("outputStart", ViewBag.outputStart, "", htmlAttributes: new { @class = "datefield form-select", type = "date" })
+                <label asp-for="OutputStart">@localizer["OutputStartDate"]</label>
+                <input asp-for="OutputStart" class="form-control" type="date" />
+                <span asp-validation-for="OutputStart" class="text-danger"></span>
             </div>
+
             <div class="form-group">
-                <label for="OutputEnd">@localizer["OutputEnd"]</label>
-                @Html.TextBox("outputEnd", ViewBag.outputEnd, "", htmlAttributes: new { @class = "datefield form-select", type = "date" })
+                <label asp-for="OutputEnd">@localizer["OutputEndDate"]</label>
+                <input asp-for="OutputEnd" class="form-control" type="date" />
+                <span asp-validation-for="OutputEnd" class="text-danger"></span>
             </div>
             <div class="form-group">
                 <label class="control-label">@localizer["NTM"]</label>
@@ -63,3 +66,17 @@
 <div>
     <a asp-action="Index">@localizer["Back"]</a>
 </div>
+
+@section Scripts { 
+    <script>
+        $(document).ready(function() {
+            $("#PriorityInput").on("input", function() {
+                if ($(this).val() > 10) {
+                    $(this).val(function(index, value) {
+                        return value.slice(0, -1);
+                    });
+                }
+            });
+        });
+    </script>
+}

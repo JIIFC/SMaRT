@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using Newtonsoft.Json;
@@ -14,7 +14,7 @@ using static SMARTV3.Security.UserRoleProvider;
 
 namespace SMARTV3.Controllers
 {
-    
+
     [CustomAuthorize(Roles = Admin)]
     public class MropController : Controller
     {
@@ -53,7 +53,8 @@ namespace SMARTV3.Controllers
             ViewBag.gantCategories = JsonConvert.SerializeObject(
                 _context.OutputTasks.Select(t => new {
                     category = t.OutputName,
-                    otId = t.Id
+                    otId = t.Id,
+                    priority = t.Priority
                 }).ToList()
             );
 
@@ -72,12 +73,16 @@ namespace SMARTV3.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult CreateOutputTask(OutputTask? outputTask)
         {
-            
+
             if (ModelState.IsValid && outputTask != null)
             {
                 _context.Add(outputTask);
                 _context.SaveChanges();
             }
+
+            ViewBag.capabilityId = new SelectList(_context.Capabilities.Where(d => d.Archived == false), "Id", "CapabilityName");
+            ViewBag.ntmId = new SelectList(_context.NoticeToMoves.Where(d => d.Archived == false), "Id", "NoticeToMoveName");
+
             return RedirectToAction("Index");
         }
 

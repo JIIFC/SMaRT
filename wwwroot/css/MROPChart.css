@@ -22,12 +22,12 @@
     display: inline-block;
 }
 
-    .vis-labelset .vis-label {
-        font-size: 0.95rem;
-        font-weight: 600;
-        text-align: center;
-        align-content: center;
-    }
+.vis-labelset .vis-label {
+    font-size: 0.95rem;
+    font-weight: 600;
+    text-align: center;
+    align-content: center;
+}
 
 .vis-time-axis .vis-text {
     font-size: 0.85rem;
@@ -108,33 +108,37 @@
 .btn-smart-status-1 {
     background-color: lime;
 }
-
-    .btn-smart-status-1:hover {
-        background-color: lime !important;
-    }
+.btn-smart-status-1:hover {
+    background-color: lime !important;
+}
 
 .btn-smart-status-2 {
     background-color: yellow;
 }
-
-    .btn-smart-status-2:hover {
-        background-color: yellow !important;
-    }
+.btn-smart-status-2:hover {
+    background-color: yellow !important;
+}
 
 .btn-smart-status-3 {
     background-color: orange;
 }
-
-    .btn-smart-status-3:hover {
-        background-color: orange !important;
-    }
+.btn-smart-status-3:hover {
+    background-color: orange !important;
+}
 
 .btn-smart-status-4 {
     background-color: red;
     color: #fff;
 }
+.btn-smart-status-4:hover {
+    background-color: red !important;
+    color: #fff !important;
+}
 
-    .btn-smart-status-4:hover {
-        background-color: red !important;
-        color: #fff !important;
-    }
+.dropdown-menu {
+    width: calc(100% + 200px) !important;
+}
+
+.bs-searchbox, .bs-actionsbox, .inner {
+    width: 100% !important;
+}
