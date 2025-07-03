@@ -55,7 +55,8 @@ namespace SMARTV3.Controllers
             ViewBag.gantCategories = JsonConvert.SerializeObject(
                 _context.OutputTasks.Select(t => new {
                     category = t.OutputName,
-                    otId = t.Id
+                    otId = t.Id,
+                    priority = t.Priority
                 }).ToList()
             );
 
