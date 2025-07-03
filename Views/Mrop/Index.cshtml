@@ -73,13 +73,14 @@
     <div class="col">
         <div class="row">
             <div class="col px-0">
-                <label class="form-label" for="dateRange"><strong>Search by Priority:</strong></>
+                <label class="form-label" for="Priority"><strong>Search by Priority:</strong></>
             </div>
         </div>
         <div class="row">
             <div class="col px-0">
                 <!--Change this to add search function-->
                 <input type="text" id="searchPRIBox" class="form-control d-inline-block" style="width: 250px;" placeholder="e.g. 0 - 10.0" />
+                
                 <!--The priority value is stored in dbo.OutputTask, column: Priority-->
             </div>
         </div>
@@ -369,6 +370,8 @@
             $('#btnClearDateRange').addClass("visually-hidden");
         });
 
+         let priorityThreshold = null;
+
         // Applying filters to the chart
         function applyFilters() {
             // Filter by SMaRT Status
@@ -392,7 +395,7 @@
             const searchTerm = document.getElementById("searchBox").value.toLowerCase();
 
 			// Search by Priority
-            const searchPriorityTerm = document.getElementById("searchPRIBox").value.trim();
+            const searchPriorityTerm = document.getElementById("searchPRIBox").value;
 
             // Filter by Category
             const selectedCat = Array.from(filterSelect.selectedOptions).map(option => option.value);
@@ -418,21 +421,32 @@
                 });
 
                 // Priority match
-                let matchPriority = true;
-                if (searchPriorityTerm) {
-                    const parsedValue = parseFloat(searchPriorityTerm);
-                    matchPriority = !isNaN(parsedValue) && item.priority !== undefined && parseFloat(item.priority) === parsedValue;
+                if (searchPriorityTerm !== "") {
+                    const parsed = parseFloat(searchPriorityTerm);
+                    if (!isNaN(parsed)) {
+                        priorityThreshold = parsed;
+                    }
                 }
-
-                return matchCat && matchText && matchDate && matchStatus && matchPriority;
+                    
+                return matchCat && matchText && matchDate && matchStatus && priorityThreshold;
             });
 
             groups.clear();
-            const includedGroupIds = [...new Set(filtered.map(f => f.group))];
+            let includedGroupIds = new Set(filtered.map(f => f.group));
+
+            // Check for others that match the threshold
+            if (priorityThreshold !== null) {
+                CategoriesData.forEach(cat => {
+                    const catPriority = parseFloat(cat.priority);
+                    if (!isNaN(catPriority) && catPriority >= priorityThreshold) {
+                        includedGroupIds.add(cat.otId);
+                    }
+                });
+            }
 
             // Add only matching groups back to the dataset
             InMemoryGroups.forEach(group => {
-                if (includedGroupIds.includes(group.id)) {
+                if (includedGroupIds.has(group.id)) {
                     groups.add(group);
                 }
             });
