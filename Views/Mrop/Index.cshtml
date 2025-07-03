@@ -196,16 +196,7 @@
 
     <script>
         $(document).ready(function() {
-            const categoryPriorityMap = {};
-            CategoriesData.forEach(cat => {
-                categoryPriorityMap[cat.otId] = cat.priority;
-            });
-
-            // Now assign priority to each FELMData entry
-            FELMData.forEach(item => {
-                item.priority = categoryPriorityMap[item.otId];
-            });
-
+            
             console.log("FELMData with priority:", FELMData);
 
             $('#dateRange').daterangepicker({
@@ -237,6 +228,17 @@
         var categoriesJson = '@ViewBag.gantCategories'.replaceAll("&quot;", '"');
         CategoriesData = JSON.parse(categoriesJson);
 
+        const categoryPriorityMap = {};
+            CategoriesData.forEach(cat => {
+                categoryPriorityMap[cat.otId] = cat.priority;
+            });
+
+            // Now assign priority to each FELMData entry
+            FELMData.forEach(item => {
+                item.priority = categoryPriorityMap[item.otId];
+            });
+
+
         // Loading the data in the timeline
         const container = document.getElementById('timeline');
 
@@ -255,8 +257,8 @@
         // }
 
         // Set felm data in chart
-        function getItems(data) {
-            return data.map(item => ({
+        function getItems(FELMData) {
+            return FELMData.map(item => ({
                 id: item.id,
                 group: item.otId,
                 content: item.felm.length > 40 ? item.felm.slice(0, 40) + "..." : item.felm,
@@ -271,6 +273,7 @@
 
         // Setting chart options and data
         const originalItems = getItems(FELMData);
+        console.log("Original Items:", originalItems);
         const items = new vis.DataSet(originalItems);
 
         const options = {
@@ -418,9 +421,7 @@
                 let matchPriority = true;
                 if (searchPriorityTerm) {
                     const parsedValue = parseFloat(searchPriorityTerm);
-					console.log("Parsed Priority Value:", parsedValue);
                     matchPriority = !isNaN(parsedValue) && item.priority !== undefined && parseFloat(item.priority) === parsedValue;
-                    console.log(item.priority);
                 }
 
                 return matchCat && matchText && matchDate && matchStatus && matchPriority;
