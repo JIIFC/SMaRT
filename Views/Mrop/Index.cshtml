@@ -72,7 +72,7 @@
             </div>
         </div>
     </div>
-    <div class="col">
+    @* <div class="col">
         <div class="row">
             <div class="col px-0">
                 <label class="form-label" for="dateRange"><strong>Date Range:</strong></label>
@@ -84,6 +84,20 @@
                 <button type="button" id="btnClearDateRange" class="btn btn-sm btn-primary visually-hidden">Clear</button>
             </div>
         </div>
+    </div> *@
+    <div class="col">
+        <div class="row">
+            <div class="col px-0">
+                <label class="form-label" for="dateRange"><strong>Search by Priority:</strong></label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col px-0">
+                <!--Change this to add search function-->
+                <input type="number" id="searchPRIBox" class="form-control d-inline-block" style="width: 250px;" placeholder="e.g. 0 - 10.0" min="0" max="10" />
+                <!--The priority value is stored in dbo.OutputTask, column: Priority-->
+            </div>
+        </div>
     </div>
 </div>
 
@@ -93,46 +107,59 @@
     <div class="row">
         <div class="col">
             <input type="checkbox" id="smart-status-1" class="btn-check" name="SMARTStatus1" value="SMARTStatus1" autocomplete="off" />
-            <label class="btn btn-smart-status-1 btn-smart-status-unchecked LegendStatus" for="smart-status-1">Ready</label>
+            <label class="btn btn-smart-status-1 btn-smart-status-unchecked LegendStatus" for="smart-status-1" title="View by Ready Status">Ready</label>
         </div>
         <div class="col">
             <input type="checkbox" id="smart-status-2" class="btn-check" name="SMARTStatus2" value="SMARTStatus2" autocomplete="off" />
-            <label class="btn btn-smart-status-2 btn-smart-status-unchecked LegendStatus" for="smart-status-2">Ready with Limits</label>
+            <label class="btn btn-smart-status-2 btn-smart-status-unchecked LegendStatus" for="smart-status-2" title="View by Ready with Limits Status">Ready with Limits</label>
         </div>
         <div class="col">
             <input type="checkbox" id="smart-status-3" class="btn-check" name="SMARTStatus3" value="SMARTStatus3" autocomplete="off" />
-            <label class="btn btn-smart-status-3 btn-smart-status-unchecked LegendStatus" for="smart-status-3">Combat Ineffective</label>
+            <label class="btn btn-smart-status-3 btn-smart-status-unchecked LegendStatus" for="smart-status-3" title="View by Combat Ineffective Status">Combat Ineffective</label>
         </div>
         <div class="col">
             <input type="checkbox" id="smart-status-4" class="btn-check" name="SMARTStatus4" value="SMARTStatus4" autocomplete="off" />
-            <label class="btn btn-smart-status-4 btn-smart-status-unchecked LegendStatus" for="smart-status-4">Not Ready</label>
+            <label class="btn btn-smart-status-4 btn-smart-status-unchecked LegendStatus" for="smart-status-4" title="View by Not Ready Status">Not Ready</label>
         </div>
     </div>
 </div>
 
 <!-- Toolbar Buttons -->
-<div class="btn-toolbar mb-2 position-relative" role="toolbar" aria-label="Toolbar with export and view options">
+<div class="btn-toolbar mb-2 justify-content-between" role="toolbar" aria-label="Toolbar with exports, views and actions options">
+    <!-- Buttons -->
     <div class="btn-group me-2" role="group">
+        <!-- Exports -->
         @* <button class="btn btn-outline-secondary" onclick="exportToCSV()">Export CSV</button> *@
-        <button class="btn btn-outline-secondary" onclick="exportToPNG()" title="Export to PNG the current view">Export PNG</button>
+        <button class="btn btn-outline-secondary" onclick="exportToPNG()" title="Export to PNG the current view">
+            <img src='@Url.Content("~/images/download.png")' height="20" width="20" alt="Download image" />
+        </button>
         @* <button class="btn btn-outline-secondary" onclick="exportToPDF()">Export PDF</button> *@
-    </div>
 
-    <div class="btn-group me-2" role="group">
+        <!-- Views -->
         <button class="btn btn-outline-primary" onclick="ZoomTo('Week')" title="View Weekly">Week</button>
         <button class="btn btn-outline-primary" onclick="ZoomTo('Month')" title="View Monthly">Month</button>
         <button class="btn btn-outline-primary" onclick="ZoomTo('Year')" title="View Yearly">Year</button>
     </div>
 
-    <div class="btn-group me-2 position-absolute" role="group" style="right: 0;">
-        <a class="btn btn-md btn-outline-secondary" asp-action="CreateOutputTask">
-            <img src='@Url.Content("~/images/Add.png")' height="25" width="25" alt="@localizer["CreateOutputTask"]" />
-            <span style="font-weight:500; font-size: 1rem;">@localizer["CreateOutputTask"]</span>
-        </a>
-        <a class="btn btn-md btn-outline-secondary" asp-action="AssignFelm">
-            <img src='@Url.Content("~/images/Add.png")' height="25" width="25" alt="@localizer["AssignForceElement"]" />
-            <span style="font-weight:500; font-size: 1rem;">@localizer["AssignForceElement"]</span>
-        </a>
+    <!-- Actions -->
+    <div class="btn-group me-2">
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="actionDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Chart Options">Actions</button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="actionDropdown" style="min-width: 260px;">
+                <li>
+                    <a class="dropdown-item d-flex align-items-center" asp-action="CreateOutputTask">
+                        <img src='@Url.Content("~/images/Add.png")' height="20" width="20" alt="@localizer["CreateOutputTask"]" class="me-2" />
+                        <span>@localizer["CreateOutputTask"]</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item d-flex align-items-center" asp-action="AssignFelm">
+                        <img src='@Url.Content("~/images/Add.png")' height="20" width="20" alt="@localizer["AssignForceElement"]" class="me-2" />
+                        <span>@localizer["AssignForceElement"]</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
 </div>
 
@@ -183,6 +210,14 @@
 
     <script>
         $(document).ready(function() {
+            $("#searchPRIBox").on("input", function() {
+                if ($(this).val() > 10) {
+                    $(this).val(function(index, value) {
+                        return value.slice(0, -1);
+                    });
+                }
+            });
+
             $('input[name="dateRange"]').daterangepicker({
                 autoUpdateInput: false,
                 locale: { cancelLabel: 'Clear' }
@@ -205,12 +240,23 @@
         let CategoriesData = [];
         let FELMData = [];
         let InMemoryGroups;
+        let categoryPriorityMap = [];
 
         // Parsing data from ViewBag
         var felmJson = '@ViewBag.gantData'.replaceAll("&quot;", '"');
         FELMData = JSON.parse(felmJson);
         var categoriesJson = '@ViewBag.gantCategories'.replaceAll("&quot;", '"');
         CategoriesData = JSON.parse(categoriesJson);
+
+        // Mapping Priority data
+        CategoriesData.forEach(cat => {
+            categoryPriorityMap[cat.otId] = cat.priority;
+        });
+
+        // Now assign priority to each FELMData entry
+        FELMData.forEach(item => {
+            item.priority = categoryPriorityMap[item.otId] ?? null;
+        });
 
         // Loading the data in the timeline
         const container = document.getElementById('timeline');
@@ -239,6 +285,7 @@
                 title: `${item.felm}`,
                 style: `background-color:${item.color}; color:white;`,
                 fullText: item.felm,
+                priority: item.priority,
             }));
         }
 
@@ -291,6 +338,10 @@
 
         // Search by Force Element
         document.getElementById("searchBox").addEventListener("input", applyFilters);
+
+        // Search by Priority
+        document.getElementById("searchPRIBox").addEventListener("input", applyFilters);
+
         // SearchBox Clear Btn
         $("#searchBox").on("input", function () {
             if ($(this).val()) {
@@ -391,6 +442,10 @@
 
             // Search by Force Element
             const searchTerm = document.getElementById("searchBox").value.toLowerCase();
+            
+            // Search by Priority
+            const searchPriorityTerm = document.getElementById("searchPRIBox").value.trim();
+            
             // Filter by Category
             const selectedCat = Array.from(filterSelect.selectedOptions).map(option => option.value);
 
@@ -414,7 +469,14 @@
                     return item.style && item.style.includes(expectedStyle);
                 });
 
-                return matchCat && matchText && matchDate && matchStatus;
+                // Priority match
+                let matchPriority = true;
+                if (searchPriorityTerm !== "") {
+                    const parsedPriority = parseFloat(searchPriorityTerm);
+                    matchPriority = !isNaN(parsedPriority) && Number(item.priority) === parsedPriority;
+                }
+
+                return matchCat && matchText && matchStatus && matchPriority;
             });
 
             groups.clear();
@@ -423,7 +485,8 @@
             const isSearchActive = searchTerm.trim() !== "";
             const isDateRangeActive = minDate !== null || maxDate !== null;
             const isStatusActive = SMARTStatusFilter.length > 0;
-            const isAnyFilterActive = isCategoryFilterActive || isSearchActive || isDateRangeActive || isStatusActive;
+            const isPriorityActive = searchPriorityTerm.trim() !== "";
+            const isAnyFilterActive = isCategoryFilterActive || isSearchActive || isDateRangeActive || isStatusActive || isPriorityActive;
 
             // Case 1: Category filter applied → show selected categories (even if no FELMs)
             if (isCategoryFilterActive) {
@@ -433,7 +496,23 @@
                     }
                 });
             }
-            // Case 2: Other filters active → show groups that have matching FELMs
+            // Case 2: If only priority filter is active → show all groups with FELMs that match the priority
+            else if (isPriorityActive) {
+                const parsedPriority = parseFloat(searchPriorityTerm);
+                if (!isNaN(parsedPriority)) {
+                    // Find categories (groups) that have the selected priority, even if no FELMs are assigned
+                    const matchingCategoryIds = CategoriesData
+                        .filter(cat => Number(cat.priority) === parsedPriority)
+                        .map(cat => cat.otId.toString());
+
+                    InMemoryGroups.forEach(group => {
+                        if (matchingCategoryIds.includes(group.id.toString())) {
+                            groups.add(group);
+                        }
+                    });
+                }
+            }
+            // Case 3: Other filters active → show groups that have matching FELMs
             else if (isAnyFilterActive) {
                 const includedGroupIds = [...new Set(filtered.map(f => f.group.toString()))];
                 InMemoryGroups.forEach(group => {
@@ -442,7 +521,7 @@
                     }
                 });
             }
-            // Case 3: No filters → show all categories (even if they have no FELMs)
+            // Case 4: No filters → show all categories (even if they have no FELMs)
             else {
                 InMemoryGroups.forEach(group => {
                     groups.add(group);
