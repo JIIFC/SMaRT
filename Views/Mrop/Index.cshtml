@@ -128,33 +128,33 @@
 <div class="btn-toolbar mb-2 justify-content-between" role="toolbar" aria-label="Toolbar with exports, views and actions options">
     <!-- Buttons -->
     <div class="btn-group me-2" role="group">
-        <!-- Exports -->
-        @* <button class="btn btn-outline-secondary" onclick="exportToCSV()">Export CSV</button> *@
-        <button class="btn btn-outline-secondary" onclick="exportToPNG()" title="Export to PNG the current view">
-            <img src='@Url.Content("~/images/download.png")' height="20" width="20" alt="Download image" />
+        <!-- Export -->
+        <button class="btn btn-outline-secondary d-flex align-items-center justify-content-center"
+                onclick="exportToPNG()" title="Export to PNG" style="height: 40px;">
+            <img src='@Url.Content("~/images/download.png")' alt="Download image" width="20" height="20" />
         </button>
-        @* <button class="btn btn-outline-secondary" onclick="exportToPDF()">Export PDF</button> *@
+        <!--exportToPDF & exportToCSV also availabe-->
 
         <!-- Views -->
-        <button class="btn btn-outline-primary" onclick="ZoomTo('Week')" title="View Weekly">Week</button>
-        <button class="btn btn-outline-primary" onclick="ZoomTo('Month')" title="View Monthly">Month</button>
-        <button class="btn btn-outline-primary" onclick="ZoomTo('Year')" title="View Yearly">Year</button>
+        <button class="btn btn-outline-primary" onclick="ZoomTo('Week')" title="Weekly View">Week</button>
+        <button class="btn btn-outline-primary" onclick="ZoomTo('Month')" title="Monthly View">Month</button>
+        <button class="btn btn-outline-primary" onclick="ZoomTo('Year')" title="Yearly View">Year</button>
     </div>
 
     <!-- Actions -->
     <div class="btn-group me-2">
         <div class="dropdown">
-            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="actionDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Chart Options">Actions</button>
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="actionDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Actions">Actions</button>
             <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="actionDropdown" style="min-width: 260px;">
                 <li>
                     <a class="dropdown-item d-flex align-items-center" asp-action="CreateOutputTask">
-                        <img src='@Url.Content("~/images/Add.png")' height="20" width="20" alt="@localizer["CreateOutputTask"]" class="me-2" />
+                        <!--<img src='@Url.Content("~/images/Add.png")' height="20" width="20" alt="@localizer["CreateOutputTask"]" class="me-2" />-->
                         <span>@localizer["CreateOutputTask"]</span>
                     </a>
                 </li>
                 <li>
                     <a class="dropdown-item d-flex align-items-center" asp-action="AssignFelm">
-                        <img src='@Url.Content("~/images/Add.png")' height="20" width="20" alt="@localizer["AssignForceElement"]" class="me-2" />
+                        <!--<img src='@Url.Content("~/images/Add.png")' height="20" width="20" alt="@localizer["AssignForceElement"]" class="me-2" />-->
                         <span>@localizer["AssignForceElement"]</span>
                     </a>
                 </li>
