@@ -1,18 +1,16 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-
+using Newtonsoft.Json;
 using SMARTV3.Helpers;
 using SMARTV3.Models;
 using SMARTV3.Security;
-
+using System.Data.Common;
+using System.Globalization;
+using System.Text.Json;
 using static Constants;
 using static SMARTV3.Helpers.PaginationHelper;
 using static SMARTV3.Security.UserRoleProvider;
-using System.Data.Common;
-using System.Text.Json;
-using Newtonsoft.Json;
-using System.Globalization;
 
 namespace SMARTV3.Controllers
 {
@@ -81,6 +79,10 @@ namespace SMARTV3.Controllers
                 _context.Add(outputTask);
                 _context.SaveChanges();
             }
+
+            ViewBag.capabilityId = new SelectList(_context.Capabilities.Where(d => d.Archived == false), "Id", "CapabilityName");
+            ViewBag.ntmId = new SelectList(_context.NoticeToMoves.Where(d => d.Archived == false), "Id", "NoticeToMoveName");
+
             return RedirectToAction("Index");
         }
 
