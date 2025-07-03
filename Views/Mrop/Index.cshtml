@@ -1,4 +1,4 @@
-<<<<<<< Updated upstream
+﻿<<<<<<< Updated upstream
 @model Tuple<SMARTV3.Models.OutputTask, SMARTV3.Models.OutputForceElement>
 
 @using static Constants
@@ -423,10 +423,8 @@
 
                 // Priority match
                 if (searchPriorityTerm !== "") {
-                    const parsed = parseFloat(searchPriorityTerm);
-                    if (!isNaN(parsed)) {
-                        priorityThreshold = parsed;
-                    }
+                    const parsedPriority = parseFloat(searchPriorityTerm);
+                    matchPriority = !isNaN(parsedPriority) && Number(item.priority) >= parsedPriority;
                 }
                     
                 return matchCat && matchText && matchDate && matchStatus && priorityThreshold;
@@ -444,6 +442,14 @@
                     }
                 });
             }
+            // Case 2: If only priority filter is active → show all groups with FELMs that match the priority
+            else if (isPriorityActive) {
+                const parsedPriority = parseFloat(searchPriorityTerm);
+                if (!isNaN(parsedPriority)) {
+                    // Find categories (groups) that have the selected priority, even if no FELMs are assigned
+                    const matchingCategoryIds = CategoriesData
+                        .filter(cat => Number(cat.priority) >= parsedPriority)
+                        .map(cat => cat.otId.toString());
 
             // Add only matching groups back to the dataset
             InMemoryGroups.forEach(group => {
