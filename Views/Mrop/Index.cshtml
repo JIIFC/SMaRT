@@ -37,7 +37,7 @@
     <div class="col">
         <div class="row">
             <div class="col px-0">
-                <label class="form-label" for="categoryFilter"><strong>Filter by Category:</strong></label>
+                <label class="form-label" for="categoryFilter"><strong>Search by Output Task:</strong></label>
             </div>
         </div>
         <div class="row">
@@ -301,8 +301,8 @@
             zoomMin: 1000 * 60 * 60 * 24 * 7,
             zoomMax: 1000 * 60 * 60 * 24 * 365 * 3,
             editable: false,
-            start: moment().subtract(55, 'days').toDate(), //default view
-            end: moment().add(385, "days").toDate(),
+            start: moment().subtract(136, 'days').toDate(), //default view
+            end: moment().add(952, "days").toDate(),
         };
 
         // Initializing chart
@@ -448,7 +448,7 @@
             // Search by Priority
             const searchPriorityTerm = document.getElementById("searchPRIBox").value.trim();
             
-            // Filter by Category
+            // Filter by Output Task
             const selectedCat = Array.from(filterSelect.selectedOptions).map(option => option.value);
 
             // Filtering items
