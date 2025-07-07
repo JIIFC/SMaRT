@@ -14,7 +14,7 @@
 </div>
 <br /> <br />
 
-<!--<h5>@localizer["MROP"]</h5>-->
+<h5>@localizer["MROP"]</h5>
 
 @* <!-- Create and Assign buttons-->
 <div class="row justify-content-between mb-4">
@@ -45,15 +45,17 @@
                 @* <select id="categoryFilter" class="form-control d-inline-block" style="width: 250px;">
                     <option value="all">All</option>
                 </select> *@
-
-                <select id="categoryFilter" class="form-control" multiple
+                
+                <select id="categoryFilter" class="d-inline-block" style="width: 250px;" multiple
                         data-live-search="true"
                         data-live-search-placeholder="Looking for?"
                         data-selected-text-format="count > 2"
                         data-style="border border-dark-subtle"
                         data-actions-box="true"
-                        data-dropup-auto="false">
+                        data-dropup-auto="false"
+                        autocomplete="off">
                 </select>
+                <button type="button" id="btnClearSelectedCat" class="btn btn-sm btn-primary visually-hidden">Clear</button>
             </div>
         </div>
     </div>
@@ -65,89 +67,128 @@
         </div>
         <div class="row">
             <div class="col px-0">
-                <input type="text" id="searchBox" class="form-control d-inline-block" style="width: 250px;" placeholder="e.g. Air Task Force"/>
+                <input type="text" id="searchBox" class="form-control d-inline-block" style="width: 250px;" placeholder="e.g. Air Task Force" />
+                <button type="button" id="btnClearSearchBox" class="btn btn-sm btn-primary visually-hidden">Clear</button>
             </div>
         </div>
     </div>
-    
+    @* <div class="col">
+        <div class="row">
+            <div class="col px-0">
+                <label class="form-label" for="dateRange"><strong>Date Range:</strong></label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col px-0">
+                <input type="text" id="dateRange" name="dateRange" class="form-control d-inline-block" style="width: 250px;" readonly />
+                <button type="button" id="btnClearDateRange" class="btn btn-sm btn-primary visually-hidden">Clear</button>
+            </div>
+        </div>
+    </div> *@
     <div class="col">
         <div class="row">
             <div class="col px-0">
-                <label class="form-label" for="Priority"><strong>Search by Priority:</strong></>
+                <label class="form-label" for="dateRange"><strong>Search by Priority:</strong></label>
             </div>
         </div>
         <div class="row">
             <div class="col px-0">
                 <!--Change this to add search function-->
-                <input type="text" id="searchPRIBox" class="form-control d-inline-block" style="width: 250px;" placeholder="e.g. 0 - 10.0" />
-                
+                <input type="number" id="searchPRIBox" class="form-control d-inline-block" style="width: 250px;" placeholder="e.g. 0 - 10.0" min="0" max="10" />
                 <!--The priority value is stored in dbo.OutputTask, column: Priority-->
+            </div>
+        </div>
+    </div>
+
+    <div class="col">
+        <div class="row">
+            <div class="col px-0">
+                <label class="form-label" for="SMaRTStatusFilter"><strong>SMaRT Status:</strong></label>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col px-0">
+                <select id="SMaRTStatusFilter"
+                        class="selectpicker d-inline-block"
+                        multiple
+                        style="width: 250px;"
+                        data-selected-text-format="count > 2"
+                        data-style="border border-dark-subtle"
+                        data-actions-box="true"
+                        data-dropup-auto="false"
+                        autocomplete="off">
+                    <option value="3">Combat Ineffective</option>
+                    <option value="4">Not Ready</option>
+                </select>
+
+                <button type="button" id="btnClearSmartStatus" class="btn btn-sm btn-primary visually-hidden">
+                    Clear
+                </button>
             </div>
         </div>
     </div>
 </div>
 
-<!-- Legend / Readiness -->
-<!--<div class="text-center mb-4">
+@*<!-- Legend / Readiness -->
+<div class="text-center mb-4">
     <h3>SMaRT Status</h3>
     <div class="row">
         <div class="col">
             <input type="checkbox" id="smart-status-1" class="btn-check" name="SMARTStatus1" value="SMARTStatus1" autocomplete="off" />
-            <label class="btn btn-smart-status-1 btn-smart-status-unchecked LegendStatus" for="smart-status-1">Ready</label>
+            <label class="btn btn-smart-status-1 btn-smart-status-unchecked LegendStatus" for="smart-status-1" title="View by Ready Status">Ready</label>
         </div>
         <div class="col">
             <input type="checkbox" id="smart-status-2" class="btn-check" name="SMARTStatus2" value="SMARTStatus2" autocomplete="off" />
-            <label class="btn btn-smart-status-2 btn-smart-status-unchecked LegendStatus" for="smart-status-2">Ready with Limits</label>
+            <label class="btn btn-smart-status-2 btn-smart-status-unchecked LegendStatus" for="smart-status-2" title="View by Ready with Limits Status">Ready with Limits</label>
         </div>
         <div class="col">
             <input type="checkbox" id="smart-status-3" class="btn-check" name="SMARTStatus3" value="SMARTStatus3" autocomplete="off" />
-            <label class="btn btn-smart-status-3 btn-smart-status-unchecked LegendStatus" for="smart-status-3">Combat Ineffective</label>
+            <label class="btn btn-smart-status-3 btn-smart-status-unchecked LegendStatus" for="smart-status-3" title="View by Combat Ineffective Status">Combat Ineffective</label>
         </div>
         <div class="col">
             <input type="checkbox" id="smart-status-4" class="btn-check" name="SMARTStatus4" value="SMARTStatus4" autocomplete="off" />
-            <label class="btn btn-smart-status-4 btn-smart-status-unchecked LegendStatus" for="smart-status-4">Not Ready</label>
+            <label class="btn btn-smart-status-4 btn-smart-status-unchecked LegendStatus" for="smart-status-4" title="View by Not Ready Status">Not Ready</label>
         </div>
     </div>
-</div>-->
-
-
+</div>
+*@
 <!-- Toolbar Buttons -->
-<div class="btn-toolbar mb-2 position-relative" role="toolbar" aria-label="Toolbar with export and view options">
+<div class="btn-toolbar mb-2 justify-content-between" role="toolbar" aria-label="Toolbar with exports, views and actions options">
+    <!-- Buttons -->
     <div class="btn-group me-2" role="group">
-        <button class="btn btn-outline-primary" onclick="ZoomTo('Week')" title="Weekly View">Week</button>
-        <button class="btn btn-outline-primary" onclick="ZoomTo('Month')" title="Monthly View">Month</button>
-        <button class="btn btn-outline-primary" onclick="ZoomTo('Year')" title="Yearly View">Year</button>
-    </div>
-
-    <div class="btn-group me-2" role="group">
-        <button class="btn btn-outline-secondary d-flex align-items-center justify-content-center" onclick="exportToPNG()" title="Export View" style="height: 40px;">
-            <img src='@Url.Content("~/images/download.png")' alt="Download" width="20" height="20" />
+        <!-- Exports -->
+        @* <button class="btn btn-outline-secondary" onclick="exportToCSV()">Export CSV</button> *@
+        <button class="btn btn-outline-secondary" onclick="exportToPNG()" title="Export to PNG the current view">
+            <img src='@Url.Content("~/images/download.png")' height="20" width="20" alt="Download image" />
         </button>
+        @* <button class="btn btn-outline-secondary" onclick="exportToPDF()">Export PDF</button> *@
+
+        <!-- Views -->
+        <button class="btn btn-outline-primary" onclick="ZoomTo('Week')" title="View Weekly">Week</button>
+        <button class="btn btn-outline-primary" onclick="ZoomTo('Month')" title="View Monthly">Month</button>
+        <button class="btn btn-outline-primary" onclick="ZoomTo('Year')" title="View Yearly">Year</button>
     </div>
 
-
-    <!--Actions-->
-    <div class="dropdown me-2 position-absolute" style="right: 0;">
-        <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="actionDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-            Actions
-        </button>
-        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="actionDropdown" style="min-width: 260px;">
-            <li>
-                <a class="dropdown-item d-flex align-items-center" asp-action="CreateOutputTask">
-                    <img src='@Url.Content("~/images/Add.png")' height="20" width="20" alt="@localizer["CreateOutputTask"]" class="me-2" />
-                    <span>@localizer["CreateOutputTask"]</span>
-                </a>
-            </li>
-            <li>
-                <a class="dropdown-item d-flex align-items-center" asp-action="AssignFelm">
-                    <img src='@Url.Content("~/images/Add.png")' height="20" width="20" alt="@localizer["AssignForceElement"]" class="me-2" />
-                    <span>@localizer["AssignForceElement"]</span>
-                </a>
-            </li>
-        </ul>
+    <!-- Actions -->
+    <div class="btn-group me-2">
+        <div class="dropdown">
+            <button class="btn btn-outline-secondary dropdown-toggle" type="button" id="actionDropdown" data-bs-toggle="dropdown" aria-expanded="false" title="Chart Options">Actions</button>
+            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="actionDropdown" style="min-width: 260px;">
+                <li>
+                    <a class="dropdown-item d-flex align-items-center" asp-action="CreateOutputTask">
+                        <img src='@Url.Content("~/images/Add.png")' height="20" width="20" alt="@localizer["CreateOutputTask"]" class="me-2" />
+                        <span>@localizer["CreateOutputTask"]</span>
+                    </a>
+                </li>
+                <li>
+                    <a class="dropdown-item d-flex align-items-center" asp-action="AssignFelm">
+                        <img src='@Url.Content("~/images/Add.png")' height="20" width="20" alt="@localizer["AssignForceElement"]" class="me-2" />
+                        <span>@localizer["AssignForceElement"]</span>
+                    </a>
+                </li>
+            </ul>
+        </div>
     </div>
-
-
 </div>
 
 <!-- Timeline container -->
@@ -197,19 +238,24 @@
 
     <script>
         $(document).ready(function() {
-            
-            console.log("FELMData with priority:", FELMData);
+            $("#searchPRIBox").on("input", function() {
+                if ($(this).val() > 10) {
+                    $(this).val(function(index, value) {
+                        return value.slice(0, -1);
+                    });
+                }
+            });
 
-            $('#dateRange').daterangepicker({
+            $('input[name="dateRange"]').daterangepicker({
                 autoUpdateInput: false,
                 locale: { cancelLabel: 'Clear' }
             });
 
-            $('#dateRange').on('apply.daterangepicker', function(ev, picker) {
+            $('input[name="dateRange"]').on('apply.daterangepicker', function(ev, picker) {
                 $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
             });
 
-            $('#dateRange').on('cancel.daterangepicker', function() {
+            $('input[name="dateRange"]').on('cancel.daterangepicker', function() {
                 $(this).val('');
             });
 
@@ -222,6 +268,7 @@
         let CategoriesData = [];
         let FELMData = [];
         let InMemoryGroups;
+        let categoryPriorityMap = [];
 
         // Parsing data from ViewBag
         var felmJson = '@ViewBag.gantData'.replaceAll("&quot;", '"');
@@ -229,16 +276,15 @@
         var categoriesJson = '@ViewBag.gantCategories'.replaceAll("&quot;", '"');
         CategoriesData = JSON.parse(categoriesJson);
 
-        const categoryPriorityMap = {};
-            CategoriesData.forEach(cat => {
-                categoryPriorityMap[cat.otId] = cat.priority;
-            });
+        // Mapping Priority data
+        CategoriesData.forEach(cat => {
+            categoryPriorityMap[cat.otId] = cat.priority;
+        });
 
-            // Now assign priority to each FELMData entry
-            FELMData.forEach(item => {
-                item.priority = categoryPriorityMap[item.otId];
-            });
-
+        // Now assign priority to each FELMData entry
+        FELMData.forEach(item => {
+            item.priority = categoryPriorityMap[item.otId] ?? null;
+        });
 
         // Loading the data in the timeline
         const container = document.getElementById('timeline');
@@ -246,8 +292,7 @@
         // Set category column
         const groups = new vis.DataSet(CategoriesData.map(cat => ({
             id: cat.otId,
-            content: `<a href="/Mrop/EditOutputTask/${cat.otId}">${cat.category}</a>`,
-			priority: cat.priority
+            content: `<a href="/Mrop/EditOutputTask/${cat.otId}">${cat.category}</a>`
         })));
         InMemoryGroups = new vis.DataSet(groups.get());
 
@@ -258,8 +303,8 @@
         // }
 
         // Set felm data in chart
-        function getItems(FELMData) {
-            return FELMData.map(item => ({
+        function getItems(data) {
+            return data.map(item => ({
                 id: item.id,
                 group: item.otId,
                 content: item.felm.length > 40 ? item.felm.slice(0, 40) + "..." : item.felm,
@@ -268,13 +313,12 @@
                 title: `${item.felm}`,
                 style: `background-color:${item.color}; color:white;`,
                 fullText: item.felm,
-                priority: item.priority
+                priority: item.priority,
             }));
         }
 
         // Setting chart options and data
         const originalItems = getItems(FELMData);
-        console.log("Original Items:", originalItems);
         const items = new vis.DataSet(originalItems);
 
         const options = {
@@ -285,8 +329,6 @@
             zoomMin: 1000 * 60 * 60 * 24 * 7,
             zoomMax: 1000 * 60 * 60 * 24 * 365 * 3,
             editable: false,
-            start: moment().subtract(15, 'days').toDate(),
-            end: moment().add(105, 'days').toDate()
         };
 
         // Initializing chart
@@ -307,79 +349,116 @@
         // Category Select Initialization
         $('#categoryFilter').selectpicker();
         filterSelect.addEventListener("change", applyFilters);
+        // Category Clear Btn
+        $("#categoryFilter").on("change", function () {
+            if (!($(this).val().length === 0)) {
+                $("#btnClearSelectedCat").removeClass("visually-hidden");
+            }
+            else {
+                $("#btnClearSelectedCat").addClass("visually-hidden");
+            }
+        });
+        // Category Clear Btn click function
+        $("#btnClearSelectedCat").on("click", function () {
+            $("#categoryFilter").selectpicker("deselectAll");
+            applyFilters();
+        });
 
         // Search by Force Element
-          document.getElementById("searchBox").addEventListener("input", applyFilters);
+        document.getElementById("searchBox").addEventListener("input", applyFilters);
 
-        // Search by PRI
+        // Search by Priority
         document.getElementById("searchPRIBox").addEventListener("input", applyFilters);
 
-        // SMaRT Status filter
-        $("#smart-status-1").on("change", function () {
-            $(".btn-smart-status-1").toggleClass("btn-smart-status-unchecked", !this.checked);
+        // SearchBox Clear Btn
+        $("#searchBox").on("input", function () {
+            if ($(this).val()) {
+                $("#btnClearSearchBox").removeClass("visually-hidden");
+            }
+            else {
+                $("#btnClearSearchBox").addClass("visually-hidden");
+            }
+        });
+        // SearchBox Clear Btn click function
+        $("#btnClearSearchBox").on("click", function () {
+            $("#searchBox").val('');
+            $("#btnClearSearchBox").addClass("visually-hidden");
             applyFilters();
         });
-        $("#smart-status-2").on("change", function () {
-            $(".btn-smart-status-2").toggleClass("btn-smart-status-unchecked", !this.checked);
-            applyFilters();
+
+        $('#SMaRTStatusFilter').selectpicker();
+
+        // Handle change in dropdown
+        $("#SMaRTStatusFilter").on("change", function () {
+            const selectedStatuses = $(this).val(); 
+
+            // Show/hide clear button
+            if (selectedStatuses.length > 0) {
+                $("#btnClearSmartStatus").removeClass("visually-hidden");
+            } else {
+                $("#btnClearSmartStatus").addClass("visually-hidden");
+            }
+
+            applyFilters(); 
         });
-        $("#smart-status-3").on("change", function () {
-            $(".btn-smart-status-3").toggleClass("btn-smart-status-unchecked", !this.checked);
-            applyFilters();
-        });
-        $("#smart-status-4").on("change", function () {
-            $(".btn-smart-status-4").toggleClass("btn-smart-status-unchecked", !this.checked);
+
+        // Clear button functionality
+        $("#btnClearSmartStatus").on("click", function () {
+            $("#SMaRTStatusFilter").selectpicker("deselectAll");
+            $(this).addClass("visually-hidden");
             applyFilters();
         });
 
         // Date Range
         let minDate = null, maxDate = null;
 
-        $('#dateRange').daterangepicker({
-            "cancelButtonClasses": "btn-secondary",
-            "autoUpdateInput": false,
-            "showDropdowns": true,
-            "showWeekNumbers": true,
-            "linkedCalendars": false,
-            "opens": "center",
-            "drops": "auto",
-            "minYear": moment().year() - 5,
-            "maxYear": moment().year() + 5
+        $(function () {
+            $('input[name="dateRange"]').daterangepicker({
+                cancelButtonClasses: "btn-secondary",
+                autoUpdateInput: false,
+                showDropdowns: true,
+                showWeekNumbers: true,
+                linkedCalendars: false,
+                opens: "center",
+                drops: "down",
+                minYear: moment().year() - 5,
+                maxYear: moment().year() + 5
+            });
         });
 
-        $('#dateRange').on('apply.daterangepicker', function (ev, picker) {
-            minDate = picker.startDate;
-            maxDate = picker.endDate;
-            applyFilters(minDate, maxDate);
-            $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
-            console.log(moment().toDate());
-            $('#btnClearDateRange').removeClass("visually-hidden");
+        $(function () {
+            $('input[name="dateRange"]').on('apply.daterangepicker', function (ev, picker) {
+                minDate = picker.startDate;
+                maxDate = picker.endDate;
+                applyFilters(minDate, maxDate);
+                $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+                $('#btnClearDateRange').removeClass("visually-hidden");
+            });
         });
 
-        $('#dateRange').on('cancel.daterangepicker', function () {
-            minDate = maxDate = null;
-            $(this).val('');
-            applyFilters();
-            $('#btnClearDateRange').addClass("visually-hidden");
+        $(function () {
+            $('input[name="dateRange"]').on('cancel.daterangepicker', function () {
+                minDate = maxDate = null;
+                $(this).val('');
+                applyFilters();
+                $('#btnClearDateRange').addClass("visually-hidden");
+            });
         });
 
-        $("#btnClearDateRange").on("click", function() {
-            minDate = maxDate = null;
-            $("#dateRange").val('');
-            applyFilters();
-            $('#btnClearDateRange').addClass("visually-hidden");
+        $(function () {
+            $("#btnClearDateRange").on("click", function() {
+                minDate = maxDate = null;
+                $('input[name="dateRange"]').val('');
+                applyFilters();
+                $('#btnClearDateRange').addClass("visually-hidden");
+            });
         });
-
-         let priorityThreshold = null;
 
         // Applying filters to the chart
         function applyFilters() {
             // Filter by SMaRT Status
-            let SMARTStatusFilter = [];
-            if ($("#smart-status-1").is(":checked")) SMARTStatusFilter.push(1);
-            if ($("#smart-status-2").is(":checked")) SMARTStatusFilter.push(2);
-            if ($("#smart-status-3").is(":checked")) SMARTStatusFilter.push(3);
-            if ($("#smart-status-4").is(":checked")) SMARTStatusFilter.push(4);
+            let SMARTStatusFilter = $("#SMaRTStatusFilter").val()?.map(s => parseInt(s)) ?? [];
+
 
             // Mapping SMaRT statuses to background-color styles
             const styleMap = {
@@ -393,17 +472,17 @@
 
             // Search by Force Element
             const searchTerm = document.getElementById("searchBox").value.toLowerCase();
-
-			// Search by Priority
-            const searchPriorityTerm = document.getElementById("searchPRIBox").value;
-
+            
+            // Search by Priority
+            const searchPriorityTerm = document.getElementById("searchPRIBox").value.trim();
+            
             // Filter by Category
             const selectedCat = Array.from(filterSelect.selectedOptions).map(option => option.value);
 
             // Filtering items
             const filtered = originalItems.filter(item => {
                 // Category
-                const matchCat = selectedCat.length === 0 || selectedCat.map(Number).includes(item.group);
+                const matchCat = selectedCat.length === 0 || selectedCat.includes(item.group.toString());
 
                 // Searchbox
                 const matchText = item.fullText.toLowerCase().includes(searchTerm);
@@ -421,23 +500,29 @@
                 });
 
                 // Priority match
+                let matchPriority = true;
                 if (searchPriorityTerm !== "") {
                     const parsedPriority = parseFloat(searchPriorityTerm);
                     matchPriority = !isNaN(parsedPriority) && Number(item.priority) >= parsedPriority;
                 }
-                    
-                return matchCat && matchText && matchDate && matchStatus && priorityThreshold;
+
+                return matchCat && matchText && matchStatus && matchPriority;
             });
 
             groups.clear();
-            let includedGroupIds = new Set(filtered.map(f => f.group));
 
-            // Check for others that match the threshold
-            if (priorityThreshold !== null) {
-                CategoriesData.forEach(cat => {
-                    const catPriority = parseFloat(cat.priority);
-                    if (!isNaN(catPriority) && catPriority >= priorityThreshold) {
-                        includedGroupIds.add(cat.otId);
+            const isCategoryFilterActive = selectedCat.length > 0;
+            const isSearchActive = searchTerm.trim() !== "";
+            const isDateRangeActive = minDate !== null || maxDate !== null;
+            const isStatusActive = SMARTStatusFilter.length > 0;
+            const isPriorityActive = searchPriorityTerm.trim() !== "";
+            const isAnyFilterActive = isCategoryFilterActive || isSearchActive || isDateRangeActive || isStatusActive || isPriorityActive;
+
+            // Case 1: Category filter applied → show selected categories (even if no FELMs)
+            if (isCategoryFilterActive) {
+                InMemoryGroups.forEach(group => {
+                    if (selectedCat.includes(group.id.toString())) {
+                        groups.add(group);
                     }
                 });
             }
@@ -450,13 +535,29 @@
                         .filter(cat => Number(cat.priority) >= parsedPriority)
                         .map(cat => cat.otId.toString());
 
-            // Add only matching groups back to the dataset
-            InMemoryGroups.forEach(group => {
-                if (includedGroupIds.has(group.id)) {
-                    groups.add(group);
+                    InMemoryGroups.forEach(group => {
+                        if (matchingCategoryIds.includes(group.id.toString())) {
+                            groups.add(group);
+                        }
+                    });
                 }
-            });
-            console.log(filtered);
+            }
+            // Case 3: Other filters active → show groups that have matching FELMs
+            else if (isAnyFilterActive) {
+                const includedGroupIds = [...new Set(filtered.map(f => f.group.toString()))];
+                InMemoryGroups.forEach(group => {
+                    if (includedGroupIds.includes(group.id.toString())) {
+                        groups.add(group);
+                    }
+                });
+            }
+            // Case 4: No filters → show all categories (even if they have no FELMs)
+            else {
+                InMemoryGroups.forEach(group => {
+                    groups.add(group);
+                });
+            }
+
             // Set filters
             timeline.setData({
                 groups: groups,
@@ -585,7 +686,7 @@
                 console.error("Update failed", error);
             })
             .then(data => {
-                console.log("Update successful", data);
+                console.info("Update successful", data);
                 location.reload();
             });
         }
@@ -593,8 +694,8 @@
         // Zoom Presets and function
         const zoomPresets = {
             "Week": [moment().subtract(1, 'days').toDate(), moment().add(7, 'days').toDate()],
-            "Month": [moment().subtract(5, 'days').toDate(), moment().add(35, 'days').toDate()],
-            "Year": [moment().subtract(55, 'days').toDate(), moment().add(385, 'days').toDate()],
+            "Month": [moment().subtract(1, 'months').toDate(), moment().add(2, 'months').toDate()],
+            "Year": [moment().subtract(6, 'months').toDate(), moment().add(1, 'years').toDate()],
         };
 
         function ZoomTo(range) {
@@ -647,3 +748,4 @@
         }
     </script>
 }
+
