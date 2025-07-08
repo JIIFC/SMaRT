@@ -3,9 +3,9 @@ using System.Collections.Generic;
 
 namespace SMARTV3.Models
 {
-    public partial class DataCard
+    public partial class DataCardv2
     {
-        public DataCard()
+        public DataCardv2()
         {
             DatacardKpis = new HashSet<DatacardKpi>();
             Conplans = new HashSet<Conplan>();
