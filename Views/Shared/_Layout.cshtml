@@ -16,6 +16,7 @@
     <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/SMARTV3.styles.css" asp-append-version="true" />
     <link rel="stylesheet" href="~/lib/jquery-ui/jquery-ui.css" asp-append-version="true" />
+    
 </head>
 <body>
     @if (User.IsInRole(Admin) || User.IsInRole(SuperUser) || User.IsInRole(ReportingUser) || User.IsInRole(FGPlanner) || User.IsInRole(Modeler) || User.IsInRole(ReadOnlyUser))
@@ -95,6 +96,10 @@
             @RenderBody()
         </main>
     </div>
+
+    <button type="button" class="btn btn-primary btn-lg" id="scrollToTopButton">
+        <img id="scrollToTopImage" src='@Url.Content("~/images/arrow-up.svg")' alt="Scroll to Top image" />
+    </button>
 
     <footer class="border-top footer text-muted">
     </footer>
