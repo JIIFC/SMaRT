@@ -403,9 +403,10 @@
         });
         // Priority Clear Btn click function
         $("#btnClearPriority").on("click", function() {
-            $("#searchPRIBox").val('', applyFilters());
-            $(this).addClass("visually-hidden");
-        });
+             $("#searchPRIBox").val('');
+             applyFilters();
+             $(this).addClass("visually-hidden");
+         });
 
         // SearchBox Clear Btn
         $("#searchBox").on("input", function () {
