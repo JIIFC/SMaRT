@@ -146,3 +146,10 @@
 .bootstrap-select, #searchBox, #searchPRIBox {
     max-width: 175px;
 }
+
+.exportImage {
+    height: 20px;
+    width: 20px;
+    position: relative;
+    bottom: 2px;
+}

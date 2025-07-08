@@ -170,8 +170,8 @@
     <div class="btn-group me-2" role="group">
         <!-- Exports -->
         @* <button class="btn btn-outline-secondary" onclick="exportToCSV()">Export CSV</button> *@
-        <button class="btn btn-outline-secondary" onclick="exportToPNG()" title="Export to PNG the current view">
-            <img src='@Url.Content("~/images/download.png")' height="20" width="20" alt="Download image" />
+        <button class="btn btn-outline-secondary" onclick="exportToPNG()" title="Export to PNG">
+            <img class="exportImage" src='@Url.Content("~/images/download.png")' alt="Download image" />
         </button>
         @* <button class="btn btn-outline-secondary" onclick="exportToPDF()">Export PDF</button> *@
 
