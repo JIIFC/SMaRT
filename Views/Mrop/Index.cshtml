@@ -419,7 +419,8 @@
         });
         // SearchBox Clear Btn click function
         $("#btnClearSearchBox").on("click", function () {
-            $("#searchBox").val('', applyFilters());
+            $("#searchBox").val('');
+            applyFilters();
             $(this).addClass("visually-hidden");
         });
 
