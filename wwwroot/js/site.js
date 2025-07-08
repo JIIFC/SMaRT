@@ -20,3 +20,29 @@ function selectedOverallStatusFunction() {
         });
     }
 }
+
+
+// Scroll to top button functionality
+let scrollToTopButton = document.getElementById("scrollToTopButton");
+window.onscroll = function () {
+    scrollFunction();
+}
+
+// Show the button when the user scrolls down 20px from the top of the document
+function scrollFunction() {
+    if (document.body.scrollTop > 20 || document.documentElement.scrollTop > 20)
+    {
+        scrollToTopButton.style.display = "block";
+    }
+    else {
+        scrollToTopButton.style.display = "none";
+    }
+}
+
+// Add click event listener to the scroll to top button
+scrollToTopButton.addEventListener("click", scrollToTop);
+
+// Function to scroll to the top of the page
+function scrollToTop() {
+    $('html, body').animate({ scrollTop: 0 }, 'fast');
+}

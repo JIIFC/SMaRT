@@ -142,3 +142,7 @@
 .bs-searchbox, .bs-actionsbox, .inner {
     width: 100% !important;
 }
+
+.bootstrap-select, #searchBox, #searchPRIBox {
+    max-width: 175px;
+}
