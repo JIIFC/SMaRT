@@ -1,4 +1,4 @@
-﻿using DocumentFormat.OpenXml.InkML;
+using DocumentFormat.OpenXml.InkML;
 
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
@@ -122,7 +122,7 @@ namespace SMARTV3.Controllers
             return user;
         }
 
-        private void SetViewData(int selectedPageSize, int pageNumber, string? selectedOrganization, string? selectedConPlan, string? selectedOperation, string? selectedNato, string? selectedStatus, string? selectedDeployedStatus, string? sortOrder, int selectedOverallStatus, DataCard? dataCard)
+        private void SetViewData(int selectedPageSize, int pageNumber, string? selectedOrganization, string? selectedConPlan, string? selectedOperation, string? selectedNato, string? selectedStatus, string? selectedDeployedStatus, string? sortOrder, int selectedOverallStatus, DataCard? dataCard, PETS? PETS)
         {
             ViewData["selectedPageSize"] = selectedPageSize;
             ViewData["pageNumber"] = pageNumber;
@@ -153,34 +153,34 @@ namespace SMARTV3.Controllers
 
             if (dataCard != null)
             {
-                ViewData["CommandOverideStatusId"] = new SelectList(_context.CommandOverideStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", dataCard.CommandOverideStatusId);
+                ViewData["CommandOverideStatusId"] = new SelectList(_context.CommandOverideStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", dataCard.CommandOverrideStatusId);
                 ViewData["DeployedStatusId"] = new SelectList(_context.DeployedStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", dataCard.DeployedStatusId);
-                ViewData["EquipmentCombatVehicleStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", dataCard.EquipmentCombatVehicleStatusId);
-                ViewData["EquipmentCommunicationsEquipmentStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", dataCard.EquipmentCommunicationsEquipmentStatusId);
-                ViewData["EquipmentSpecialEquipmentStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", dataCard.EquipmentSpecialEquipmentStatusId);
-                ViewData["EquipmentStatusId"] = new SelectList(_context.PetsoverallStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", dataCard.EquipmentStatusId);
-                ViewData["EquipmentSupportVehicleStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", dataCard.EquipmentSupportVehicleStatusId);
-                ViewData["EquipmentWeaponsServiceRateStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", dataCard.EquipmentWeaponsServiceRateStatusId);
+                ViewData["EquipmentCombatVehicleStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", PETS.EquipmentCombatVehicleStatusId);
+                ViewData["EquipmentCommunicationsEquipmentStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", PETS.EquipmentCommunicationsEquipmentStatusId);
+                ViewData["EquipmentSpecialEquipmentStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", PETS.EquipmentSpecialEquipmentStatusId);
+                ViewData["EquipmentStatusId"] = new SelectList(_context.PetsoverallStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", PETS.EquipmentStatusId);
+                ViewData["EquipmentSupportVehicleStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", PETS.EquipmentSupportVehicleStatusId);
+                ViewData["EquipmentWeaponsServiceRateStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", PETS.EquipmentWeaponsServiceRateStatusId);
                 ViewData["ForceElementId"] = new SelectList(_context.ForceElements.Where(d => d.Archived == false).AsNoTracking(), "Id", "Id", dataCard.ForceElementId);
                 ViewData["LastEditUser"] = new SelectList(_context.Users.AsNoTracking(), "Id", "Id", dataCard.LastEditUser);
-                ViewData["PersonnelStatusId"] = new SelectList(_context.PetsoverallStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", dataCard.PersonnelStatusId);
+                ViewData["PersonnelStatusId"] = new SelectList(_context.PetsoverallStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", PETS.PersonnelStatusId);
                 ViewData["SrStatusId"] = new SelectList(_context.PetsoverallStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", dataCard.SrStatusId);
-                ViewData["SustainmentAmmunitionStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", dataCard.SustainmentAmmunitionStatusId);
-                ViewData["SustainmentCombatRationsStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", dataCard.SustainmentCombatRationsStatusId);
-                ViewData["SustainmentPersonalEquipmentStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", dataCard.SustainmentPersonalEquipmentStatusId);
-                ViewData["SustainmentPetrolStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", dataCard.SustainmentPetrolStatusId);
-                ViewData["SustainmentSparesStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", dataCard.SustainmentSparesStatusId);
-                ViewData["SustainmentOtherStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", dataCard.SustainmentOtherStatusId);
-                ViewData["SustainmentStatusId"] = new SelectList(_context.PetsoverallStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", dataCard.SustainmentStatusId);
-                ViewData["TrainingCollectiveTrainingStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", dataCard.TrainingCollectiveTrainingStatusId);
-                ViewData["TrainingIndividualTrainingStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", dataCard.TrainingIndividualTrainingStatusId);
-                ViewData["TrainingStatusId"] = new SelectList(_context.PetsoverallStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", dataCard.TrainingStatusId);
+                ViewData["SustainmentAmmunitionStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", PETS.SustainmentAmmunitionStatusId);
+                ViewData["SustainmentCombatRationsStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", PETS.SustainmentCombatRationsStatusId);
+                ViewData["SustainmentPersonalEquipmentStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", PETS.SustainmentPersonalEquipmentStatusId);
+                ViewData["SustainmentPetrolStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", PETS.SustainmentPetrolStatusId);
+                ViewData["SustainmentSparesStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", PETS.SustainmentSparesStatusId);
+                ViewData["SustainmentOtherStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", PETS.SustainmentOtherStatusId);
+                ViewData["SustainmentStatusId"] = new SelectList(_context.PetsoverallStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", PETS.SustainmentStatusId);
+                ViewData["TrainingCollectiveTrainingStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", PETS.TrainingCollectiveTrainingStatusId);
+                ViewData["TrainingIndividualTrainingStatusId"] = new SelectList(_context.PetspercentStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", PETS.TrainingIndividualTrainingStatusId);
+                ViewData["TrainingStatusId"] = new SelectList(_context.PetsoverallStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "Id", PETS.TrainingStatusId);
                 ViewData["petsStatus"] = _context.PetsoverallStatuses.Where(d => d.Archived == false).AsNoTracking();
                 ViewData["percentStatus"] = _context.PetspercentStatuses.Where(d => d.Archived == false).AsNoTracking();
                 ViewData["deployStatus"] = _context.DeployedStatuses.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking();
                 ViewData["commandOverideStatus"] = _context.CommandOverideStatuses.Where(d => d.Archived == false).AsNoTracking();
-                ViewData["AfsPercentageId"] = new SelectList(_context.AfsTrainingPercentages.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "StatusDisplayValue", dataCard.NatoAfstrainingPercentage);
-                ViewData["NatoFPHYesNoBlankId"] = new SelectList(_context.YesNoBlanks.OrderBy(x => x.Order).AsNoTracking(), "Id", lang == "en" ? "Value" : "ValueFre", dataCard.NatoFphyesNoBlank);
+                ViewData["AfsPercentageId"] = new SelectList(_context.AfsTrainingPercentages.Where(d => d.Archived == false).OrderBy(d => d.Ordering).AsNoTracking(), "Id", "StatusDisplayValue", dataCard.NatoAFSTrainingPercentage);
+                ViewData["NatoFPHYesNoBlankId"] = new SelectList(_context.YesNoBlanks.OrderBy(x => x.Order).AsNoTracking(), "Id", lang == "en" ? "Value" : "ValueFre", dataCard.NatoFPHYesNoBlank);
                 ViewData["Nato12SdosId"] = new SelectList(_context.YesNoNaBlanks.OrderBy(x => x.Order).AsNoTracking(), "Id", lang == "en" ? "Value" : "ValueFre", dataCard.Nato12Sdos);
                 ViewData["Nato18SdosId"] = new SelectList(_context.YesNoNaBlanks.OrderBy(x => x.Order).AsNoTracking(), "Id", lang == "en" ? "Value" : "ValueFre", dataCard.Nato18Sdos);
                 ViewData["NatoNatSupplyPlanId"] = new SelectList(_context.YesNoNaBlanks.OrderBy(x => x.Order).AsNoTracking(), "Id", lang == "en" ? "Value" : "ValueFre", dataCard.NatoNatSupplyPlan);
@@ -189,9 +189,9 @@ namespace SMARTV3.Controllers
                 ViewData["NatoCertProgramCoordId"] = new SelectList(_context.YesNoNaBlanks.OrderBy(x => x.Order).AsNoTracking(), "Id", lang == "en" ? "Value" : "ValueFre", dataCard.NatoCertProgramCoord);
                 ViewData["NatoCertCompletedId"] = new SelectList(_context.YesNoNaBlanks.OrderBy(x => x.Order).AsNoTracking(), "Id", lang == "en" ? "Value" : "ValueFre", dataCard.NatoCertCompleted);
 
-                ViewData["CREVALId"] = new SelectList(_context.Crevals.AsNoTracking(), "Id", lang == "en" ? "CrevalName" : "CrevalNameFre", dataCard.TrainingCreval);
+                ViewData["CREVALId"] = new SelectList(_context.Crevals.AsNoTracking(), "Id", lang == "en" ? "CrevalName" : "CrevalNameFre", PETS.TrainingCREVAL);
                 ViewData["CapabilityId"] = new SelectList(_context.Capabilities.Where(d => d.Archived == false).Where(d => d.Archived == false).AsNoTracking(), "Id", "CapabilityName", dataCard.CapabilityId);
-                ViewData["TrainingSpecialtySkillsId"] = new SelectList(_context.SpecialtySkills.AsNoTracking(), "Id", lang == "en" ? "SpecialtySkillName" : "SpecialtySkillNameFre", dataCard.TrainingSpecialtySkills);
+                ViewData["TrainingSpecialtySkillsId"] = new SelectList(_context.SpecialtySkills.AsNoTracking(), "Id", lang == "en" ? "SpecialtySkillName" : "SpecialtySkillNameFre", PETS.TrainingSpecialtySkillsId);
                 ViewData["CategoryId"] = new SelectList(_context.Categories.OrderBy(x => x.Ordered).Where(d => d.Archived == false).AsNoTracking(), "Id", lang == "en" ? "CategoryName" : "CategoryNameFre", dataCard.CategoryId);
                 ViewData["DesignationId"] = new SelectList(_context.Designations.OrderBy(x => x.Ordered).Where(d => d.Archived == false).AsNoTracking(), "Id", lang == "en" ? "DesignationName" : "DesignationNameFre", dataCard.DesignationId);
                 ViewData["EchelonId"] = new SelectList(_context.Echelons.OrderBy(x => x.Ordered).Where(d => d.Archived == false).AsNoTracking(), "Id", lang == "en" ? "EchelonName" : "EchelonNameFre", dataCard.EchelonId);
@@ -209,12 +209,12 @@ namespace SMARTV3.Controllers
                                      .Include(d => d.DeployedStatus)
                                      .Include(d => d.Designation)
                                      .Include(d => d.Echelon)
-                                     .Include(d => d.EquipmentCombatVehicleStatus)
+                                     /*.Include(d => d.EquipmentCombatVehicleStatus)
                                      .Include(d => d.EquipmentCommunicationsEquipmentStatus)
                                      .Include(d => d.EquipmentSpecialEquipmentStatus)
                                      .Include(d => d.EquipmentStatus)
                                      .Include(d => d.EquipmentSupportVehicleStatus)
-                                     .Include(d => d.EquipmentWeaponsServiceRateStatus)
+                                     .Include(d => d.EquipmentWeaponsServiceRateStatus)*/
                                      .Include(d => d.ForceElement)
                                             .ThenInclude(e => e!.Weighting)
                                      .Include(d => d.ForceElement)
@@ -233,10 +233,10 @@ namespace SMARTV3.Controllers
                                      .Include(d => d.NatoNatSupportElemNavigation)
                                      .Include(d => d.NoticeToMove)
                                      .Include(d => d.Operations)
-                                     .Include(d => d.PersonnelStatus)
+                                     //.Include(d => d.PersonnelStatus)
                                      .Include(d => d.Service)
                                      .Include(d => d.SrStatus)
-                                     .Include(d => d.SustainmentAmmunitionStatus)
+                                     /*.Include(d => d.SustainmentAmmunitionStatus)
                                      .Include(d => d.SustainmentCombatRationsStatus)
                                      .Include(d => d.SustainmentPersonalEquipmentStatus)
                                      .Include(d => d.SustainmentPetrolStatus)
@@ -247,7 +247,7 @@ namespace SMARTV3.Controllers
                                      .Include(d => d.TrainingIndividualTrainingStatus)
                                      .Include(d => d.TrainingStatus)
                                      .Include(d => d.TrainingSpecialtySkills)
-                                     .Include(d => d.TrainingCrevalNavigation);
+                                     .Include(d => d.TrainingCrevalNavigation)*/;
         }
 
         public async Task<IActionResult> Index(string? selectedOrganization, string? selectedConPlan, string? selectedOperation, string? selectedNato, string? selectedStatus, string? selectedDeployedStatus, string? selectedPageSize, int? pageNumber, string? sortOrder, int selectedOverallStatus)
@@ -292,7 +292,7 @@ namespace SMARTV3.Controllers
             }
             if (selectedOverallStatus != 0)
             {
-                dataCards = dataCards.Where(f => (f.CommandOverideStatusId != null && f.CommandOverideStatusId == selectedOverallStatus) || (f.CommandOverideStatusId == null && f.SrStatusId == selectedOverallStatus));
+               // dataCards = dataCards.Where(f => (f.CommandOverideStatusId != null && f.CommandOverideStatusId == selectedOverallStatus) || (f.CommandOverideStatusId == null && f.SrStatusId == selectedOverallStatus));
             }
             if (selectedStatus == "False" || selectedStatus == "True")
             {
@@ -341,11 +341,11 @@ namespace SMARTV3.Controllers
                     break;
 
                 case "commandOverrideReadinessStatus_asc":
-                    dataCards = dataCards.OrderBy(d => d.CommandOverideStatusId);
+                    //dataCards = dataCards.OrderBy(d => d.CommandOverideStatusId);
                     break;
 
                 case "commandOverrideReadinessStatus_desc":
-                    dataCards = dataCards.OrderByDescending(d => d.CommandOverideStatusId);
+                    //dataCards = dataCards.OrderByDescending(d => d.CommandOverideStatusId);
                     break;
 
                 case "deployed_asc":
@@ -357,11 +357,11 @@ namespace SMARTV3.Controllers
                     break;
 
                 case "validityDate_asc":
-                    dataCards = dataCards.OrderBy(d => d.Validitydate);
+                    //dataCards = dataCards.OrderBy(d => d.Validitydate);
                     break;
 
                 case "validityDate_desc":
-                    dataCards = dataCards.OrderByDescending(d => d.Validitydate);
+                    //dataCards = dataCards.OrderByDescending(d => d.Validitydate);
                     break;
             }
 
@@ -555,7 +555,7 @@ namespace SMARTV3.Controllers
                     {
                         ForceElementId = dataCard.ForceElementId,
                         SrStatusId = dataCard.SrStatusId,
-                        CommandOverideStatusId = dataCard.CommandOverideStatusId,
+                       // CommandOverideStatusId = dataCard.CommandOverideStatusId,
                         CommandOverrideComments = dataCard.CommandOverrideComments,
                         NatoGeneralComments = dataCard.NatoGeneralComments,
                         NatoMajorEquipmentComments = dataCard.NatoMajorEquipmentComments,
@@ -563,14 +563,14 @@ namespace SMARTV3.Controllers
                         NatoStratLiftCapacityComments = dataCard.NatoStratLiftCapacityComments,
                         NatoNationalDeployComments = dataCard.NatoNationalDeployComments,
                         NatoNationalAssesmentComments = dataCard.NatoNationalAssesmentComments,
-                        PersonnelStatusId = dataCard.PersonnelStatusId,
+                       /* PersonnelStatusId = dataCard.PersonnelStatusId,
                         PersonnelComments = dataCard.PersonnelComments,
                         TrainingStatusId = dataCard.TrainingStatusId,
                         TrainingComments = dataCard.TrainingComments,
                         EquipmentStatusId = dataCard.EquipmentStatusId,
                         EquipmentComments = dataCard.EquipmentComments,
                         SustainmentStatusId = dataCard.SustainmentStatusId,
-                        SustainmentComments = dataCard.SustainmentComments,
+                        SustainmentComments = dataCard.SustainmentComments,*/
                         DeployedStatusId = dataCard.DeployedStatusId,
                         ChangedDate = DateTime.Now
                     };
@@ -587,7 +587,7 @@ namespace SMARTV3.Controllers
                     _context.ChangeLogs.Add(changeLog);
                     _context.SaveChanges();
 
-                    dataCard.Validitydate = DateTime.Now;
+                    //dataCard.Validitydate = DateTime.Now;
                     dataCard.LastEditDate = DateTime.Now;
 
                     if (user != null)
@@ -608,7 +608,7 @@ namespace SMARTV3.Controllers
                         dataCard.EchelonId = null;
                         dataCard.ServiceId = null;
                         dataCard.NatoCavets = null;
-                        dataCard.NatoFphyesNoBlank = null;
+                        //dataCard.NatoFphyesNoBlank = null;
                         dataCard.Nato12Sdos = null;
                         dataCard.Nato18Sdos = null;
                         dataCard.NatoCurrentSdos = null;
@@ -616,7 +616,7 @@ namespace SMARTV3.Controllers
                         dataCard.NatoRequirementName = null;
                         dataCard.NatoNationalName = null;
                         dataCard.NatoNatSupportElem = null;
-                        dataCard.NatoAfstrainingPercentage = null;
+                        //dataCard.NatoAfstrainingPercentage = null;
 
                         dataCard.NatoEvalCompleted = null;
                         dataCard.NatoPlannedEvalDate = null;
@@ -636,12 +636,12 @@ namespace SMARTV3.Controllers
                         dataCard.NatoStratLiftCapacityId = null;
                     }
 
-                    if (dataCard.CommandOverideStatusId == null)
+                   /* if (dataCard.CommandOverideStatusId == null)
                     {
                         dataCard.CommandOverrideComments = null;
                         dataCard.CommandOverrideAuthority = null;
                     }
-
+                   */
                     int ops = formCollection["Operation"].Count;
                     int cons = formCollection["Conplan"].Count;
 
